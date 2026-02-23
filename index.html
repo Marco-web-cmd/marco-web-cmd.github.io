@@ -326,17 +326,22 @@ async function doLogout(){await SB.auth.signOut();USER=null;D={...D,chantiers:[]
 // ── DATA ──────────────────────────────────────────
 async function loadAll(){
   loader('Chargement de vos données...');
+  // Wrapper qui ne lève jamais d'exception - retourne {data:null,error} si la table n'existe pas
+  async function sq(q){try{return await q;}catch(e){return{data:null,error:{message:String(e)}};}}
   try{
     const[sr,cr,str,mr,clr,dr,fr,mvr]=await Promise.all([
-      SB.from('settings').select('*').eq('user_id',USER.id).maybeSingle(),
-      SB.from('chantiers').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}),
-      SB.from('stocks').select('*').eq('user_id',USER.id).order('libelle'),
-      SB.from('materiaux').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}),
-      SB.from('clients').select('*').eq('user_id',USER.id).order('nom'),
-      SB.from('devis_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}),
-      SB.from('factures').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}),
-      SB.from('mouvements').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(200)
+      sq(SB.from('settings').select('*').eq('user_id',USER.id).maybeSingle()),
+      sq(SB.from('chantiers').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
+      sq(SB.from('stocks').select('*').eq('user_id',USER.id).order('libelle')),
+      sq(SB.from('materiaux').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
+      sq(SB.from('clients').select('*').eq('user_id',USER.id).order('nom')),
+      sq(SB.from('devis_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
+      sq(SB.from('factures').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
+      sq(SB.from('mouvements').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(200))
     ]);
+    if(dr.error)console.warn('Table devis_docs manquante - exécutez le schema.sql');
+    if(fr.error)console.warn('Table factures manquante - exécutez le schema.sql');
+    if(mvr.error)console.warn('Table mouvements manquante - exécutez le schema.sql');
     if(sr.data){
       D.settings={
         company:sr.data.company||'',trade:sr.data.trade||'',phone:sr.data.phone||'',email:sr.data.email||'',
@@ -348,8 +353,8 @@ async function loadAll(){
     D.chantiers=cr.data||[];D.stocks=str.data||[];D.materiaux=mr.data||[];
     D.clients=clr.data||[];D.devis_docs=dr.data||[];D.factures=fr.data||[];D.mouvements=mvr.data||[];
     hideLoader();
-    if(!sr.data){
-      // Premier accès : onboarding
+    // Onboarding seulement si settings n'existe vraiment pas (pas d'erreur réseau)
+    if(!sr.data&&!sr.error){
       $('onboarding').style.display='flex';
       obRenderMetrics();obRenderCats();
     } else {
