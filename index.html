@@ -873,8 +873,21 @@ function printFiche(cid){
 }
 
 // ── BOOT ──────────────────────────────────────────
+let _bootDone=false;
+function _bootDone_set(){_bootDone=true;}
+
+// Timeout de sécurité : si Supabase ne répond pas en 6s, afficher l'écran de connexion
+setTimeout(()=>{
+  if(!_bootDone){
+    console.warn('BatiPilot: timeout auth - affichage écran connexion');
+    hideLoader();
+    $('auth-screen').style.display='flex';
+  }
+},6000);
+
 SB.auth.onAuthStateChange(async(event,session)=>{
-  console.log('Auth event:',event,'user:',session?.user?.email);
+  console.log('Auth event:',event,'user:',session?.user?.email||'none');
+  _bootDone_set();
   if(session?.user){
     USER=session.user;
     $('auth-screen').style.display='none';
@@ -887,6 +900,19 @@ SB.auth.onAuthStateChange(async(event,session)=>{
     $('onboarding').style.display='none';
   }
 });
+
+// Vérification immédiate de la session existante (fallback)
+(async()=>{
+  const {data:{session}}=await SB.auth.getSession();
+  if(session?.user&&!_bootDone){
+    console.log('Session récupérée via getSession()');
+    _bootDone_set();
+    USER=session.user;
+    $('auth-screen').style.display='none';
+    $('onboarding').style.display='none';
+    await loadAll();
+  }
+})();
 </script>
 </body>
 </html>
