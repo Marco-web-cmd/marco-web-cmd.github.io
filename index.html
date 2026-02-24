@@ -403,7 +403,7 @@ function obRenderCats(){const el=$('ob-cats');if(!el)return;el.innerHTML=OB.cats
 function obAddTeam(){const v=$('ob-team').value.trim();if(v&&!OB.teams.includes(v)){OB.teams.push(v);obRenderTeams();}$('ob-team').value='';}
 function obAddCat(){const v=$('ob-cat').value.trim();if(v&&!OB.cats.includes(v)){OB.cats.push(v);obRenderCats();}$('ob-cat').value='';}
 function obNext(n){
-  if(n===1&&!$('ob-company').value.trim()){toast('Nom de l\'entreprise requis','error');return;}
+  if(n===1&&!$('ob-company').value.trim()){toast("Nom de l'entreprise requis", 'error');return;}
   $('step-'+OB.step).classList.remove('active');$('dot-'+OB.step).classList.remove('active');
   OB.step=n;$('step-'+OB.step).classList.add('active');$('dot-'+OB.step).classList.add('active');
   if(n===1)obRenderMetrics();
@@ -432,7 +432,7 @@ async function obFinish(){
 const PAGE_TITLES={dashboard:'Tableau de bord',chantiers:'Chantiers',devis:'Devis',appro:'Approvisionnement',stock:'Stock Dépôt',clients:'Clients',planning:'Planning',finances:'Finances',abonnement:'Abonnement',settings:'Paramètres'};
 function go(page){
   D.page=page;
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.getAttribute('onclick')===('go(\''+ page+'\')') ));
+  document.querySelectorAll('.nav-item').forEach(el=>{try{const fn=el.getAttribute('onclick')||'';const active=fn.includes(page);el.classList.toggle('active',active);}catch(e){}});
   $('topbar-title').textContent=PAGE_TITLES[page]||page;
   $('t-sec').style.display=$('t-pri').style.display='none';
   const pages={dashboard:pgDashboard,chantiers:pgChantiers,devis:pgDevis,appro:pgAppro,stock:pgStock,clients:pgClients,planning:pgPlanning,finances:pgFinances,abonnement:pgAbonnement,settings:pgSettings};
@@ -567,7 +567,7 @@ async function saveAndPrintDevis(){
 function modalFactureCreate(chantierId){
   const chOpts=D.chantiers.map(c=>`<option value="${c.id}" ${c.id===chantierId?'selected':''}>${c.nom} — ${c.client||''}</option>`).join('');
   const body=`<div class="form-row form-row-2"><div class="form-group"><label>N° Facture</label><input id="fa-num" placeholder="F2024-001"></div><div class="form-group"><label>Date</label><input id="fa-date" type="date" value="${today()}"></div></div><div class="form-row form-row-2"><div class="form-group"><label>Fournisseur</label><input id="fa-fourn" placeholder="Point P, Leroy Merlin..."></div><div class="form-group"><label>Montant TTC (€)</label><input id="fa-mont" type="number" min="0" step="0.01" value="0"></div></div><div class="form-row form-row-2"><div class="form-group"><label>Chantier lié</label><select id="fa-ch"><option value="">— Aucun —</option>${chOpts}</select></div><div class="form-group"><label>Catégorie</label><select id="fa-cat"><option>Matériaux</option><option>Outillage</option><option>Sous-traitance</option><option>Frais généraux</option></select></div></div><div class="form-row form-row-2"><div class="form-group"><label>Statut paiement</label><select id="fa-payee"><option value="false">En attente</option><option value="true">Payée</option></select></div><div class="form-group"><label>Référence</label><input id="fa-ref" placeholder="Archivage interne..."></div></div><div class="form-group"><label>Notes</label><textarea id="fa-notes" style="min-height:50px"></textarea></div>`;
-  modal('Ajouter une facture d\'achat',body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveFacture()">💾 Enregistrer</button>`);
+  modal("Ajouter une facture d'achat",body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveFacture()">💾 Enregistrer</button>`);
 }
 async function saveFacture(){
   const data={id:uid(),numero:$('fa-num').value.trim(),date:$('fa-date').value,fournisseur:$('fa-fourn').value.trim(),chantier_id:$('fa-ch').value||null,montant:+$('fa-mont').value||0,categorie:$('fa-cat').value,payee:$('fa-payee').value==='true',ref:$('fa-ref').value.trim(),notes:$('fa-notes').value};
@@ -832,7 +832,7 @@ function printBon(cid){
   const rows=mats.map(m=>`<tr><td style="border:1px solid #eee;padding:8px 12px;font-family:monospace;font-size:11px;color:#aaa">${m.ref||'—'}</td><td style="border:1px solid #eee;padding:8px 12px;font-weight:600">${m.designation}</td><td style="border:1px solid #eee;padding:8px 12px;text-align:center">${m.qte} ${m.unite||''}</td><td style="border:1px solid #eee;padding:8px 12px;text-align:center"><span style="background:${m.statut==='Livré'?'#D4EDDE':m.statut==='Commandé'?'#FFF3CD':'#DBEAFE'};color:${m.statut==='Livré'?'#2D7A4F':m.statut==='Commandé'?'#B8860B':'#1D4ED8'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">${m.statut||'—'}</span></td><td style="border:1px solid #eee;padding:8px 12px;text-align:center;font-size:20px">☐</td></tr>`).join('');
   const w=window.open('','_blank');
   w.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Bon — ${c.nom}</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Segoe UI',Arial,sans-serif;color:#1C1E22;font-size:14px;}.page{max-width:850px;margin:0 auto;padding:50px 40px;}table{width:100%;border-collapse:collapse;}thead th{background:#1C1E22;color:white;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;text-align:left;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style></head><body><div class="page">
-  ${docHeader('Bon d\'intervention')}
+  ${docHeader("Bon d'intervention")}
   <div style="font-size:30px;font-weight:900;color:#C0622A;letter-spacing:-1px;margin-bottom:20px">BON D'INTERVENTION</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
     <div style="background:#F4F1EC;padding:18px;border-radius:10px">
