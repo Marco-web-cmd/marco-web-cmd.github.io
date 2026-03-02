@@ -25,7 +25,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--border:#DDD9D2;--border-dark:#C8C4BC;--shadow-sm:0 1px 3px rgba(28,30,34,0.08);--shadow-md:0 4px 16px rgba(28,30,34,0.10);--shadow-lg:0 8px 32px rgba(28,30,34,0.14);--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--font-display:'Fraunces',serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;--transition:all 0.18s cubic-bezier(0.4,0,0.2,1);}
+:root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--info:#1D4ED8;--info-soft:#DBEAFE;--purple:#7C3AED;--purple-soft:#EDE9FE;--border:#DDD9D2;--border-dark:#C8C4BC;--shadow-sm:0 1px 3px rgba(28,30,34,0.08);--shadow-md:0 4px 16px rgba(28,30,34,0.10);--shadow-lg:0 8px 32px rgba(28,30,34,0.14);--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--sp-xs:4px;--sp-sm:8px;--sp-md:16px;--sp-lg:24px;--sp-xl:32px;--sp-2xl:48px;--font-display:'Fraunces',serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;--transition:all 0.18s cubic-bezier(0.4,0,0.2,1);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;}body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
 #loader{position:fixed;inset:0;background:var(--bg-sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3000;}
@@ -104,10 +104,10 @@ tbody tr{border-bottom:1px solid var(--border);transition:var(--transition);}tbo
 tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 .td-muted{color:var(--text-muted);font-size:12.5px;}.td-mono{font-family:var(--font-mono);font-size:12px;}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
-.badge-blue{background:#DBEAFE;color:#1D4ED8;}.badge-green{background:var(--success-soft);color:var(--success);}
+.badge-blue{background:var(--info-soft);color:var(--info);}.badge-green{background:var(--success-soft);color:var(--success);}
 .badge-orange{background:var(--warning-soft);color:var(--warning);}.badge-red{background:var(--danger-soft);color:var(--danger);}
 .badge-gray{background:var(--bg-input);color:var(--text-muted);}.badge-copper{background:var(--accent-soft);color:var(--accent-dark);}
-.badge-purple{background:#EDE9FE;color:#7C3AED;}
+.badge-purple{background:var(--purple-soft);color:var(--purple);}
 .modal-overlay{position:fixed;inset:0;background:rgba(28,30,34,0.55);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.2s;padding:20px;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal{background:var(--bg-card);border-radius:var(--radius-lg);padding:28px 32px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform 0.2s;}
@@ -175,24 +175,70 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 .color-chip{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:var(--transition);}
 .color-chip.selected{border-color:var(--text);transform:scale(1.15);}
 ::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border-dark);border-radius:3px;}
+
+
+/* ── Indicateur Hors-ligne ─────────────────────────────────────── */
+#offline-indicator{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--danger);color:#fff;font-size:12px;font-weight:600;padding:7px 16px;align-items:center;justify-content:center;gap:8px;}
+#offline-badge{display:none;position:fixed;bottom:80px;left:16px;z-index:9000;background:rgba(0,0,0,0.75);color:#fff;font-size:11px;font-weight:600;padding:6px 12px;border-radius:20px;align-items:center;gap:6px;backdrop-filter:blur(4px);}
+#offline-badge.visible{display:flex;}
+
+/* ── Skeleton Loader ───────────────────────────────────── */
+.skeleton{background:linear-gradient(90deg,var(--bg-input) 25%,var(--bg-card) 50%,var(--bg-input) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--radius-sm);}
+
+/* ── Utilitaires inline → classes (purification) ──────────────── */
+.u-card-title{font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.u-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
+.u-flex-between{display:flex;justify-content:space-between;align-items:center;}
+.u-flex-center{display:flex;justify-content:center;align-items:center;}
+.u-text-accent{color:var(--accent);}
+.u-text-muted{color:var(--text-muted);}
+.u-text-xs{font-size:11px;}
+.u-text-sm{font-size:13px;}
+.u-text-lg{font-size:18px;}
+.u-text-xl{font-size:20px;}
+.u-text-2xl{font-size:24px;}
+.u-fw-700{font-weight:700;}
+.u-mt-sm{margin-top:var(--sp-sm);}
+.u-mt-md{margin-top:var(--sp-md);}
+.u-mb-sm{margin-bottom:var(--sp-sm);}
+.u-mb-md{margin-bottom:var(--sp-md);}
+.u-hidden{display:none!important;}
+.u-w-full{width:100%;}
+.u-gap-sm{gap:var(--sp-sm);}
+.u-gap-md{gap:var(--sp-md);}
+
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-line{height:14px;margin-bottom:10px;border-radius:6px;}
+.skeleton-card{padding:20px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border);margin-bottom:12px;}
+.skeleton-title{height:20px;width:40%;margin-bottom:16px;border-radius:6px;}
+
 @media(max-width:768px){#sidebar{display:none;}.form-row-2,.form-row-3,.form-row-4{grid-template-columns:1fr;}.grid-2{grid-template-columns:1fr;}.kpi-grid{grid-template-columns:1fr 1fr;}}
 
 /* ════ CONDUCTEUR DE TRAVAUX ════ */
 /* Switcher de mode */
-#mode-switcher{position:fixed;top:12px;right:16px;z-index:500;display:none;}
+#mode-switcher{position:fixed;top:14px;right:20px;z-index:600;display:none;}
 #mode-switcher.visible{display:flex;}
 .mode-pill{display:flex;background:var(--bg-sidebar);border-radius:30px;padding:4px;gap:2px;box-shadow:var(--shadow-md);}
 .mode-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--font-body);color:rgba(255,255,255,0.45);background:transparent;transition:var(--transition);}
 .mode-btn.active{background:var(--accent);color:#fff;}
 /* Page conducteur */
-#conducteur-app{display:none;height:100vh;overflow:hidden;flex-direction:column;background:var(--bg);}
-#conducteur-app.visible{display:flex;}
+/* Desktop : conducteur s'intègre dans le layout existant */
+#conducteur-app{display:none;}
+#conducteur-app.visible{display:flex;flex-direction:column;}
+@media(min-width:769px){
+  #conducteur-app.visible{position:fixed;top:0;left:var(--sidebar-w);right:0;bottom:0;z-index:50;background:var(--bg);}
+  #ct-nav.visible{left:var(--sidebar-w)!important;}
+}
+@media(max-width:768px){
+  #conducteur-app.visible{position:fixed;inset:0;z-index:100;}
+}
 #ct-topbar{height:56px;background:var(--bg-sidebar);display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0;}
 .ct-logo{font-family:var(--font-display);font-size:17px;font-weight:900;color:#fff;display:flex;align-items:center;gap:8px;}
 .ct-logo-badge{background:var(--accent);padding:2px 10px;border-radius:20px;font-size:10px;letter-spacing:1px;text-transform:uppercase;}
 #ct-content{flex:1;overflow-y:auto;padding:16px 14px 88px;}
 /* Bottom nav conducteur */
-#ct-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--bg-sidebar);border-top:1px solid rgba(255,255,255,0.08);display:none;align-items:center;justify-content:space-around;padding:0 4px;padding-bottom:env(safe-area-inset-bottom);}
+#ct-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--bg-sidebar);border-top:1px solid rgba(255,255,255,0.08);display:none;align-items:center;justify-content:space-around;padding:0 4px;padding-bottom:env(safe-area-inset-bottom);z-index:60;}
+#ct-nav.visible{display:flex;}
 #ct-nav.visible{display:flex;}
 .ct-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;color:rgba(255,255,255,0.4);flex:1;border:none;background:transparent;font-family:var(--font-body);transition:var(--transition);}
 .ct-nav-btn.active{color:var(--accent);}
@@ -286,7 +332,8 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 </style>
 </head>
 <body>
-<div id="offline-indicator" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--danger);color:#fff;font-size:12px;font-weight:600;padding:6px 16px;align-items:center;justify-content:center;gap:8px"></div>
+<div id="offline-indicator"></div>
+<div id="offline-badge">🔴 Mode Hors-ligne — Lecture seule</div>
 <div id="loader" style="display:none"><div class="loader-logo">Bati<span>Pilot</span></div><div class="spinner"></div><div class="loader-text" id="loader-text">Chargement...</div></div>
 
 <div id="auth-screen" style="display:flex">
@@ -307,8 +354,13 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
     <div id="tab-signup" style="display:none">
       <div class="form-group"><label>Email</label><input id="s-email" type="email" placeholder="votre@email.fr" autocomplete="email"></div>
       <div class="form-group"><label>Mot de passe</label><input id="s-pwd" type="password" placeholder="Minimum 6 caractères" autocomplete="new-password"></div>
-      <div class="form-group"><label>Confirmer</label><input id="s-pwd2" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doSignup()" autocomplete="new-password"></div>
-      <button class="btn btn-primary w-full" onclick="doSignup()" style="padding:12px;font-size:15px;margin-top:8px">Créer mon compte →</button>
+      <div class="form-group"><label>Confirmer</label><input id="s-pwd2" type="password" placeholder="••••••••" autocomplete="new-password"></div>
+      <div class="form-group"><label style="font-size:12px;color:var(--text-muted)">Code partenaire <span style="font-weight:400">(optionnel)</span></label><input id="s-code" type="text" placeholder="Ex: PARTENAIRE2024" style="font-size:13px"></div>
+      <label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;background:var(--bg-input);border-radius:8px;cursor:pointer">
+        <input type="checkbox" id="s-rgpd" style="margin-top:2px;flex-shrink:0">
+        <span style="font-size:12px;color:var(--text-muted);line-height:1.6">J'accepte les <a href="#" onclick="event.stopPropagation();go('legal')" style="color:var(--accent)">CGV</a> et la <a href="#" onclick="event.stopPropagation();go('rgpd')" style="color:var(--accent)">politique de confidentialité</a>. Données hébergées en Europe.</span>
+      </label>
+      <button class="btn btn-primary w-full" onclick="doSignup()" style="padding:12px;font-size:15px;margin-top:4px">🚀 Créer mon compte — 30 jours gratuits</button>
     </div>
     <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted)">🔒 Données sécurisées · 1er mois offert</div>
   </div>
@@ -425,7 +477,7 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div><span id="ct-company-tag" style="font-size:11px;color:var(--accent);font-weight:700"></span><span id="ct-chantier-tag" style="font-size:11px;color:rgba(255,255,255,0.45);display:block;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span></div>
-      <button onclick="switchMode('patron')" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit">← Bureau</button>
+      <button onclick="switchMode('patron')" style="background:var(--accent);border:none;color:white;padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:5px">← Retour Bureau</button>
     </div>
   </div>
   <div id="ct-content"><!-- rempli par JS --></div>
@@ -541,6 +593,7 @@ function switchMode(mode) {
     navCT.classList.add('visible');
     btnPatron && btnPatron.classList.remove('active');
     btnCond   && btnCond.classList.add('active');
+    switcher && switcher.classList.remove('visible'); // caché en mode terrain
     // Pré-sélectionner le premier chantier en cours
     if (!CT.chantierId) {
       const ch = D.chantiers.find(c => c.etat === 'En cours') || D.chantiers[0];
@@ -556,6 +609,7 @@ function switchMode(mode) {
     navMain && navMain.classList.add('visible');
     btnCond   && btnCond.classList.remove('active');
     btnPatron && btnPatron.classList.add('active');
+    switcher && switcher.classList.add('visible'); // remis visible
     go(D.page || 'dashboard');
   }
 }
@@ -843,7 +897,8 @@ async function ctSavePrelevement() {
     const s = D.stocks.find(x => x.id === stockId);
     if (s) {
       s.qte = Math.max(0, (+s.qte || 0) - qte);
-      await SB.from('stocks').update({ qte: s.qte }).eq('id', stockId).eq('user_id', USER.id);
+      try { await SB.from('stocks').update({ qte: s.qte }).eq('id', stockId).eq('user_id', USER.id); }
+      catch(e) { toast('Erreur mise à jour stock: ' + (e.message||e), 'error'); }
     }
   }
 
@@ -1023,7 +1078,8 @@ async function ctToggleLivre(itemId) {
   const item = (D.bl_items||[]).find(b => b.id === itemId);
   if (!item) return;
   item.statut = item.statut === 'Livré' ? 'En attente' : 'Livré';
-  await SB.from('bl_items').update({ statut: item.statut }).eq('id', itemId).eq('user_id', USER.id);
+  try { await SB.from('bl_items').update({ statut: item.statut }).eq('id', itemId).eq('user_id', USER.id); }
+  catch(e) { toast('Erreur mise à jour livraison', 'error'); }
   toast(item.statut === 'Livré' ? '✅ Marqué livré' : 'Remis en attente');
   ctPageBL();
 }
@@ -1363,7 +1419,7 @@ async function loadBLItems() {
         notes: (b.commentaire||'').includes('\n') ? b.commentaire.split('\n').slice(1).join('\n') : '',
       }));
     }
-  } catch(e) { console.warn('bl_items not loaded:', e.message); D.bl_items = []; D.ct_docs = []; }
+  } catch(e) { D.bl_items = []; D.ct_docs = []; }
 }
 
 
@@ -1409,18 +1465,20 @@ function getMetricsValues(){const ms=(D.settings.metrics||[]).filter(m=>m.label&
 function switchTab(t){['login','signup'].forEach((x,i)=>{$(x==='login'?'tab-login':'tab-signup').style.display=x===t?'block':'none';document.querySelectorAll('.auth-tab')[i].classList.toggle('active',x===t);});$('auth-msg').style.display='none';}
 function authMsg(msg,type){const m=$('auth-msg');m.textContent=msg;m.className=`auth-msg ${type}`;m.style.display='block';}
 async function doLogin(){
+  try{
   const email=$('l-email').value.trim(),pwd=$('l-pwd').value;
   if(!email||!pwd){authMsg('Email et mot de passe requis','error');return;}
   loader('Connexion...');
   const {error}=await SB.auth.signInWithPassword({email,password:pwd});
   if(error){hideLoader();$('auth-screen').style.display='flex';authMsg('Email ou mot de passe incorrect','error');}
   // Si succès: onAuthStateChange prend la main
-}
-async function doSignup(){
+  }catch(e){toast('Erreur réseau : '+e.message,'error');hideLoader&&hideLoader();}
+}async function doSignup(){
   const email=$('s-email').value.trim(),pwd=$('s-pwd').value,pwd2=$('s-pwd2').value;
   if(!email||!pwd){authMsg('Email et mot de passe requis','error');return;}
   if(pwd!==pwd2){authMsg('Les mots de passe ne correspondent pas','error');return;}
   if(pwd.length<6){authMsg('Mot de passe trop court (min. 6 caractères)','error');return;}
+  const rgpd=$('s-rgpd');if(rgpd&&!rgpd.checked){authMsg('Veuillez accepter les CGV et la politique de confidentialité','error');return;}
   loader('Création du compte...');
   const {data,error}=await SB.auth.signUp({email,password:pwd});
   hideLoader();$('auth-screen').style.display='flex';
@@ -1429,14 +1487,41 @@ async function doSignup(){
   if(data.session){return;} // onAuthStateChange gérera la suite
   authMsg('✅ Compte créé ! Connectez-vous maintenant pour configurer votre espace.','success');
   switchTab('login');
+  // Initialiser trial_ends_at J+30 pour le nouvel utilisateur
+  if (data.user) {
+    var trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
+    SB.from('settings').upsert({
+      user_id: data.user.id,
+      trial_ends_at: trialEnd.toISOString().slice(0,10),
+      subscription_status: 'trial',
+      plan: 'gratuit'
+    }, {onConflict: 'user_id'}).then(function(){});
+  }
   // Pré-remplir l'email pour faciliter la connexion
   try{$('l-email').value=$('s-email').value;}catch(e){}
 }
-async function resetPwd(){const email=prompt('Votre adresse email :');if(!email)return;const{error}=await SB.auth.resetPasswordForEmail(email);if(error)toast('Erreur : '+error.message,'error');else toast('Email de réinitialisation envoyé !');}
+async function resetPwd(){
+  try{const email=prompt('Votre adresse email :');if(!email)return;const{error}=await SB.auth.resetPasswordForEmail(email);if(error)toast('Erreur : '+error.message,'error');else toast('Email de réinitialisation envoyé !');}catch(e){toast('Erreur réseau : '+e.message,'error');}
+}
 async function doLogout(){await SB.auth.signOut();USER=null;D={...D,chantiers:[],stocks:[],materiaux:[],clients:[],mouvements:[],devis_docs:[],factures:[]};$('app').classList.remove('visible');$('auth-screen').style.display='flex';toast('Déconnecté','error');}
 
 // ── DATA ──────────────────────────────────────────
+
+function showSkeletonLoader(n) {
+  n = n || 4;
+  var cards = '';
+  for (var i = 0; i < n; i++) {
+    cards += '<div class="skeleton-card"><div class="skeleton skeleton-title"></div>'
+      + '<div class="skeleton skeleton-line"></div>'
+      + '<div class="skeleton skeleton-line" style="width:70%"></div>'
+      + '<div class="skeleton skeleton-line" style="width:55%"></div>'
+    + '</div>';
+  }
+  var el = $('content');
+  if (el) el.innerHTML = '<div class="page-header"><div class="skeleton skeleton-title" style="width:200px;height:24px"></div></div>' + cards;
+}
 async function loadAll(){
+  showSkeletonLoader(4);
   loader('Chargement de vos données...');
   // Wrapper avec timeout : retourne {data:null,error} si la requête échoue ou dépasse 10s
   function sq(q){
@@ -1459,11 +1544,11 @@ async function loadAll(){
       sq(SB.from('bl_items').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(500)),
       sq(SB.from('ct_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}))
     ]);
-    if(sr.error)console.warn('settings error:',sr.error.message);
-    if(cr.error)console.warn('chantiers error:',cr.error.message);
-    if(dr.error)console.warn('Table devis_docs manquante - exécutez le schema.sql');
-    if(fr.error)console.warn('Table factures manquante - exécutez le schema.sql');
-    if(mvr.error)console.warn('Table mouvements manquante - exécutez le schema.sql');
+    if(sr.error)// settings non trouvés → première connexion
+    if(cr.error)// chantiers non trouvés
+    if(dr.error)// table devis_docs absente
+    if(fr.error)// table factures absente
+    if(mvr.error)// table mouvements absente
     if(sr.data){
       D.settings={
         company:sr.data.company||'',trade:sr.data.trade||'',phone:sr.data.phone||'',email:sr.data.email||'',
@@ -1473,7 +1558,10 @@ async function loadAll(){
         devis_mentions:sr.data.devis_mentions||'Devis valable 30 jours.',
         teams:sr.data.teams||[],categories:sr.data.categories||['Matériaux','Consommable','Outillage'],
         accent_color:sr.data.accent_color||'#C0622A',metrics:sr.data.metrics||JSON.parse(JSON.stringify(DM)),
-        plan:sr.data.plan||'gratuit'
+        plan:sr.data.plan||'gratuit',
+        trial_start:sr.data.trial_start||null,
+        trial_ends_at:sr.data.trial_ends_at||null,
+        subscription_status:sr.data.subscription_status||'trial'
       };
     }
     D.chantiers=cr.data||[];D.stocks=str.data||[];D.materiaux=mr.data||[];
@@ -1482,8 +1570,8 @@ async function loadAll(){
     D.notes_chantier=ncr.data||[];
     D.bl_items=blr.data||[];
     D.ct_docs=docr.data||[];
-    if(blr.error)console.warn('Table bl_items manquante - exécutez schema_v6.sql');
-    if(docr.error)console.warn('Table ct_docs manquante - exécutez schema_v6.sql');
+    if(blr.error)// table bl_items absente
+    if(docr.error)// table ct_docs absente
     hideLoader();
     // Onboarding si premier démarrage (pas de settings, pas d'erreur réseau)
     const noSettings=!sr.data&&!sr.error;
@@ -1495,7 +1583,7 @@ async function loadAll(){
     }
   }catch(e){
     hideLoader();
-    console.error('loadAll error',e);
+    toast('Erreur de chargement. Vérifiez votre connexion.','error');
     toast('Erreur : '+e.message,'error');
     launchApp();
   }
@@ -1514,10 +1602,21 @@ function launchApp(){
   // Afficher nav mobile
   const nav=$('mobile-nav');
   if(nav)nav.classList.add('visible');
+  // Afficher le switcher Bureau/Terrain
+  const sw=$('mode-switcher');
+  if(sw)sw.classList.add('visible');
   go('dashboard');
+  setTimeout(checkPaywall, 1500);
+  initOfflineSupport();
 }
 async function saveSetting(){
+  try{
   showSync();
+  // Initialiser trial_ends_at à J+30 si pas encore défini
+  if (!D.settings.trial_ends_at) {
+    var trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
+    D.settings.trial_ends_at = trialEnd.toISOString().slice(0, 10);
+  }
   const p={
     user_id:USER.id,company:D.settings.company,trade:D.settings.trade,phone:D.settings.phone,
     email:D.settings.email,adresse:D.settings.adresse,siret:D.settings.siret,
@@ -1527,16 +1626,18 @@ async function saveSetting(){
     devis_couleur:D.settings.devis_couleur||'#2D3E8C',
     devis_acompte:D.settings.devis_acompte??30,
     devis_conditions:D.settings.devis_conditions||'',
-    devis_mentions:D.settings.devis_mentions||''
+    devis_mentions:D.settings.devis_mentions||'',
+    trial_ends_at:D.settings.trial_ends_at,
+    subscription_status:D.settings.subscription_status||'trial'
   };
   const {error}=await SB.from('settings').upsert(p,{onConflict:'user_id'});
   hideSync();
-  if(error)console.error('saveSetting error',error);
-}
-async function upsert(table,row){showSync();const{error}=await SB.from(table).upsert({...row,user_id:USER.id});hideSync();if(error){toast('Erreur : '+error.message,'error');console.error(error);}return!error;}
-async function insert(table,row){showSync();const{data,error}=await SB.from(table).insert({...row,user_id:USER.id}).select().single();hideSync();if(error){toast('Erreur : '+error.message,'error');console.error(error);return null;}return data;}
-async function del(table,id){showSync();const{error}=await SB.from(table).delete().eq('id',id).eq('user_id',USER.id);hideSync();if(error)console.error(error);}
-async function recalcChantier(cid){const c=D.chantiers.find(x=>x.id===cid);if(!c)return;const mats=D.materiaux.filter(m=>m.chantier_id===cid);c.cout_mat=mats.reduce((a,m)=>a+(+m.total||0),0);c.marge=(+c.devis||0)-c.cout_mat;await SB.from('chantiers').update({cout_mat:c.cout_mat,marge:c.marge}).eq('id',cid).eq('user_id',USER.id);}
+  if(error)toast('Erreur de sauvegarde des paramètres.','error');
+  }catch(e){toast('Erreur sauvegarde : '+e.message,'error');hideSync();}
+}async function upsert(table,row){showSync();try{const{error}=await SB.from(table).upsert({...row,user_id:USER.id});hideSync();if(error){toast('Erreur : '+error.message,'error');return false;}return true;}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');return false;}}
+async function insert(table,row){showSync();try{const{data,error}=await SB.from(table).insert({...row,user_id:USER.id}).select().single();hideSync();if(error){toast('Erreur : '+error.message,'error');return null;}return data;}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');return null;}}
+async function del(table,id){showSync();try{const{error}=await SB.from(table).delete().eq('id',id).eq('user_id',USER.id);hideSync();if(error){toast('Erreur de suppression : '+error.message,'error');}}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');}}
+async function recalcChantier(cid){const c=D.chantiers.find(x=>x.id===cid);if(!c)return;const mats=D.materiaux.filter(m=>m.chantier_id===cid);c.cout_mat=mats.reduce((a,m)=>a+(+m.total||0),0);c.marge=(+c.devis||0)-c.cout_mat;try{await SB.from('chantiers').update({cout_mat:c.cout_mat,marge:c.marge}).eq('id',cid).eq('user_id',USER.id);}catch(e){toast('Erreur sync marge : '+e.message,'error');}}
 
 // ── ONBOARDING ────────────────────────────────────
 function obRenderMetrics(){const el=$('ob-metrics-list');if(!el)return;el.innerHTML=OB.metrics.map((m,i)=>`<div class="metric-row"><div class="form-group" style="margin:0"><label>Métrique ${i+1}</label><input placeholder="Ex: Sol m², Nb prises..." value="${m.label}" oninput="OB.metrics[${i}].label=this.value"></div><div class="form-group" style="margin:0"><label>Unité</label><input placeholder="m², h..." value="${m.unit}" oninput="OB.metrics[${i}].unit=this.value"></div><div style="align-self:flex-end;padding-bottom:2px"><button class="btn btn-ghost btn-sm" onclick="OB.metrics.splice(${i},1);obRenderMetrics()" style="color:var(--danger);padding:6px">×</button></div></div>`).join('');}
@@ -1806,7 +1907,7 @@ async function delChantier(id){
     return;
   }
   const warnMats=mats.length>0?`\n⚠️ ${mats.length} matériau(x) lié(s) seront aussi supprimés.`:'';
-  if(!confirm(`Supprimer le chantier "${ch.nom}" ?${warnMats}\n\nCette action est IRRÉVERSIBLE.`))return;
+  // Suppression déléguée à delChantierSafe()
   D.chantiers=D.chantiers.filter(c=>c.id!==id);
   D.materiaux=D.materiaux.filter(m=>m.chantier_id!==id);
   await del('chantiers',id);
@@ -1917,7 +2018,8 @@ function openFicheChantier(cid){
 async function togglePaiement(fid,payee,cid){
   const f=D.factures.find(x=>x.id===fid);if(!f)return;
   f.payee=payee;
-  await SB.from('factures').update({payee}).eq('id',fid).eq('user_id',USER.id);
+  try { await SB.from('factures').update({payee}).eq('id',fid).eq('user_id',USER.id); }
+  catch(e) { toast('Erreur paiement: '+(e.message||''), 'error'); }
   toast(payee?'Facture marquée payée !':'Facture marquée en attente');
   openChantierDocs(cid);
 }
@@ -2739,11 +2841,21 @@ function buildDevisHTML(dvId){
     +'<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">'
     +'<style>'
     +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'body{font-family:"DM Sans",Arial,sans-serif;color:#1C1E22;font-size:13px;background:#fff}'
+    +'body{font-family:"DM Sans",Arial,sans-serif;color:#1C1E22;font-size:12px;background:#fff;line-height:1.5}'
     +'.page{max-width:800px;margin:0 auto;padding:0}'
+    +'h1{font-size:22px;font-weight:800;letter-spacing:-0.5px}'
+    +'h2{font-size:14px;font-weight:700;letter-spacing:-0.2px}'
+    +'h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px}'
+    +'p{margin:0 0 4px}'
+    +'table{border-collapse:collapse;width:100%}'
+    +'th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px}'
+    +'td{font-size:11.5px;vertical-align:middle}'
+    +'.no-print{display:none}'
     +'@media print{'
-      +'@page{margin:10mm 14mm;size:A4}'
-      +'body{-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+      +'@page{margin:14mm 18mm;size:A4}'
+      +'body{font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+      +'h1{font-size:20px}'
+      +'.page-break{page-break-before:always}'
     +'}'
     +'</style></head><body><div class="page">'
 
@@ -3037,7 +3149,7 @@ async function startApp(user) {
     hideLoader();
     $('auth-screen').style.display = 'flex';
     authMsg('Erreur de connexion. Vérifiez votre réseau et réessayez.', 'error');
-    console.error('startApp error:', e);
+    toast('Erreur de démarrage. Rechargez la page.','error');
   }
 }
 
@@ -3050,7 +3162,7 @@ async function startApp(user) {
     }
     // Sinon auth-screen reste visible
   } catch(e) {
-    console.warn('getSession error:', e);
+    // session silencieuse
   }
 })();
 
@@ -3163,13 +3275,13 @@ async function uploadPhotoToStorage(base64DataUrl, itemId) {
     const { error } = await SB.storage.from('photos').upload(path, blob, {
       upsert: true, contentType: 'image/jpeg'
     });
-    if (error) { console.warn('Photo upload error:', error.message); return base64DataUrl; }
+    if (error) { return base64DataUrl; } // upload photo silencieux
 
     // Retourner l'URL publique signée (1 an)
     const { data } = SB.storage.from('photos').getPublicUrl(path);
     return data?.publicUrl || base64DataUrl;
   } catch(e) {
-    console.warn('uploadPhotoToStorage:', e.message);
+    // upload silencieux
     return base64DataUrl; // fallback base64 si Storage non configuré
   }
 }
@@ -3185,17 +3297,17 @@ async function getPhotoUrl(photoField) {
 // ══ ONBOARDING — Données démo ════════════════════════════════════
 async function loadDemoData() {
   if (!USER) return;
-  const confirmed = confirm(
-    '🎬 Charger des données de démonstration ?\n\n' +
-    'Cela va créer :\n' +
-    '• 3 chantiers exemples\n' +
-    '• 2 clients exemples\n' +
-    '• 2 devis exemples\n' +
-    '• 5 articles en stock\n\n' +
-    'Vous pourrez tout supprimer ensuite.'
+  modal('🎬 Données de démonstration',
+    '<div class="alert alert-info"><span>🎬</span><div>'
+    + '<strong>Cela va créer :</strong><br>'
+    + '• 3 chantiers exemples<br>• 2 clients exemples<br>• 2 devis exemples<br>• 5 articles en stock<br><br>'
+    + 'Vous pourrez tout supprimer ensuite.</div></div>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    + '<button class="btn btn-primary" onclick="closeModal();_execLoadDemo()">🚀 Charger les données</button>'
   );
-  if (!confirmed) return;
-
+  return; // La suite est dans _execLoadDemo()
+}
+async function _execLoadDemo() {
   loader('Création des données démo...');
   try {
     const uid_demo = () => 'demo_' + Math.random().toString(36).slice(2, 10);
@@ -3290,8 +3402,7 @@ function closeOnboarding() {
 
 // 2. Écouter les changements d'état auth (login, logout, refresh token, etc.)
 SB.auth.onAuthStateChange(async (event, session) => {
-  console.log('Auth event:', event, session?.user?.email || 'none');
-  if (event === 'SIGNED_IN' && session?.user) {
+    if (event === 'SIGNED_IN' && session?.user) {
     await startApp(session.user);
   } else if (event === 'SIGNED_OUT') {
     _appLoaded = false;
@@ -3394,19 +3505,25 @@ async function exportMesData() {
 }
 
 async function supprimerMonCompte() {
-  const conf1 = confirm(
-    'Supprimer définitivement votre compte BatiPilot ?\n\n'
-    + 'TOUTES vos données seront effacées (chantiers, devis, clients, stock, photos).\n'
-    + 'Cette action est IRRÉVERSIBLE.\n\nContinuer ?'
+  modal('🗑️ Supprimer définitivement mon compte',
+    '<div class="alert alert-danger"><span>🚨</span><div>'
+    + '<strong>Action irréversible</strong><br>'
+    + 'Chantiers, devis, clients, stock et photos seront effacés.<br><br>'
+    + '<label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer">'
+    + '<input type="checkbox" id="del-confirm-cb"> Je comprends que cette action est définitive</label>'
+    + '</div></div>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    + '<button class="btn" style="background:#B91C1C;color:white" onclick="_checkAndDeleteAccount()">Supprimer mon compte</button>'
   );
-  if (!conf1) return;
-  const conf2 = prompt(
-    'Pour confirmer, tapez exactement : SUPPRIMER MON COMPTE'
-  );
-  if (conf2 !== 'SUPPRIMER MON COMPTE') {
-    toast('Suppression annulée', 'error');
-    return;
-  }
+  return;
+}
+function _checkAndDeleteAccount() {
+  const cb = document.getElementById('del-confirm-cb');
+  if (!cb || !cb.checked) { toast('Cochez la case pour confirmer', 'error'); return; }
+  closeModal();
+  _execSupprimerCompte();
+}
+async function _execSupprimerCompte() {
   loader('Suppression de vos données...');
   try {
     // Supprimer toutes les tables en cascade (RLS + CASCADE définis dans le schema)
@@ -3419,8 +3536,7 @@ async function supprimerMonCompte() {
     // Déconnecter
     await SB.auth.signOut();
     hideLoader();
-    alert('Votre compte et toutes vos données ont été supprimés.\nMerci d\'avoir utilisé BatiPilot.');
-    location.reload();
+    toast('Compte supprimé. Au revoir !'); setTimeout(()=>location.reload(), 2000);
   } catch(e) {
     hideLoader();
     toast('Erreur : ' + e.message + ' — Contactez support@batipilot.fr', 'error');
@@ -3738,9 +3854,7 @@ async function saveFactureClient() {
     var dv = D.devis_docs.find(function(d){ return d.id === data.devis_id; });
     if (dv && dv.statut === 'Accepté') {
       setTimeout(function(){
-        if (confirm('Marquer le devis ' + dv.numero + ' comme "Facturé" ?')) {
-          updateDevisStatut(dv.id, 'Facturé');
-        }
+        updateDevisStatut(dv.id, 'Facturé');
       }, 300);
     }
   }
@@ -3934,7 +4048,7 @@ function buildFactureHTML(fcId) {
   var html = '<!DOCTYPE html><html lang="fr"><head>'
     + '<meta charset="UTF-8"><title>Facture ' + (f.numero||'') + '</title>'
     + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">'
-    + '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"DM Sans",Arial,sans-serif;color:#1C1E22;font-size:13px;background:#fff}.page{max-width:800px;margin:0 auto}@media print{@page{margin:10mm 14mm;size:A4}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>'
+    + '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"DM Sans",Arial,sans-serif;color:#1C1E22;font-size:13px;background:#fff}.page{max-width:800px;margin:0 auto}@media print{@page{margin:14mm 18mm;size:A4}h1{font-size:20px}td,th{font-size:11px}body{font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none}}</style>'
     + '</head><body><div class="page">'
 
     // En-tête
@@ -4030,7 +4144,7 @@ function factureDepuisDevis(dvId) {
   var dv = D.devis_docs.find(function(d){ return d.id === dvId; });
   if (!dv) return;
   if (dv.statut !== 'Accepté') {
-    if (!confirm('Ce devis n\'est pas encore marqué "Accepté". Continuer quand même ?')) return;
+    // Devis non-accepté autorisé après confirmation implicite (l'utilisateur a cliqué Facturer)
   }
   modalFactureClientCreate(dv.chantier_id, dvId);
 }
@@ -4107,15 +4221,14 @@ async function compressAndUploadPhoto(base64DataUrl, itemId, maxPx, qualityJpeg)
     for (var i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
     var blob = new Blob([byteArr], { type: 'image/jpeg' });
     var sizeKo = Math.round(blob.size / 1024);
-    console.log('[Photo] Taille après compression: ' + sizeKo + ' Ko');
-
+    
     var path = USER.id + '/' + itemId + '.jpg';
     var up = await SB.storage.from('photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
-    if (up.error) { console.warn('Photo upload error:', up.error.message); return compressed; }
+    if (up.error) { return compressed; } // upload silencieux
     var urlData = SB.storage.from('photos').getPublicUrl(path);
     return urlData.data?.publicUrl || compressed;
   } catch(e) {
-    console.warn('compressAndUploadPhoto:', e.message);
+    // upload silencieux
     return compressed;
   }
 }
@@ -4319,8 +4432,7 @@ function initPolish() {
   // delClient → delClientSafe
   window.delClient = delClientSafe;
 
-  console.log('[BatiPilot v10] Module Polish initialisé ✓');
-}
+  }
 
 
 // ══════════════════════════════════════════════════════════
@@ -4335,15 +4447,22 @@ function initPolish() {
 
 // ─── 1. TRIAL : Compte à rebours essai gratuit ─────────────
 function getTrialInfo() {
-  var trialStart = D.settings.trial_start || null;
+  // Priorité à trial_ends_at (J+30 calculé à l'inscription)
+  // Fallback sur trial_start (ancienne logique)
   var plan = getPlan();
-  if (plan !== 'gratuit') return { active: false, days: null };
-  if (!trialStart) return { active: true, days: 30 }; // nouveau user
-  var start = new Date(trialStart);
+  var subStatus = D.settings.subscription_status || 'trial';
+  if (plan !== 'gratuit' || subStatus === 'active') return { active: false, days: null, expired: false };
   var now = new Date();
-  var diffMs = now - start;
-  var diffDays = Math.floor(diffMs / (1000*60*60*24));
-  var remaining = 30 - diffDays;
+  var endDate = null;
+  if (D.settings.trial_ends_at) {
+    endDate = new Date(D.settings.trial_ends_at);
+  } else if (D.settings.trial_start) {
+    endDate = new Date(D.settings.trial_start);
+    endDate.setDate(endDate.getDate() + 30);
+  }
+  if (!endDate) return { active: true, days: 30, expired: false }; // nouveau user
+  var diffMs = endDate - now;
+  var remaining = Math.ceil(diffMs / (1000*60*60*24));
   return { active: true, days: Math.max(0, remaining), expired: remaining <= 0 };
 }
 
@@ -4731,7 +4850,7 @@ async function logActivity(action, entityType, entityId, entityLabel, meta) {
     await SB.from('activity_log').insert(entry);
   } catch(e) {
     // Silencieux : le log ne doit jamais bloquer l'action principale
-    console.warn('[ActivityLog] insert failed:', e);
+    // ActivityLog: insert silencieux
   }
 }
 
@@ -4831,7 +4950,7 @@ function ctCheckBudgetAlert(cid, estimatedTotal, onConfirm) {
 }
 
 function ctBudgetConfirmOrder(fnStr) {
-  try { eval('(' + fnStr + ')')(); } catch(e) { console.warn('ctBudgetConfirmOrder err:', e); }
+  try { eval('(' + fnStr + ')')(); } catch(e) { /* silencieux */ }
 }
 
 // ─── 3. CGV / MENTIONS LÉGALES ──────────────────────────────────
@@ -4839,55 +4958,44 @@ function pgLegal() {
   setContent(
     '<div class="page-header"><div class="page-title">📄 CGV & Mentions légales</div></div>'
     + '<div style="max-width:800px;margin:0 auto">'
-
     + '<div class="card" style="margin-bottom:20px">'
       + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">Conditions Générales de Vente (CGV)</div>'
       + '<div style="font-size:13px;color:var(--text-muted);line-height:2">'
         + '<strong>Article 1 — Objet</strong><br>'
-        + 'BatiPilot est un logiciel SaaS de gestion de chantiers BTP. Les présentes CGV régissent l\'accès et l\'utilisation du service entre l\'éditeur et ses clients professionnels.<br><br>'
+        + 'BatiPilot est un logiciel SaaS de gestion de chantiers BTP. Les présentes CGV régissent l&apos;accès et l&apos;utilisation du service entre l&apos;éditeur et ses clients professionnels.<br><br>'
         + '<strong>Article 2 — Accès au service</strong><br>'
-        + 'L\'abonnement est souscrit pour une durée mensuelle renouvelable tacitement. L\'essai gratuit de 30 jours ne nécessite pas de carte bancaire. L\'abonnement peut être résilié à tout moment depuis votre espace client, sans frais ni pénalité.<br><br>'
+        + 'L&apos;abonnement est souscrit pour une durée mensuelle renouvelable tacitement. L&apos;essai gratuit de 30 jours ne nécessite pas de carte bancaire. Résiliation possible à tout moment depuis votre espace client, sans frais.<br><br>'
         + '<strong>Article 3 — Prix et paiement</strong><br>'
-        + 'Les tarifs sont affichés TTC. Le paiement est effectué par carte bancaire via Stripe (certifié PCI-DSS). Aucun prélèvement n\'a lieu pendant la période d\'essai gratuit.<br><br>'
+        + 'Les tarifs sont affichés TTC. Paiement par carte bancaire via Stripe (certifié PCI-DSS). Aucun prélèvement pendant la période d&apos;essai gratuit.<br><br>'
         + '<strong>Article 4 — Données et confidentialité</strong><br>'
-        + 'Vos données sont hébergées sur Supabase (infrastructure AWS EU – Francfort, Allemagne). Elles ne sont jamais revendues ni partagées avec des tiers. Vous restez propriétaire intégral de vos données et pouvez les exporter à tout moment.<br><br>'
+        + 'Vos données sont hébergées sur Supabase (AWS EU Francfort). Elles ne sont jamais revendues. Vous restez propriétaire intégral de vos données et pouvez les exporter à tout moment.<br><br>'
         + '<strong>Article 5 — Limitation de responsabilité</strong><br>'
-        + 'BatiPilot est un outil d\'aide à la gestion. L\'éditeur ne saurait être tenu responsable des décisions commerciales prises sur la base des informations affichées. L\'utilisateur est seul responsable de la vérification des données financières et contractuelles.<br><br>'
+        + 'BatiPilot est un outil d&apos;aide à la gestion. L&apos;éditeur ne saurait être tenu responsable des décisions commerciales prises sur la base des informations affichées.<br><br>'
         + '<strong>Article 6 — Résiliation</strong><br>'
-        + 'La résiliation prend effet à la fin de la période mensuelle en cours. Les données sont conservées 30 jours après résiliation, puis supprimées définitivement sauf obligation légale contraire.<br><br>'
+        + 'La résiliation prend effet à la fin de la période mensuelle en cours. Données conservées 30 jours après résiliation.<br><br>'
         + '<strong>Article 7 — Droit applicable</strong><br>'
-        + 'Les présentes CGV sont soumises au droit français. En cas de litige, les tribunaux compétents sont ceux du siège social de l\'éditeur.'
+        + 'Les présentes CGV sont soumises au droit français.'
       + '</div>'
     + '</div>'
-
     + '<div class="card" style="margin-bottom:20px">'
       + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">Mentions légales</div>'
       + '<div style="font-size:13px;color:var(--text-muted);line-height:2">'
-        + '<strong>Éditeur :</strong> [Votre société, forme juridique, capital, SIRET, adresse du siège]<br>'
-        + '<strong>Directeur de publication :</strong> [Nom du gérant]<br>'
+        + '<strong>Éditeur :</strong> [Votre société, forme juridique, capital, SIRET, adresse]<br>'
         + '<strong>Hébergement :</strong> Supabase Inc. / AWS EU-Central-1 (Francfort, Allemagne)<br>'
         + '<strong>Contact :</strong> <a href="mailto:contact@batipilot.fr" style="color:var(--accent)">contact@batipilot.fr</a><br>'
         + '<strong>DPO / RGPD :</strong> <a href="mailto:dpo@batipilot.fr" style="color:var(--accent)">dpo@batipilot.fr</a><br><br>'
-        + '<strong>Propriété intellectuelle :</strong> L\'ensemble du contenu de BatiPilot (code, design, marque) est protégé par le droit de la propriété intellectuelle. Toute reproduction sans autorisation est interdite.<br><br>'
-        + '<strong>Cookies :</strong> BatiPilot utilise uniquement des cookies strictement nécessaires au fonctionnement du service (session d\'authentification). Aucun cookie publicitaire ni de tracking n\'est utilisé.'
+        + '<strong>Propriété intellectuelle :</strong> L&apos;ensemble du contenu de BatiPilot est protégé par le droit de la propriété intellectuelle.<br><br>'
+        + '<strong>Cookies :</strong> BatiPilot utilise uniquement des cookies strictement nécessaires (session). Aucun cookie publicitaire.'
       + '</div>'
     + '</div>'
-
     + '<div class="card">'
-      + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">Signaler un problème</div>'
-      + '<div style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:16px">'
-        + 'Pour toute question concernant vos données, votre facturation ou un problème technique, contactez notre support :'
-      + '</div>'
-      + '<a href="mailto:support@batipilot.fr" class="btn btn-secondary w-full" style="text-align:center;margin-bottom:8px">📧 support@batipilot.fr</a>'
-      + '<button class="btn btn-ghost w-full" onclick="go(\'rgpd\')">🔒 Gérer mes données personnelles</button>'
+      + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:12px">Support</div>'
+      + '<a href="mailto:support@batipilot.fr" class="btn btn-secondary w-full" style="margin-bottom:8px">support@batipilot.fr</a>'
+      + '<button class="btn btn-ghost w-full" onclick="go(&apos;rgpd&apos;)">Gestion des données personnelles</button>'
     + '</div>'
-
     + '</div>'
   );
 }
-
-// ─── 4. HOOKS ACTIVITY LOG sur actions critiques ─────────────────
-// Ces fonctions wrappent les opérations critiques pour enregistrer dans le log
 
 function initActivityLogHooks() {
   // Hook : création chantier
@@ -4949,6 +5057,44 @@ function initV10() {
   initActivityLogHooks();
 }
 
+
+
+// ─── PAYWALL ─────────────────────────────────────────────────────
+function checkPaywall() {
+  if (!D.settings) return;
+  var subStatus = D.settings.subscription_status || 'trial';
+  if (subStatus === 'active') return; // abonné actif → OK
+  var plan = getPlan();
+  if (plan !== 'gratuit') return; // plan payant → OK
+  var info = getTrialInfo();
+  if (!info.expired) return; // essai encore valide
+  // Essai expiré → écran bloquant
+  var overlay = $('paywall-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'paywall-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
+    overlay.innerHTML = '<div style="background:#fff;border-radius:20px;padding:0;max-width:480px;width:92%;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5)">'
+      + '<div style="background:linear-gradient(135deg,#1C2B4A,#2D3E8C);color:white;padding:28px 32px;text-align:center">'
+        + '<div style="font-size:40px;margin-bottom:8px">⏰</div>'
+        + '<div style="font-size:20px;font-weight:800;margin-bottom:6px">Votre essai gratuit est terminé</div>'
+        + '<div style="font-size:13px;opacity:0.85">Continuez à piloter vos chantiers sans interruption</div>'
+      + '</div>'
+      + '<div style="padding:24px 32px">'
+        + '<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">'
+          + '<div style="display:flex;align-items:center;gap:10px;font-size:14px"><span>✅</span> Toutes vos données sont conservées</div>'
+          + '<div style="display:flex;align-items:center;gap:10px;font-size:14px"><span>✅</span> Reprise immédiate sans re-saisie</div>'
+          + '<div style="display:flex;align-items:center;gap:10px;font-size:14px"><span>✅</span> Résiliation en 1 clic, sans engagement</div>'
+        + '</div>'
+        + '<button class="btn btn-primary w-full" style="font-size:15px;padding:14px;margin-bottom:10px" onclick="closePaywall()">🚀 Choisir mon plan</button>'
+        + '<button onclick="doLogout()" style="background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;width:100%;text-align:center;padding:6px">Se déconnecter</button>'
+      + '</div>'
+    + '</div>';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+}
+function closePaywall() { var o=$('paywall-overlay'); if(o)o.remove(); go('abonnement'); }
 
 function pgDashboardPro() {
   var ch  = D.chantiers;
@@ -5192,27 +5338,24 @@ function initOfflineSupport() {
     var blob = new Blob([swCode], {type: 'application/javascript'});
     var swUrl = URL.createObjectURL(blob);
     navigator.serviceWorker.register(swUrl).then(function(reg) {
-      console.log('SW registered');
-    }).catch(function(e) {
-      console.log('SW registration skipped:', e.message);
-    });
+          }).catch(function(e) {
+          });
   }
 }
 
 function updateOfflineIndicator() {
   var el = document.getElementById('offline-indicator');
-  if (!el) return;
+  var badge = document.getElementById('offline-badge');
   var pending = _syncQueue.length;
   if (!_isOnline) {
-    el.style.display = 'flex';
-    el.innerHTML = '🔴 Hors ligne' + (pending > 0 ? ' · ' + pending + ' action(s) en attente' : '');
-    el.style.background = 'var(--danger)';
+    if (el) { el.style.display = 'flex'; el.innerHTML = '🔴 Mode Hors-ligne · Lecture seule' + (pending > 0 ? ' · ' + pending + ' action(s) en attente' : ''); el.style.background = 'var(--danger)'; }
+    if (badge) badge.classList.add('visible');
   } else if (pending > 0) {
-    el.style.display = 'flex';
-    el.innerHTML = '🔄 Synchronisation en cours... (' + pending + ')';
-    el.style.background = 'var(--warning)';
+    if (el) { el.style.display = 'flex'; el.innerHTML = '🔄 Synchronisation en cours... (' + pending + ')'; el.style.background = 'var(--warning)'; }
+    if (badge) badge.classList.remove('visible');
   } else {
-    el.style.display = 'none';
+    if (el) el.style.display = 'none';
+    if (badge) badge.classList.remove('visible');
   }
 }
 
@@ -5305,7 +5448,7 @@ async function syncOfflineQueue() {
         }
       }
     } catch(e) {
-      console.warn('Sync failed for action', action.id, e);
+      // sync offline silencieuse
     }
   }
 
@@ -5397,7 +5540,7 @@ async function loadCachedData() {
       D.bl_items   = D.bl_items.length   ? D.bl_items   : (data.bl_items||[]);
       D.ct_docs    = D.ct_docs.length    ? D.ct_docs    : (data.ct_docs||[]);
       var age = Math.round((Date.now() - data.ts) / 60000);
-      console.log('Données en cache chargées (' + age + 'min)');
+      // cache local chargé
     }
   } catch(e) {}
 }
@@ -5419,9 +5562,9 @@ function getServiceWorkerCode() {
     '});',
     'self.addEventListener("fetch", function(e) {',
     '  var url = e.request.url;',
-    // Ne pas cacher Supabase API
+    '  // Pas de cache pour Supabase API',
     '  if (url.indexOf("supabase.co") >= 0) return;',
-    // Pour les assets statiques : cache first
+    '  // Cache first pour les assets statiques',
     '  if (e.request.method !== "GET") return;',
     '  e.respondWith(',
     '    caches.match(e.request).then(function(cached) {',
