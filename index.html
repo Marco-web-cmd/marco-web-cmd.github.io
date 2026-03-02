@@ -1525,7 +1525,7 @@ async function loadAll(){
   loader('Chargement de vos données...');
   // Wrapper avec timeout : retourne {data:null,error} si la requête échoue ou dépasse 10s
   function sq(q){
-    const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000));
+    const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000));
     return Promise.race([q,timeout]).then(r=>r).catch(e=>({data:null,error:{message:String(e)}}));
   }
   try{
@@ -1540,7 +1540,7 @@ async function loadAll(){
       sq(SB.from('factures_client').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
       sq(SB.from('mouvements').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(200)),
       sq(SB.from('conducteur_pins').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
-      sq(SB.from('notes_chantier').select('*').eq('user_id',USER.id).order('date_note',{ascending:false}).limit(500)),
+      sq(SB.from('notes_chantier').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(500)),
       sq(SB.from('bl_items').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(500)),
       sq(SB.from('ct_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}))
     ]);
@@ -1574,21 +1574,25 @@ async function loadAll(){
     if(docr.error)// table ct_docs absente
     hideLoader();
     // Onboarding si premier démarrage (pas de settings, pas d'erreur réseau)
-    const noSettings=!sr.data&&!sr.error;
-    if(noSettings){
+    // noSettings = connecté mais jamais configuré (premier lancement)
+    const noSettings = !sr.data && !sr.error;
+    // srError = erreur réseau/table sur settings (pas bloquant)
+    if (noSettings) {
       $('onboarding').style.display='flex';
-      obRenderMetrics();obRenderCats();
+      obRenderMetrics(); obRenderCats();
     } else {
       launchApp();
     }
-  }catch(e){
+  } catch(e) {
     hideLoader();
-    toast('Erreur de chargement. Vérifiez votre connexion.','error');
-    toast('Erreur : '+e.message,'error');
-    launchApp();
+    // En cas d'erreur grave, lancer quand même l'app (les données seront vides)
+    const msg = e.message && e.message !== 'timeout' ? e.message : 'Connexion lente ou instable';
+    toast('⚠️ Chargement partiel — ' + msg, 'error');
+    launchApp(); // L'app fonctionne avec données vides, rechargement possible
   }
 }
 function launchApp(){
+  hideLoader(); // Sécurité : garantit que l'écran de chargement est masqué
   // Bannière plan gratuit si applicable
   setTimeout(showPlanBanner, 800);
   // Cache les données pour usage offline
