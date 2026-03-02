@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="BatiPilot — Gestion de chantiers BTP : devis, factures, conducteur de travaux, stocks et planning.">
+<meta name="robots" content="noindex, nofollow"><!-- App privée -->
 <title>BatiPilot — Gestion de chantiers</title>
 <!-- PWA : Installable sur écran d'accueil -->
 <link rel="manifest" href="data:application/manifest+json,{
@@ -22,16 +24,17 @@
 <meta name="apple-mobile-web-app-title" content="BatiPilot">
 <meta name="application-name" content="BatiPilot">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <style>
-:root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--info:#1D4ED8;--info-soft:#DBEAFE;--purple:#7C3AED;--purple-soft:#EDE9FE;--border:#DDD9D2;--border-dark:#C8C4BC;--shadow-sm:0 1px 3px rgba(28,30,34,0.08);--shadow-md:0 4px 16px rgba(28,30,34,0.10);--shadow-lg:0 8px 32px rgba(28,30,34,0.14);--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--sp-xs:4px;--sp-sm:8px;--sp-md:16px;--sp-lg:24px;--sp-xl:32px;--sp-2xl:48px;--font-display:'Fraunces',serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;--transition:all 0.18s cubic-bezier(0.4,0,0.2,1);}
+:root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--info:#1D4ED8;--info-soft:#DBEAFE;--purple:#7C3AED;--purple-soft:#EDE9FE;--border:#DDD9D2;--border-dark:#C8C4BC;--shadow-sm:0 1px 3px rgba(28,30,34,0.08);--shadow-md:0 4px 16px rgba(28,30,34,0.10);--shadow-lg:0 8px 32px rgba(28,30,34,0.14);--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--font-display:'Fraunces',serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;--transition:all 0.18s cubic-bezier(0.4,0,0.2,1);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{font-size:15px;}body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+html{font-size:15px;color-scheme:light;}body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
 #loader{position:fixed;inset:0;background:var(--bg-sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3000;}
 .loader-logo{font-family:var(--font-display);font-size:28px;font-weight:900;color:#fff;margin-bottom:20px;}.loader-logo span{color:var(--accent);}
-.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;will-change:transform;}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .loader-text{color:rgba(255,255,255,0.4);font-size:13px;margin-top:14px;}
 #auth-screen{position:fixed;inset:0;background:var(--bg-sidebar);display:none;align-items:center;justify-content:center;z-index:2000;overflow-y:auto;padding:20px;}
 .auth-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:48px;width:90%;max-width:440px;box-shadow:var(--shadow-lg);animation:fadeIn 0.4s ease;}
@@ -53,7 +56,7 @@ html{font-size:15px;}body{font-family:var(--font-body);background:var(--bg);colo
 .ob-step{display:none;text-align:left;}.ob-step.active{display:block;}
 .step-title{font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:8px;text-align:center;}
 .step-desc{color:var(--text-muted);font-size:14px;margin-bottom:28px;text-align:center;}
-#app{display:none;height:100vh;overflow:hidden;flex-direction:row;}#app.visible{display:flex;}
+#app{display:none;height:100vh;overflow:hidden;flex-direction:row;contain:layout;}#app.visible{display:flex;}
 #sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--bg-sidebar);height:100vh;display:flex;flex-direction:column;z-index:10;}
 .sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.07);}
 .logo-mark{font-family:var(--font-display);font-size:22px;font-weight:900;color:#fff;display:flex;align-items:center;gap:10px;}
@@ -71,7 +74,7 @@ html{font-size:15px;}body{font-family:var(--font-body);background:var(--bg);colo
 #topbar{height:56px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;gap:16px;}
 .topbar-title{font-family:var(--font-display);font-size:18px;font-weight:700;letter-spacing:-0.3px;}
 .topbar-actions{display:flex;align-items:center;gap:10px;}
-#content{flex:1;overflow-y:auto;padding:28px;}
+#content{flex:1;overflow-y:auto;padding:28px;contain:layout style;}
 .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:var(--transition);white-space:nowrap;}
 .btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:var(--accent-dark);transform:translateY(-1px);}
 .btn-secondary{background:var(--bg-input);color:var(--text);border:1px solid var(--border-dark);}.btn-secondary:hover{background:var(--border);}
@@ -110,7 +113,7 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 .badge-purple{background:var(--purple-soft);color:var(--purple);}
 .modal-overlay{position:fixed;inset:0;background:rgba(28,30,34,0.55);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.2s;padding:20px;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--bg-card);border-radius:var(--radius-lg);padding:28px 32px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform 0.2s;}
+.modal{background:var(--bg-card);border-radius:var(--radius-lg);padding:28px 32px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform 0.2s;will-change:transform;}
 .modal-overlay.open .modal{transform:translateY(0);}
 .modal-lg{max-width:900px;}
 .modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;}
@@ -174,38 +177,28 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 /* COLOR CHIPS */
 .color-chip{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:var(--transition);}
 .color-chip.selected{border-color:var(--text);transform:scale(1.15);}
-::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border-dark);border-radius:3px;}
+::-webkit-scrollbar{width:6px;height:6px;}
+/* ── Focus visible — Accessibilité clavier (WCAG 2.1) ─────────── */
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
+button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
+/* ── Reduced motion — Accessibilité mouvement ─────────────────── */
+@media(prefers-reduced-motion:reduce){
+  *,::before,::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}
+}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border-dark);border-radius:3px;}
 
 
 /* ── Indicateur Hors-ligne ─────────────────────────────────────── */
-#offline-indicator{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--danger);color:#fff;font-size:12px;font-weight:600;padding:7px 16px;align-items:center;justify-content:center;gap:8px;}
+#offline-indicator{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--danger);color:#fff;font-size:12px;font-weight:600;padding:7px 16px;align-items:center;justify-content:center;gap:8px;animation:slideDown 0.3s ease;}
 #offline-badge{display:none;position:fixed;bottom:80px;left:16px;z-index:9000;background:rgba(0,0,0,0.75);color:#fff;font-size:11px;font-weight:600;padding:6px 12px;border-radius:20px;align-items:center;gap:6px;backdrop-filter:blur(4px);}
 #offline-badge.visible{display:flex;}
 
 /* ── Skeleton Loader ───────────────────────────────────── */
-.skeleton{background:linear-gradient(90deg,var(--bg-input) 25%,var(--bg-card) 50%,var(--bg-input) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--radius-sm);}
+.skeleton{background:linear-gradient(90deg,var(--bg-input) 25%,var(--bg-card) 50%,var(--bg-input) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--radius-sm);will-change:background-position;}
 
-/* ── Utilitaires inline → classes (purification) ──────────────── */
-.u-card-title{font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
-.u-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
-.u-flex-between{display:flex;justify-content:space-between;align-items:center;}
-.u-flex-center{display:flex;justify-content:center;align-items:center;}
-.u-text-accent{color:var(--accent);}
-.u-text-muted{color:var(--text-muted);}
-.u-text-xs{font-size:11px;}
-.u-text-sm{font-size:13px;}
-.u-text-lg{font-size:18px;}
-.u-text-xl{font-size:20px;}
-.u-text-2xl{font-size:24px;}
-.u-fw-700{font-weight:700;}
-.u-mt-sm{margin-top:var(--sp-sm);}
-.u-mt-md{margin-top:var(--sp-md);}
-.u-mb-sm{margin-bottom:var(--sp-sm);}
-.u-mb-md{margin-bottom:var(--sp-md);}
+/* ── Utilitaires CSS gardés pour usage futur ──────────────────── */
 .u-hidden{display:none!important;}
-.u-w-full{width:100%;}
-.u-gap-sm{gap:var(--sp-sm);}
-.u-gap-md{gap:var(--sp-md);}
+.u-flex-between{display:flex;justify-content:space-between;align-items:center;}
+.u-text-muted{color:var(--text-muted);}
 
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .skeleton-line{height:14px;margin-bottom:10px;border-radius:6px;}
@@ -213,6 +206,8 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 .skeleton-title{height:20px;width:40%;margin-bottom:16px;border-radius:6px;}
 
 @media(max-width:768px){#sidebar{display:none;}.form-row-2,.form-row-3,.form-row-4{grid-template-columns:1fr;}.grid-2{grid-template-columns:1fr;}.kpi-grid{grid-template-columns:1fr 1fr;}}
+@media print{#sidebar,#topbar,#mobile-nav,#mode-switcher,#toast-container,#offline-badge,.btn-primary,.btn-secondary,.btn-ghost{display:none!important;}
+#content{padding:0;} #app{display:block!important;} .card{break-inside:avoid;}}
 
 /* ════ CONDUCTEUR DE TRAVAUX ════ */
 /* Switcher de mode */
@@ -227,7 +222,11 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 #conducteur-app.visible{display:flex;flex-direction:column;}
 @media(min-width:769px){
   #conducteur-app.visible{position:fixed;top:0;left:var(--sidebar-w);right:0;bottom:0;z-index:50;background:var(--bg);}
+  /* Sur desktop, la sidebar patronale reste visible à gauche */
   #ct-nav.visible{left:var(--sidebar-w)!important;}
+  /* Cacher la nav mobile bureau quand conducteur actif */
+  #conducteur-app.visible ~ #mobile-nav,
+  body.ct-mode #mobile-nav{display:none!important;}
 }
 @media(max-width:768px){
   #conducteur-app.visible{position:fixed;inset:0;z-index:100;}
@@ -238,7 +237,6 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 #ct-content{flex:1;overflow-y:auto;padding:16px 14px 88px;}
 /* Bottom nav conducteur */
 #ct-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--bg-sidebar);border-top:1px solid rgba(255,255,255,0.08);display:none;align-items:center;justify-content:space-around;padding:0 4px;padding-bottom:env(safe-area-inset-bottom);z-index:60;}
-#ct-nav.visible{display:flex;}
 #ct-nav.visible{display:flex;}
 .ct-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;color:rgba(255,255,255,0.4);flex:1;border:none;background:transparent;font-family:var(--font-body);transition:var(--transition);}
 .ct-nav-btn.active{color:var(--accent);}
@@ -333,7 +331,7 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
 </head>
 <body>
 <div id="offline-indicator"></div>
-<div id="offline-badge">🔴 Mode Hors-ligne — Lecture seule</div>
+<div id="offline-badge" role="alert" aria-live="assertive">📵 Hors-ligne — Lecture seule</div>
 <div id="loader" style="display:flex"><div class="loader-logo">Bati<span>Pilot</span></div><div class="spinner"></div><div class="loader-text" id="loader-text">Vérification de la session...</div><div id="loader-retry" style="display:none;margin-top:20px"><button onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
 
 <div id="auth-screen" style="display:none">
@@ -443,14 +441,14 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
         <button class="btn btn-primary btn-sm" id="t-pri" style="display:none"></button>
       </div>
     </div>
-    <div id="content"></div>
+    <div id="content" role="main"></div>
   </div>
 </div>
 
 <nav id="mobile-nav"><button class="mob-nav-item" onclick="go('dashboard');closeMobDrawer()"><span class="mob-nav-ico">📊</span><span class="mob-nav-label">Accueil</span></button><button class="mob-nav-item" onclick="go('chantiers');closeMobDrawer()"><span class="mob-nav-ico">🚧</span><span class="mob-nav-label">Chantiers</span></button><button class="mob-nav-item" onclick="go('devis');closeMobDrawer()"><span class="mob-nav-ico">📋</span><span class="mob-nav-label">Devis</span></button><button class="mob-nav-item" onclick="go('clients');closeMobDrawer()"><span class="mob-nav-ico">👥</span><span class="mob-nav-label">Clients</span></button><button class="mob-nav-item" onclick="toggleMobDrawer()"><span class="mob-nav-ico">⋯</span><span class="mob-nav-label">Plus</span></button></nav><div id="mobile-more-drawer"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:rgba(255,255,255,0.9)">Navigation</div><button onclick="closeMobDrawer()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer">×</button></div><div class="mob-drawer-grid"><div class="mob-drawer-item" onclick="go('appro');closeMobDrawer()">🛒 <span>Appro</span></div><div class="mob-drawer-item" onclick="go('stock');closeMobDrawer()">📦 <span>Stock</span></div><div class="mob-drawer-item" onclick="go('planning');closeMobDrawer()">📅 <span>Planning</span></div><div class="mob-drawer-item" onclick="go('finances');closeMobDrawer()">💰 <span>Finances</span></div><div class="mob-drawer-item" onclick="go('conducteur');closeMobDrawer()">👷 <span>Conducteur</span></div>
     <div class="mob-drawer-item" onclick="go('settings');closeMobDrawer()">⚙️ <span>Paramètres</span></div>
 <div class="mob-drawer-item" onclick="go('rgpd');closeMobDrawer()">🔒 <span>Mes données</span></div><div class="mob-drawer-item" onclick="doLogout()">⎋ <span>Déconnexion</span></div></div></div>
-<div id="toast-container"></div>
+<div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal-body"></div>
 </div>
@@ -501,12 +499,6 @@ tbody td{padding:11px 14px;font-size:13.5px;vertical-align:middle;}
     <span class="ct-nav-ico">📅</span>
     <span class="ct-nav-lbl">RDV</span>
   </button>
-  <button class="ct-nav-btn" onclick="ctGo('docs')">
-    <span class="ct-nav-ico">📎</span>
-    <span class="ct-nav-lbl">Docs</span>
-  </button>
-</nav>
-
   <button class="ct-nav-btn" onclick="ctGo('docs')">
     <span class="ct-nav-ico">📎</span>
     <span class="ct-nav-lbl">Docs</span>
@@ -590,10 +582,12 @@ function switchMode(mode) {
     appMain.classList.remove('visible');
     appCT.classList.add('visible');
     navMain && navMain.classList.remove('visible');
+    if(navMain) navMain.style.display = 'none'; // force sur desktop
     navCT.classList.add('visible');
     btnPatron && btnPatron.classList.remove('active');
     btnCond   && btnCond.classList.add('active');
     switcher && switcher.classList.remove('visible'); // caché en mode terrain
+    document.body.classList.add('ct-mode'); // classe utilitaire
     // Pré-sélectionner le premier chantier en cours
     if (!CT.chantierId) {
       const ch = D.chantiers.find(c => c.etat === 'En cours') || D.chantiers[0];
@@ -607,9 +601,11 @@ function switchMode(mode) {
     appMain.classList.add('visible');
     navCT.classList.remove('visible');
     navMain && navMain.classList.add('visible');
+    if(navMain) navMain.style.display = ''; // restaurer
     btnCond   && btnCond.classList.remove('active');
     btnPatron && btnPatron.classList.add('active');
     switcher && switcher.classList.add('visible'); // remis visible
+    document.body.classList.remove('ct-mode');
     go(D.page || 'dashboard');
   }
 }
@@ -1434,13 +1430,38 @@ const SB=supabase.createClient('https://zewyecoxpmycqdziuqzc.supabase.co','eyJhb
 });
 let USER=null;
 const DM=[{label:'',unit:''},{label:'',unit:''},{label:'',unit:''}];
-let D={settings:{company:'',trade:'',phone:'',email:'',adresse:'',siret:'',logo:'',website:'',tva:20,teams:[],categories:['Matériaux','Consommable','Outillage'],accent_color:'#C0622A',metrics:JSON.parse(JSON.stringify(DM)),devis_couleur:'#2D3E8C',devis_acompte:30,devis_conditions:'Paiement à 30 jours fin de mois.',devis_mentions:'Devis valable 30 jours à compter de sa date d\'émission.\nTout travail supplémentaire fera l\'objet d\'un avenant.'},chantiers:[],stocks:[],materiaux:[],clients:[],mouvements:[],devis_docs:[],factures:[],factures_client:[],conducteur_pins:[],notes_chantier:[],page:'dashboard'};
+let D={
+  settings:{
+    company:'',trade:'',phone:'',email:'',adresse:'',siret:'',logo:'',website:'',
+    tva:20,tva_num:'',
+    teams:[],categories:['Matériaux','Consommable','Outillage'],
+    accent_color:'#C0622A',
+    metrics:JSON.parse(JSON.stringify(DM)),
+    devis_couleur:'#2D3E8C',devis_acompte:30,
+    devis_conditions:'Paiement à 30 jours fin de mois.',
+    devis_mentions:"Devis valable 30 jours à compter de sa date d'émission.\nTout travail supplémentaire fera l'objet d'un avenant.",
+    plan:'gratuit',
+    subscription_status:'trial',
+    trial_ends_at:null,
+    trial_start:null
+  },
+  chantiers:[],stocks:[],materiaux:[],clients:[],mouvements:[],
+  devis_docs:[],factures:[],factures_client:[],
+  conducteur_pins:[],notes_chantier:[],bl_items:[],ct_docs:[],
+  page:'dashboard'
+};
 let OB={step:0,teams:[],cats:['Matériaux','Consommable','Outillage'],metrics:JSON.parse(JSON.stringify(DM))};
 let CAL={weekStart:null};
 
 // ── UTILS ─────────────────────────────────────────
 const $=id=>document.getElementById(id);
 function setContent(h){$("content").innerHTML=h;}
+// Sanitisation HTML basique — prévention XSS
+function esc(str){
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
 function uid(){return crypto.randomUUID?crypto.randomUUID():(Date.now().toString(36)+Math.random().toString(36).slice(2));}
 function eur(n){return(+n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:2});}
 function fdate(d){if(!d)return'—';try{return new Date(d+'T12:00:00').toLocaleDateString('fr-FR');}catch{return d;}}
@@ -1452,7 +1473,7 @@ function etatDevisB(s,dvId=''){const m={Brouillon:'badge-gray','Envoyé':'badge-
 function teamOpts(sel=''){return(['Non assigné'].concat(D.settings.teams)).map(t=>`<option value="${t}"${t===sel?' selected':''}>${t}</option>`).join('');}
 function catOpts(sel=''){return D.settings.categories.map(c=>`<option value="${c}"${c===sel?' selected':''}>${c}</option>`).join('');}
 function toast(msg,type='success'){const c=$('toast-container'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=(type==='success'?'✓':type==='error'?'✗':'ℹ')+' '+msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
-function modal(title,body,foot='',large=false){const m=$('modal-body');m.className='modal'+(large?' modal-lg':'');m.innerHTML=`<div class="modal-header"><div class="modal-title">${title}</div><button class="modal-close" onclick="closeModal()">×</button></div><div>${body}</div>${foot?`<div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end">${foot}</div>`:''}`;$('modal-overlay').classList.add('open');}
+function modal(title,body,foot='',large=false){const m=$('modal-body');m.className='modal'+(large?' modal-lg':'');m.innerHTML=`<div class="modal-header"><div class="modal-title">${title}</div><button class="modal-close" onclick="closeModal()" aria-label="Fermer">×</button></div><div>${body}</div>${foot?`<div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end">${foot}</div>`:''}`;$('modal-overlay').classList.add('open');}
 function closeModal(){$('modal-overlay').classList.remove('open');}
 function loader(msg='Chargement...'){$('loader').style.display='flex';$('loader-text').textContent=msg;}
 function hideLoader(){$('loader').style.display='none';}
@@ -1503,7 +1524,21 @@ async function doLogin(){
 async function resetPwd(){
   try{const email=prompt('Votre adresse email :');if(!email)return;const{error}=await SB.auth.resetPasswordForEmail(email);if(error)toast('Erreur : '+error.message,'error');else toast('Email de réinitialisation envoyé !');}catch(e){toast('Erreur réseau : '+e.message,'error');}
 }
-async function doLogout(){await SB.auth.signOut();USER=null;D={...D,chantiers:[],stocks:[],materiaux:[],clients:[],mouvements:[],devis_docs:[],factures:[]};$('app').classList.remove('visible');$('auth-screen').style.display='flex';toast('Déconnecté','error');}
+async function doLogout(){
+  try { await SB.auth.signOut(); } catch(e) { /* ignorer erreur réseau */ }
+  USER = null;
+  _appLoaded = false;
+  // Reset complet de tous les arrays de données
+  D.chantiers=[]; D.stocks=[]; D.materiaux=[]; D.clients=[];
+  D.mouvements=[]; D.devis_docs=[]; D.factures=[]; D.factures_client=[];
+  D.conducteur_pins=[]; D.notes_chantier=[]; D.bl_items=[]; D.ct_docs=[];
+  D.settings={...D.settings, company:'', trade:'', phone:'', email:''};
+  // Sortir du mode conducteur si actif
+  if(document.body.classList.contains('ct-mode')) switchMode('patron');
+  $('app').classList.remove('visible');
+  showAuthScreen();
+  toast('Déconnecté avec succès');
+}
 
 // ── DATA ──────────────────────────────────────────
 
@@ -1523,7 +1558,7 @@ function showSkeletonLoader(n) {
 async function loadAll(){
   showSkeletonLoader(4);
   loader('Chargement de vos données...');
-  // Wrapper avec timeout : retourne {data:null,error} si la requête échoue ou dépasse 10s
+  // Wrapper avec timeout : retourne {data:null,error} si la requête échoue ou dépasse 6s
   function sq(q){
     const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000));
     return Promise.race([q,timeout]).then(r=>r).catch(e=>({data:null,error:{message:String(e)}}));
@@ -1622,21 +1657,38 @@ async function saveSetting(){
     D.settings.trial_ends_at = trialEnd.toISOString().slice(0, 10);
   }
   const p={
-    user_id:USER.id,company:D.settings.company,trade:D.settings.trade,phone:D.settings.phone,
-    email:D.settings.email,adresse:D.settings.adresse,siret:D.settings.siret,
-    tva_num:D.settings.tva_num||'',logo:D.settings.logo,website:D.settings.website||'',
-    tva:D.settings.tva,teams:D.settings.teams,categories:D.settings.categories,
-    accent_color:D.settings.accent_color,metrics:D.settings.metrics,
+    user_id:USER.id,
+    company:D.settings.company||'',
+    trade:D.settings.trade||'',
+    phone:D.settings.phone||'',
+    email:D.settings.email||'',
+    adresse:D.settings.adresse||'',
+    siret:D.settings.siret||'',
+    tva_num:D.settings.tva_num||'',
+    logo:D.settings.logo||'',
+    website:D.settings.website||'',
+    tva:D.settings.tva??20,
+    teams:D.settings.teams||[],
+    categories:D.settings.categories||['Matériaux','Consommable','Outillage'],
+    accent_color:D.settings.accent_color||'#C0622A',
+    metrics:D.settings.metrics||[],
+    plan:D.settings.plan||'gratuit',
     devis_couleur:D.settings.devis_couleur||'#2D3E8C',
     devis_acompte:D.settings.devis_acompte??30,
-    devis_conditions:D.settings.devis_conditions||'',
-    devis_mentions:D.settings.devis_mentions||'',
-    trial_ends_at:D.settings.trial_ends_at,
+    devis_conditions:D.settings.devis_conditions||'Paiement à 30 jours fin de mois.',
+    devis_mentions:D.settings.devis_mentions||'Devis valable 30 jours.',
+    trial_ends_at:D.settings.trial_ends_at||null,
     subscription_status:D.settings.subscription_status||'trial'
   };
   const {error}=await SB.from('settings').upsert(p,{onConflict:'user_id'});
   hideSync();
-  if(error)toast('Erreur de sauvegarde des paramètres.','error');
+  if(error){
+    toast('Erreur sauvegarde : '+(error.message||error.code||'inconnue'),'error');
+  } else {
+    var sc = $('sidebar-company');
+    if(sc) sc.textContent = D.settings.company || 'Mon Entreprise';
+    toast('✅ Paramètres sauvegardés');
+  }
   }catch(e){toast('Erreur sauvegarde : '+e.message,'error');hideSync();}
 }async function upsert(table,row){showSync();try{const{error}=await SB.from(table).upsert({...row,user_id:USER.id});hideSync();if(error){toast('Erreur : '+error.message,'error');return false;}return true;}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');return false;}}
 async function insert(table,row){showSync();try{const{data,error}=await SB.from(table).insert({...row,user_id:USER.id}).select().single();hideSync();if(error){toast('Erreur : '+error.message,'error');return null;}return data;}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');return null;}}
@@ -1675,12 +1727,19 @@ async function obFinish(){
   btn.textContent='⏳ Sauvegarde...';btn.disabled=true;
   D.settings={
     company:$('ob-company').value.trim()||'Mon Entreprise',
-    trade:$('ob-trade').value.trim(),phone:$('ob-phone').value.trim(),
+    trade:$('ob-trade').value.trim(),
+    phone:$('ob-phone').value.trim(),
     email:$('ob-email').value.trim(),
     adresse:($('ob-adresse')?$('ob-adresse').value.trim():''),
     siret:($('ob-siret')?$('ob-siret').value.trim():''),
     tva_num:($('ob-tva-num')?$('ob-tva-num').value.trim():''),
-    logo:'',tva:20,
+    website:'', logo:'', tva:20,
+    plan:'gratuit',
+    subscription_status:'trial',
+    trial_ends_at:(function(){var d=new Date();d.setDate(d.getDate()+30);return d.toISOString().slice(0,10);})(),
+    devis_couleur:'#2D3E8C', devis_acompte:30,
+    devis_conditions:'Paiement à 30 jours fin de mois.',
+    devis_mentions:'Devis valable 30 jours.',
     teams:OB.teams,
     categories:OB.cats.length?OB.cats:['Matériaux','Consommable','Outillage'],
     accent_color:'#C0622A',
@@ -1688,14 +1747,23 @@ async function obFinish(){
   };
   await saveSetting();
   $('onboarding').style.display='none';
+  // Reset le flag pour permettre un re-lancement propre après onboarding
+  _appLoaded = false;
   launchApp();
-  toast('Bienvenue sur BatiPilot ! 🎉');
+  toast('🎉 Bienvenue sur BatiPilot ! Votre espace est prêt.');
 }
 
 // ── NAVIGATION ────────────────────────────────────
+let _lastRenderedPage = null; // Cache de rendu page
 const PAGE_TITLES={dashboard:'Tableau de bord',chantiers:'Chantiers',devis:'Devis',appro:'Approvisionnement',stock:'Stock Dépôt',clients:'Clients',planning:'Planning',finances:'Finances',abonnement:'Abonnement',settings:'Paramètres',conducteur:'Conducteur de travaux'};
 function go(page){
   D.page=page;
+  // Cache minimal : ne pas re-rendre si même page ET même données
+  if(page === _lastRenderedPage && D._renderTs && (Date.now()-D._renderTs) < 500){
+    return; // Eviter double-render en < 500ms
+  }
+  _lastRenderedPage = page;
+  D._renderTs = Date.now();
   document.querySelectorAll('.nav-item').forEach(el=>{try{const fn=el.getAttribute('onclick')||'';const active=fn.includes(page);el.classList.toggle('active',active);}catch(e){}});
   $('topbar-title').textContent=PAGE_TITLES[page]||page;
   $('t-sec').style.display=$('t-pri').style.display='none';
@@ -1727,7 +1795,10 @@ function updateMobileNav(page){
     el.classList.toggle('active', i===map[page]);
   });
   const nav=$('mobile-nav');
-  if(nav)nav.classList.toggle('visible', !!USER);
+  // Ne pas afficher la nav mobile si on est en mode conducteur
+  if(nav && !document.body.classList.contains('ct-mode')){
+    nav.classList.toggle('visible', !!USER);
+  }
 }
 
 // ── DASHBOARD ─────────────────────────────────────
@@ -2686,7 +2757,7 @@ function pgAbonnement(){
 
 function openStripe(plan){
   // Ici vous intégrerez votre lien Stripe Payment Link
-  // Exemple: window.open('https://buy.stripe.com/votre_lien_'+plan, '_blank');
+  // Exemple: window.open('https://buy.stripe.com/votre_lien_'+plan, '_blank', 'noopener,noreferrer');
   modal('💳 Paiement',`<div class="alert alert-info mb-4"><span>ℹ️</span>Pour activer le paiement, connectez votre compte Stripe et ajoutez vos liens de paiement dans le code.</div><div style="text-align:center;padding:20px"><div style="font-size:48px;margin-bottom:16px">🏗️</div><div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:8px">Configuration Stripe requise</div><div class="text-muted">Créez un compte sur <a href="https://stripe.com" target="_blank" style="color:var(--accent)">stripe.com</a>, créez un Payment Link pour le plan <strong>${plan}</strong>, puis remplacez l'URL dans la fonction <code>openStripe()</code> du code.</div></div>`,`<button class="btn btn-primary" onclick="closeModal()">Compris</button>`);
 }
 
@@ -3190,7 +3261,10 @@ async function startApp(user) {
 // onAuthStateChange en backup si getSession échoue ou délai réseau
 (async () => {
   try {
-    const { data: { session }, error } = await SB.auth.getSession();
+    // Timeout de sécurité : 8s max pour restaurer la session
+    const sessionPromise = SB.auth.getSession();
+    const sessionTimeout = new Promise((_,r)=>setTimeout(()=>r(new Error('session_timeout')),8000));
+    const { data: { session }, error } = await Promise.race([sessionPromise, sessionTimeout]);
     _bootDone = true;
     if (session?.user) {
       await startApp(session.user);
@@ -3488,7 +3562,7 @@ function openStripe(plan) {
   // Pré-remplir l'email Stripe si possible
   const url = new URL(link);
   if (USER?.email) url.searchParams.set('prefilled_email', USER.email);
-  window.open(url.toString(), '_blank');
+  window.open(url.toString(), '_blank', 'noopener,noreferrer');
 }
 
 function openPortailStripe() {
@@ -3499,7 +3573,7 @@ function openPortailStripe() {
     toast('Portail Stripe non configuré', 'error');
     return;
   }
-  window.open(portalUrl, '_blank');
+  window.open(portalUrl, '_blank', 'noopener,noreferrer');
 }
 
 
@@ -5349,6 +5423,36 @@ var _isOnline        = navigator.onLine;
 var _syncInProgress  = false;
 
 // ── Indicateur réseau ─────────────────────────────────────────────────
+// ── Error Boundary global ─────────────────────────────────────────
+// Attrape les erreurs JS non gérées et évite un crash silencieux
+window.addEventListener('error', function(e) {
+  var msg = e.message || 'Erreur inconnue';
+  var src = (e.filename||'').split('/').pop();
+  var line = e.lineno || '';
+  // Ne pas spammer si erreur répétée
+  if(window._lastError === msg) return;
+  window._lastError = msg;
+  setTimeout(function(){ window._lastError = null; }, 5000);
+  // Erreurs réseau silencieuses attendues → ignorer
+  if(msg.includes('Script error') || msg.includes('NetworkError')) return;
+  if(typeof toast === 'function') toast('⚠️ Erreur: '+msg.slice(0,60), 'error');
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+  var msg = (e.reason && e.reason.message) ? e.reason.message : String(e.reason||'');
+  if(!msg || msg.includes('NetworkError') || msg.includes('timeout')) return;
+  if(typeof toast === 'function') toast('⚠️ Erreur async: '+msg.slice(0,60), 'error');
+  e.preventDefault(); // Empêcher la propagation dans la console
+});
+
+// ── Raccourci clavier ──────────────────────────────────────────────
+// Escape en mode conducteur → retour bureau
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.body.classList.contains('ct-mode')) {
+    switchMode('patron');
+  }
+});
+
 function initOfflineSupport() {
   // Écouter les changements de connectivité
   window.addEventListener('online', function() {
@@ -5587,7 +5691,7 @@ async function loadCachedData() {
 function getServiceWorkerCode() {
   return [
     '"use strict";',
-    'var CACHE_NAME = "batipilot-v1";',
+    'var CACHE_NAME = "batipilot-v14-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'";',
     'var STATIC_ASSETS = ["/", "/index.html"];',
     'self.addEventListener("install", function(e) {',
     '  e.waitUntil(caches.open(CACHE_NAME).then(function(c){ return c.addAll(STATIC_ASSETS).catch(function(){}); }));',
@@ -5651,28 +5755,5 @@ function getServiceWorkerCode() {
   <div id="ct-content"><!-- rempli par JS --></div>
 </div>
 
-<!-- BOTTOM NAV CONDUCTEUR -->
-<nav id="ct-nav">
-  <button class="ct-nav-btn active" onclick="ctGo('terrain')">
-    <span class="ct-nav-ico">⚡</span>
-    <span class="ct-nav-lbl">Terrain</span>
-  </button>
-  <button class="ct-nav-btn" onclick="ctGo('bl')">
-    <span class="ct-nav-ico">📦</span>
-    <span class="ct-nav-lbl">BL</span>
-  </button>
-  <button class="ct-nav-btn" onclick="ctGo('notes')">
-    <span class="ct-nav-ico">📝</span>
-    <span class="ct-nav-lbl">Notes</span>
-  </button>
-    <button class="ct-nav-btn" onclick="ctGo('docs')">
-    <span class="ct-nav-ico">📎</span>
-    <span class="ct-nav-lbl">Docs</span>
-  </button>
-  <button class="ct-nav-btn" onclick="ctGo('planning')">
-    <span class="ct-nav-ico">📅</span>
-    <span class="ct-nav-lbl">Planning</span>
-  </button>
-</nav>
 </body>
 </html>
