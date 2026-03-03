@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow"><!-- App privée -->
 <title>BatiPilot — Gestion de chantiers</title>
 <!-- PWA : Installable sur écran d'accueil -->
-<meta name="theme-color" content="#C0622A"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#C0622A"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1C1E22">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,7 +18,6 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <style>
-:root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--info:#1D4ED8;--info-soft:#DBEAFE;--purple:#7C3AED;--purple-soft:#EDE9FE;--border:#DDD9D2;--border
 :root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--info:#1D4ED8;--info-soft:#DBEAFE;--purple:#7C3AED;--purple-soft:#EDE9FE;--border:#DDD9D2;--border-dark:#C8C4BC;--shadow-sm:0 1px 3px rgba(28,30,34,0.08);--shadow-md:0 4px 16px rgba(28,30,34,0.10);--shadow-lg:0 8px 32px rgba(28,30,34,0.14);--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--font-display:'Fraunces',serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;--transition:all 0.18s cubic-bezier(0.4,0,0.2,1);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;color-scheme:light;}body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
@@ -584,7 +583,12 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
 /* Mode conducteur : sidebar cachée, conducteur full-screen */
 body.ct-mode #sidebar { display: none !important; }
 body.ct-mode #mode-switcher { z-index: 1001; }
-onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
+</style>
+</head>
+<body>
+<div id="offline-indicator"></div>
+<div id="offline-badge" role="alert" aria-live="assertive">📵 Hors-ligne — Lecture seule</div>
+<div id="loader" style="display:flex"><div class="loader-logo">Bati<span>Pilot</span></div><div class="spinner"></div><div class="loader-text" id="loader-text">Vérification de la session...</div><div id="loader-retry" style="display:none;margin-top:20px"><button onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
 
 <div id="auth-screen" style="display:none">
   <div class="auth-card">
@@ -762,6 +766,28 @@ onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);bord
 </nav>
 
 <script>
+function printDevis(dvId){
+  const html=buildDevisHTML(dvId);if(!html)return;
+  const w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();},800);
+}
+
+function modalEnvoiDevis(dvId){
+  const dv=D.devis_docs.find(x=>x.id===dvId);if(!dv)return;
+  const s=D.settings;
+  const cl=D.clients.find(c=>c.nom===dv.client);
+  const clientEmail=(cl&&cl.email)||'';
+  const dateVal=new Date(new Date(dv.date).setDate(new Date(dv.date).getDate()+(+dv.// ── BatiPilot v7 — Variables globales critiques ────────────────
+var OFFLINE_DB_NAME  = 'batipilot-offline';
+var OFFLINE_DB_VER   = 1;
+var _isOnline        = typeof navigator !== 'undefined' ? navigator.onLine : true;
+var _offlineDB       = null;
+var _syncQueue       = [];
+var _offlineReady    = false;
+
+
 function printDevis(dvId){
   const html=buildDevisHTML(dvId);if(!html)return;
   const w=window.open('','_blank');
@@ -1394,7 +1420,7 @@ function ctPrintBL() {
         + '<div style="color:rgba(255,255,255,0.55);font-size:13px;margin-top:4px">'+(ch?ch.client||'':'')+' · '+(ch?ch.equipe||'':'')+' · Date : '+new Date().toLocaleDateString('fr-FR')+'</div>'
       + '</div>'
       + '<div style="text-align:right">'
-        + (s.logo?'<img src="'+s.logo+'" style="max-height:50px;max-width:120px;object-fit:contain" onerror="this.style.display=\'none\'">':'')
+        + ((s.logo&&(s.logo.startsWith('http')||s.logo.startsWith('data:')))?'<img src="'+s.logo+'"' style="max-height:50px;max-width:120px;object-fit:contain" onerror="this.style.display=\'none\'">':'')
         + '<div style="color:#fff;font-size:13px;font-weight:700;margin-top:4px">'+(s.company||'')+'</div>'
       + '</div>'
     + '</div>'
@@ -1711,15 +1737,6 @@ let D={
 let OB={step:0,teams:[],cats:['Matériaux','Consommable','Outillage'],metrics:JSON.parse(JSON.stringify(DM))};
 let CAL={weekStart:null};
 
-// ── Variables offline globales ──────────────────────────────────
-var OFFLINE_DB_NAME  = 'batipilot-offline';
-var OFFLINE_DB_VER   = 1;
-var _isOnline        = navigator.onLine;
-var _offlineDB       = null;
-var _syncQueue       = [];
-var _offlineReady    = false;
-
-
 // ── UTILS ─────────────────────────────────────────
 const $=id=>document.getElementById(id);
 function setContent(h){
@@ -1933,51 +1950,32 @@ async function saveSetting(){
       var trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
       D.settings.trial_ends_at = trialEnd.toISOString().slice(0,10);
     }
-    // Upsert complet (colonnes étendues)
     const pFull = {
-      user_id:             USER.id,
-      company:             D.settings.company||'',
-      trade:               D.settings.trade||'',
-      phone:               D.settings.phone||'',
-      email:               D.settings.email||'',
-      adresse:             D.settings.adresse||'',
-      siret:               D.settings.siret||'',
-      tva_num:             D.settings.tva_num||'',
-      website:             D.settings.website||'',
-      tva:                 D.settings.tva??20,
-      plan:                D.settings.plan||'gratuit',
-      devis_couleur:       D.settings.devis_couleur||'#2D3E8C',
-      devis_acompte:       D.settings.devis_acompte??30,
-      devis_conditions:    D.settings.devis_conditions||'Paiement à 30 jours fin de mois.',
-      devis_mentions:      D.settings.devis_mentions||'Devis valable 30 jours.',
-      trial_ends_at:       D.settings.trial_ends_at||null,
-      subscription_status: D.settings.subscription_status||'trial'
+      user_id:USER.id,company:D.settings.company||'',trade:D.settings.trade||'',
+      phone:D.settings.phone||'',email:D.settings.email||'',adresse:D.settings.adresse||'',
+      siret:D.settings.siret||'',tva_num:D.settings.tva_num||'',website:D.settings.website||'',
+      tva:D.settings.tva??20,plan:D.settings.plan||'gratuit',
+      devis_couleur:D.settings.devis_couleur||'#2D3E8C',devis_acompte:D.settings.devis_acompte??30,
+      devis_conditions:D.settings.devis_conditions||'Paiement à 30 jours fin de mois.',
+      devis_mentions:D.settings.devis_mentions||'Devis valable 30 jours.',
+      trial_ends_at:D.settings.trial_ends_at||null,
+      subscription_status:D.settings.subscription_status||'trial'
     };
-    // Fallback minimal garanti (colonnes de base)
     const pMin = {
-      user_id:             USER.id,
-      company:             D.settings.company||'',
-      trade:               D.settings.trade||'',
-      phone:               D.settings.phone||'',
-      email:               D.settings.email||'',
-      plan:                D.settings.plan||'gratuit',
-      subscription_status: D.settings.subscription_status||'trial',
-      trial_ends_at:       D.settings.trial_ends_at||null
+      user_id:USER.id,company:D.settings.company||'',trade:D.settings.trade||'',
+      phone:D.settings.phone||'',email:D.settings.email||'',
+      plan:D.settings.plan||'gratuit',subscription_status:D.settings.subscription_status||'trial',
+      trial_ends_at:D.settings.trial_ends_at||null
     };
-    var r = await SB.from('settings').upsert(pFull, {onConflict:'user_id'});
-    if (r.error && (r.error.code==='PGRST204' || r.error.code==='42703' || (r.error.message||'').includes('column'))) {
-      console.warn('[BatiPilot] saveSetting fallback colonnes minimales:', r.error.message);
-      r = await SB.from('settings').upsert(pMin, {onConflict:'user_id'});
+    var r = await SB.from('settings').upsert(pFull,{onConflict:'user_id'});
+    if (r.error && (r.error.code==='PGRST204'||r.error.code==='42703'||(r.error.message||'').includes('column'))) {
+      console.warn('[BatiPilot] saveSetting fallback minimal:', r.error.message);
+      r = await SB.from('settings').upsert(pMin,{onConflict:'user_id'});
     }
     hideSync();
-    if (r.error) {
-      toast('Erreur sauvegarde : '+(r.error.message||r.error.code||'inconnue'), 'error');
-    } else {
-      const sc = $('sidebar-company');
-      if (sc) sc.textContent = D.settings.company || 'Mon Entreprise';
-      toast('✅ Paramètres sauvegardés');
-    }
-  } catch(e) { toast('Erreur sauvegarde : '+e.message, 'error'); hideSync(); }
+    if (r.error) { toast('Erreur sauvegarde : '+(r.error.message||r.error.code||'inconnue'),'error'); }
+    else { const sc=$('sidebar-company'); if(sc) sc.textContent=D.settings.company||'Mon Entreprise'; toast('✅ Paramètres sauvegardés'); }
+  } catch(e) { toast('Erreur sauvegarde : '+e.message,'error'); hideSync(); }
 }
 
 async function insert(table,row){showSync();try{const{data,error}=await SB.from(table).insert({...row,user_id:USER.id}).select().single();hideSync();if(error){toast('Erreur : '+error.message,'error');return null;}return data;}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');return null;}}
@@ -3196,8 +3194,9 @@ function buildDevisHTML(dvId){
   const dateStr=new Date(dv.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
   const dateVal=vd.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
   // Logo ou nom entreprise
-  const logoH=s.logo
-    ?'<img src="'+s.logo+'" style="max-height:80px;max-width:180px;object-fit:contain" onerror="this.style.display=\'none\'">'
+  const _logoSrc = s.logo && (s.logo.startsWith('http')||s.logo.startsWith('data:')) ? s.logo : '';
+  const logoH=_logoSrc
+    ?'<img src="'+_logoSrc+'" style="max-height:80px;max-width:180px;object-fit:contain" onerror="this.style.display=\'none\'">'
     :'<div style="font-size:22px;font-weight:900;color:'+col+';font-family:Georgia,serif;letter-spacing:-0.5px">'+s.company+'</div>';
   // Adresse émetteur
   const addrLines=[s.trade,s.adresse,s.siret?'SIRET : '+s.siret:'',s.tva_num?'N° TVA : '+s.tva_num:'',s.phone?'📞 '+s.phone:'',s.email?'✉ '+s.email:'',s.website?'🌐 '+s.website:''].filter(Boolean);
@@ -3487,7 +3486,7 @@ function ctPrintBLPro(fournisseur){
         +'</div>'
       +'</div>'
       +'<div style="text-align:right">'
-        +(s.logo?'<img src="'+s.logo+'" style="max-height:55px;max-width:130px;object-fit:contain;background:rgba(255,255,255,0.9);border-radius:8px;padding:8px">':'')
+        +((s.logo&&(s.logo.startsWith('http')||s.logo.startsWith('data:')))?'<img src="'+s.logo+'"' style="max-height:55px;max-width:130px;object-fit:contain;background:rgba(255,255,255,0.9);border-radius:8px;padding:8px">':'')
         +'<div style="color:#fff;font-size:13px;font-weight:700;margin-top:6px">'+(s.company||'')+'</div>'
       +'</div>'
     +'</div>'
@@ -4858,7 +4857,7 @@ function initPolish() {
 
   }
 
-// ── SUPPORT OFFLINE (IndexedDB + Service Worker) ────────────
+// ── SUPPORT OFFLINE ─────────────────────────────────────────
 function initOfflineSupport() {
   // Écouter les changements de connectivité
   window.addEventListener('online', function() {
@@ -5974,24 +5973,7 @@ function _dashQuickLink(page, ico, label, sub) {
   +'</div>';
 }
 
-</script>
-
-
-<!-- MODE SWITCHER -->
-<div id="mode-switcher">
-  <div class="mode-pill">
-    <button class="mode-btn active" id="mode-patron" onclick="switchMode('patron')">👷 Bureau</button>
-    <button class="mode-btn" id="mode-conducteur" onclick="switchMode('conducteur')">🦺 Terrain</button>
-  </div>
-</div>
-
-<!-- APP CONDUCTEUR DE TRAVAUX -->
-<div id="conducteur-app">
-  <div id="ct-topbar">
-    <div class="ct-logo">
-      <span style="font-size:22px">🦺</span>
-      <div>
-        <div>BatiPilot</div>
+ot</div>
         <div style="font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1.5px;text-transform:uppercase">Conducteur de travaux</div>
       </div>
     </div>
