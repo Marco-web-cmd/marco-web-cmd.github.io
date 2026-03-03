@@ -18,6 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <style>
+:root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--info:#1D4ED8;--info-soft:#DBEAFE;--purple:#7C3AED;--purple-soft:#EDE9FE;--border:#DDD9D2;--border
 :root{--bg:#F4F1EC;--bg-card:#FDFCFA;--bg-sidebar:#1C1E22;--bg-input:#EFEDE8;--text:#1C1E22;--text-muted:#7A7670;--text-light:#A8A49E;--accent:#C0622A;--accent-soft:#F0DDD2;--accent-dark:#8C4520;--success:#2D7A4F;--success-soft:#D4EDDE;--warning:#B8860B;--warning-soft:#FFF3CD;--danger:#9B2335;--danger-soft:#FADADD;--info:#1D4ED8;--info-soft:#DBEAFE;--purple:#7C3AED;--purple-soft:#EDE9FE;--border:#DDD9D2;--border-dark:#C8C4BC;--shadow-sm:0 1px 3px rgba(28,30,34,0.08);--shadow-md:0 4px 16px rgba(28,30,34,0.10);--shadow-lg:0 8px 32px rgba(28,30,34,0.14);--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--font-display:'Fraunces',serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;--transition:all 0.18s cubic-bezier(0.4,0,0.2,1);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;color-scheme:light;}body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
@@ -583,12 +584,7 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
 /* Mode conducteur : sidebar cachée, conducteur full-screen */
 body.ct-mode #sidebar { display: none !important; }
 body.ct-mode #mode-switcher { z-index: 1001; }
-</style>
-</head>
-<body>
-<div id="offline-indicator"></div>
-<div id="offline-badge" role="alert" aria-live="assertive">📵 Hors-ligne — Lecture seule</div>
-<div id="loader" style="display:flex"><div class="loader-logo">Bati<span>Pilot</span></div><div class="spinner"></div><div class="loader-text" id="loader-text">Vérification de la session...</div><div id="loader-retry" style="display:none;margin-top:20px"><button onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
+onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
 
 <div id="auth-screen" style="display:none">
   <div class="auth-card">
@@ -1715,11 +1711,13 @@ let D={
 let OB={step:0,teams:[],cats:['Matériaux','Consommable','Outillage'],metrics:JSON.parse(JSON.stringify(DM))};
 let CAL={weekStart:null};
 
-// ── Variables offline globales ─────────────────────────────────
-var _isOnline    = navigator.onLine;
-var _offlineDB   = null;
-var _syncQueue   = [];
-var _offlineReady = false;
+// ── Variables offline globales ──────────────────────────────────
+var OFFLINE_DB_NAME  = 'batipilot-offline';
+var OFFLINE_DB_VER   = 1;
+var _isOnline        = navigator.onLine;
+var _offlineDB       = null;
+var _syncQueue       = [];
+var _offlineReady    = false;
 
 
 // ── UTILS ─────────────────────────────────────────
@@ -1929,43 +1927,59 @@ function launchApp(){
 }
 
 async function saveSetting(){
-  try{
-  showSync();
-  // Initialiser trial_ends_at à J+30 si pas encore défini
-  if (!D.settings.trial_ends_at) {
-    var trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
-    D.settings.trial_ends_at = trialEnd.toISOString().slice(0, 10);
-  }
-  const p={
-    user_id:USER.id,
-    company:D.settings.company||'',
-    trade:D.settings.trade||'',
-    phone:D.settings.phone||'',
-    email:D.settings.email||'',
-    adresse:D.settings.adresse||'',
-    siret:D.settings.siret||'',
-    tva_num:D.settings.tva_num||'',
-    website:D.settings.website||'',
-    tva:D.settings.tva??20,
-    plan:D.settings.plan||'gratuit',
-    devis_couleur:D.settings.devis_couleur||'#2D3E8C',
-    devis_acompte:D.settings.devis_acompte??30,
-    devis_conditions:D.settings.devis_conditions||'Paiement à 30 jours fin de mois.',
-    devis_mentions:D.settings.devis_mentions||'Devis valable 30 jours.',
-    trial_ends_at:D.settings.trial_ends_at||null,
-    subscription_status:D.settings.subscription_status||'trial'
-  };
-  const {error}=await SB.from('settings').upsert(p,{onConflict:'user_id'});
-  hideSync();
-  if(error){
-    toast('Erreur sauvegarde : '+(error.message||error.code||'inconnue'),'error');
-  } else {
-    var sc = $('sidebar-company');
-    if(sc) sc.textContent = D.settings.company || 'Mon Entreprise';
-    toast('✅ Paramètres sauvegardés');
-  }
-  }catch(e){toast('Erreur sauvegarde : '+e.message,'error');hideSync();}
-}async function upsert(table,row){showSync();try{const{error}=await SB.from(table).upsert({...row,user_id:USER.id});hideSync();if(error){toast('Erreur : '+error.message,'error');return false;}return true;}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');return false;}}
+  try {
+    showSync();
+    if (!D.settings.trial_ends_at) {
+      var trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
+      D.settings.trial_ends_at = trialEnd.toISOString().slice(0,10);
+    }
+    // Upsert complet (colonnes étendues)
+    const pFull = {
+      user_id:             USER.id,
+      company:             D.settings.company||'',
+      trade:               D.settings.trade||'',
+      phone:               D.settings.phone||'',
+      email:               D.settings.email||'',
+      adresse:             D.settings.adresse||'',
+      siret:               D.settings.siret||'',
+      tva_num:             D.settings.tva_num||'',
+      website:             D.settings.website||'',
+      tva:                 D.settings.tva??20,
+      plan:                D.settings.plan||'gratuit',
+      devis_couleur:       D.settings.devis_couleur||'#2D3E8C',
+      devis_acompte:       D.settings.devis_acompte??30,
+      devis_conditions:    D.settings.devis_conditions||'Paiement à 30 jours fin de mois.',
+      devis_mentions:      D.settings.devis_mentions||'Devis valable 30 jours.',
+      trial_ends_at:       D.settings.trial_ends_at||null,
+      subscription_status: D.settings.subscription_status||'trial'
+    };
+    // Fallback minimal garanti (colonnes de base)
+    const pMin = {
+      user_id:             USER.id,
+      company:             D.settings.company||'',
+      trade:               D.settings.trade||'',
+      phone:               D.settings.phone||'',
+      email:               D.settings.email||'',
+      plan:                D.settings.plan||'gratuit',
+      subscription_status: D.settings.subscription_status||'trial',
+      trial_ends_at:       D.settings.trial_ends_at||null
+    };
+    var r = await SB.from('settings').upsert(pFull, {onConflict:'user_id'});
+    if (r.error && (r.error.code==='PGRST204' || r.error.code==='42703' || (r.error.message||'').includes('column'))) {
+      console.warn('[BatiPilot] saveSetting fallback colonnes minimales:', r.error.message);
+      r = await SB.from('settings').upsert(pMin, {onConflict:'user_id'});
+    }
+    hideSync();
+    if (r.error) {
+      toast('Erreur sauvegarde : '+(r.error.message||r.error.code||'inconnue'), 'error');
+    } else {
+      const sc = $('sidebar-company');
+      if (sc) sc.textContent = D.settings.company || 'Mon Entreprise';
+      toast('✅ Paramètres sauvegardés');
+    }
+  } catch(e) { toast('Erreur sauvegarde : '+e.message, 'error'); hideSync(); }
+}
+
 async function insert(table,row){showSync();try{const{data,error}=await SB.from(table).insert({...row,user_id:USER.id}).select().single();hideSync();if(error){toast('Erreur : '+error.message,'error');return null;}return data;}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');return null;}}
 async function del(table,id){showSync();try{const{error}=await SB.from(table).delete().eq('id',id).eq('user_id',USER.id);hideSync();if(error){toast('Erreur de suppression : '+error.message,'error');}}catch(e){hideSync();toast('Erreur réseau : '+e.message,'error');}}
 async function recalcChantier(cid){const c=D.chantiers.find(x=>x.id===cid);if(!c)return;const mats=D.materiaux.filter(m=>m.chantier_id===cid);c.cout_mat=mats.reduce((a,m)=>a+(+m.total||0),0);c.marge=(+c.devis||0)-c.cout_mat;try{await SB.from('chantiers').update({cout_mat:c.cout_mat,marge:c.marge}).eq('id',cid).eq('user_id',USER.id);}catch(e){toast('Erreur sync marge : '+e.message,'error');}}
@@ -4844,7 +4858,7 @@ function initPolish() {
 
   }
 
-// ── SUPPORT OFFLINE (IndexedDB + Service Worker) ──────────────
+// ── SUPPORT OFFLINE (IndexedDB + Service Worker) ────────────
 function initOfflineSupport() {
   // Écouter les changements de connectivité
   window.addEventListener('online', function() {
