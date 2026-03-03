@@ -676,6 +676,7 @@ body.ct-mode
       <div class="nav-item" onclick="go('finances')"><span class="nav-ico">💰</span>Finances</div>
       <div class="nav-item" onclick="go('facturation')"><span class="nav-ico">🧾</span>Facturation</div>
       <div class="nav-label">Compte</div>
+      <div class="nav-item" onclick="go('salaires')"><span class="nav-ico">💶</span>Masse Salariale</div>
       <div class="nav-item" onclick="go('conducteur')"><span class="nav-ico">👷</span>Conducteur</div>
       <div class="nav-item" onclick="go('abonnement')"><span class="nav-ico">💳</span>Abonnement</div>
       <div class="nav-item" onclick="go('rgpd')"><span class="nav-ico">🔒</span>Mes données</div>
@@ -704,7 +705,7 @@ body.ct-mode
 </div>
 
 <div id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
-<nav id="mobile-nav"><button class="mob-nav-item" onclick="go('dashboard');closeMobDrawer()"><span class="mob-nav-ico">📊</span><span class="mob-nav-label">Accueil</span></button><button class="mob-nav-item" onclick="go('chantiers');closeMobDrawer()"><span class="mob-nav-ico">🚧</span><span class="mob-nav-label">Chantiers</span></button><button class="mob-nav-item" onclick="go('devis');closeMobDrawer()"><span class="mob-nav-ico">📋</span><span class="mob-nav-label">Devis</span></button><button class="mob-nav-item" onclick="go('clients');closeMobDrawer()"><span class="mob-nav-ico">👥</span><span class="mob-nav-label">Clients</span></button><button class="mob-nav-item" onclick="toggleMobDrawer()"><span class="mob-nav-ico">⋯</span><span class="mob-nav-label">Plus</span></button></nav><div id="mobile-more-drawer"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:rgba(255,255,255,0.9)">Navigation</div><button onclick="closeMobDrawer()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer">×</button></div><div class="mob-drawer-grid"><div class="mob-drawer-item" onclick="go('appro');closeMobDrawer()">🛒 <span>Appro</span></div><div class="mob-drawer-item" onclick="go('stock');closeMobDrawer()">📦 <span>Stock</span></div><div class="mob-drawer-item" onclick="go('planning');closeMobDrawer()">📅 <span>Planning</span></div><div class="mob-drawer-item" onclick="go('finances');closeMobDrawer()">💰 <span>Finances</span></div><div class="mob-drawer-item" onclick="go('conducteur');closeMobDrawer()">👷 <span>Conducteur</span></div>
+<nav id="mobile-nav"><button class="mob-nav-item" onclick="go('dashboard');closeMobDrawer()"><span class="mob-nav-ico">📊</span><span class="mob-nav-label">Accueil</span></button><button class="mob-nav-item" onclick="go('chantiers');closeMobDrawer()"><span class="mob-nav-ico">🚧</span><span class="mob-nav-label">Chantiers</span></button><button class="mob-nav-item" onclick="go('devis');closeMobDrawer()"><span class="mob-nav-ico">📋</span><span class="mob-nav-label">Devis</span></button><button class="mob-nav-item" onclick="go('clients');closeMobDrawer()"><span class="mob-nav-ico">👥</span><span class="mob-nav-label">Clients</span></button><button class="mob-nav-item" onclick="toggleMobDrawer()"><span class="mob-nav-ico">⋯</span><span class="mob-nav-label">Plus</span></button></nav><div id="mobile-more-drawer"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:rgba(255,255,255,0.9)">Navigation</div><button onclick="closeMobDrawer()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer">×</button></div><div class="mob-drawer-grid"><div class="mob-drawer-item" onclick="go('appro');closeMobDrawer()">🛒 <span>Appro</span></div><div class="mob-drawer-item" onclick="go('stock');closeMobDrawer()">📦 <span>Stock</span></div><div class="mob-drawer-item" onclick="go('planning');closeMobDrawer()">📅 <span>Planning</span></div><div class="mob-drawer-item" onclick="go('finances');closeMobDrawer()">💰 <span>Finances</span></div><div class="mob-drawer-item" onclick="go('salaires');closeMobDrawer()">💶 <span>Salaires</span></div><div class="mob-drawer-item" onclick="go('conducteur');closeMobDrawer()">👷 <span>Conducteur</span></div>
     <div class="mob-drawer-item" onclick="go('settings');closeMobDrawer()">⚙️ <span>Paramètres</span></div>
 <div class="mob-drawer-item" onclick="go('rgpd');closeMobDrawer()">🔒 <span>Mes données</span></div><div class="mob-drawer-item" onclick="doLogout()">⎋ <span>Déconnexion</span></div></div></div>
 <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
@@ -1709,6 +1710,7 @@ let D={
   chantiers:[],stocks:[],materiaux:[],clients:[],mouvements:[],
   devis_docs:[],factures:[],factures_client:[],
   conducteur_pins:[],notes_chantier:[],bl_items:[],ct_docs:[],
+  employees:[],time_entries:[],
   page:'dashboard'
 };
 let OB={step:0,teams:[],cats:['Matériaux','Consommable','Outillage'],metrics:JSON.parse(JSON.stringify(DM))};
@@ -1794,6 +1796,9 @@ async function resetPwd(){
 }
 async function doLogout(){
   try { await SB.auth.signOut(); } catch(e) {}
+  // Purge complète du cache navigateur
+  try { localStorage.clear(); } catch(e) {}
+  try { sessionStorage.clear(); } catch(e) {}
   USER = null; _appLoaded = false;
   D.chantiers=[]; D.stocks=[]; D.materiaux=[]; D.clients=[];
   D.mouvements=[]; D.devis_docs=[]; D.factures=[]; D.factures_client=[];
@@ -1834,11 +1839,11 @@ async function loadAll(){
   loader('Chargement de vos données...');
   // Wrapper avec timeout : retourne {data:null,error} si la requête échoue ou dépasse 6s
   function sq(q){
-    const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000));
+    const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000)); // 10s timeout réseau
     return Promise.race([q,timeout]).then(r=>r).catch(e=>({data:null,error:{message:String(e)}}));
   }
   try{
-    const[sr,cr,str,mr,clr,dr,fr,fclr,mvr,cpr,ncr,blr,docr]=await Promise.all([
+    const[sr,cr,str,mr,clr,dr,fr,fclr,mvr,cpr,ncr,blr,docr,er,tr]=await Promise.all([
       sq(SB.from('settings').select('*').eq('user_id',USER.id).maybeSingle()),
       sq(SB.from('chantiers').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
       sq(SB.from('stocks').select('*').eq('user_id',USER.id).order('libelle')),
@@ -1851,7 +1856,9 @@ async function loadAll(){
       sq(SB.from('conducteur_pins').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
       sq(SB.from('notes_chantier').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(500)),
       sq(SB.from('bl_items').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(500)),
-      sq(SB.from('ct_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}))
+      sq(SB.from('ct_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
+      sq(SB.from('employees').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
+      sq(SB.from('time_entries').select('*').eq('user_id',USER.id).order('date_travail',{ascending:false}).limit(1000))
     ]);
     if(sr.error){ /* settings absents → premier lancement */ }
     if(cr.error){ D.chantiers=[]; }
@@ -1879,6 +1886,8 @@ async function loadAll(){
     D.notes_chantier=ncr.data||[];
     D.bl_items=blr.data||[];
     D.ct_docs=docr.data||[];
+    D.employees=er?.data||[];
+    D.time_entries=tr?.data||[];
     if(blr.error){ D.bl_items=[]; } // table bl_items optionnelle
     if(docr.error){ D.ct_docs=[]; } // table ct_docs optionnelle
     hideLoader();
@@ -2029,7 +2038,7 @@ async function obFinish(){
 
 // ── NAVIGATION ────────────────────────────────────
 let _lastRenderedPage = null; // Cache de rendu page
-const PAGE_TITLES={dashboard:'Tableau de bord',chantiers:'Chantiers',devis:'Devis',appro:'Approvisionnement',stock:'Stock Dépôt',clients:'Clients',planning:'Planning',finances:'Finances',abonnement:'Abonnement',settings:'Paramètres',conducteur:'Conducteur de travaux'};
+const PAGE_TITLES={dashboard:'Tableau de bord',chantiers:'Chantiers',devis:'Devis',appro:'Approvisionnement',stock:'Stock Dépôt',clients:'Clients',planning:'Planning',finances:'Finances',salaires:'Masse Salariale',abonnement:'Abonnement',settings:'Paramètres',conducteur:'Conducteur de travaux'};
 function openMobileSidebar(){
   const sb = $('sidebar');
   const ov = $('sidebar-overlay');
@@ -2061,7 +2070,7 @@ function go(page){
   closeMobileSidebar();
   $('topbar-title').textContent=PAGE_TITLES[page]||page;
   $('t-sec').style.display=$('t-pri').style.display='none';
-  const pages={dashboard:pgDashboardPro,chantiers:pgChantiers,devis:pgDevis,appro:pgAppro,stock:pgStock,clients:pgClients,planning:pgPlanning,finances:pgFinances,facturation:pgFacturation,abonnement:pgAbonnement,settings:pgSettings,conducteur:pgConducteur,rgpd:pgRGPD,legal:pgLegal,logs:pgActivityLog};
+  const pages={dashboard:pgDashboardPro,chantiers:pgChantiers,devis:pgDevis,appro:pgAppro,stock:pgStock,clients:pgClients,planning:pgPlanning,finances:pgFinances,salaires:pgSalaires,facturation:pgFacturation,abonnement:pgAbonnement,settings:pgSettings,conducteur:pgConducteur,rgpd:pgRGPD,legal:pgLegal,logs:pgActivityLog};
   if(pages[page])pages[page]();
   updateMobileNav(page);
   closeMobDrawer();
@@ -2954,7 +2963,11 @@ function calNav(n){CAL.weekStart=new Date(CAL.weekStart);CAL.weekStart.setDate(C
 function pgFinances(){
   const ch=D.chantiers;
   if(!ch.length){setContent(`<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">Aucune donnée</div></div>`);return;}
-  const ca=ch.reduce((a,c)=>a+(+c.devis||0),0),couts=ch.reduce((a,c)=>a+(+c.cout_mat||0),0),marge=ca-couts,mr=ca>0?(marge/ca*100).toFixed(1):0;
+  // Calcul MO par chantier
+  var moByChF={};
+  (D.time_entries||[]).forEach(function(t){ if(!moByChF[t.chantier_id])moByChF[t.chantier_id]=0; moByChF[t.chantier_id]+=(+t.cout_total||0); });
+  const totalMO=Object.values(moByChF).reduce(function(a,v){return a+v;},0);
+  const ca=ch.reduce((a,c)=>a+(+c.devis||0),0),couts=ch.reduce((a,c)=>a+(+c.cout_mat||0),0)+totalMO,marge=ca-couts,mr=ca>0?(marge/ca*100).toFixed(1):0;
   const facTotal=D.factures.reduce((a,f)=>a+(+f.montant||0),0);
   const tbody=ch.filter(c=>+c.devis>0).sort((a,b)=>+b.marge-+a.marge).map(c=>{const cm=+c.cout_mat||0,dv=+c.devis||0,mg=dv-cm,r=dv>0?Math.round(mg/dv*100):0,bw=dv>0?Math.min(100,cm/dv*100):0;const fs=D.factures.filter(f=>f.chantier_id===c.id),fs2=fs.reduce((a,f)=>a+(+f.montant||0),0);return`<tr><td><strong>${c.nom}</strong><br><span class="td-muted text-sm">${c.client||''}</span></td><td>${etatB(c.etat)}</td><td class="td-mono">${eur(dv)}</td><td class="td-mono">${eur(cm)}<div class="progress-bar" style="margin-top:4px;width:80px"><div class="progress-fill ${bw>80?'red':''}" style="width:${bw}%"></div></div></td><td class="td-mono text-muted">${eur(fs2)}</td><td class="td-mono" style="color:${r>=20?'var(--success)':r>=10?'var(--warning)':'var(--danger)'};font-weight:700">${eur(mg)}<br><span style="font-size:11px">${r}%</span></td><td><button class="btn btn-secondary btn-sm" onclick="printFiche('${c.id}')">📄</button></td></tr>`}).join('');
   setContent(`<div class="page-header"><div class="page-title">Finances</div></div><div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">CA Total</div><div class="kpi-value" style="font-size:20px">${eur(ca)}</div></div><div class="kpi-card orange"><div class="kpi-label">Coûts Mat.</div><div class="kpi-value" style="font-size:20px">${eur(couts)}</div></div><div class="kpi-card"><div class="kpi-label">Factures achat</div><div class="kpi-value" style="font-size:20px">${eur(facTotal)}</div></div><div class="kpi-card ${+mr>=20?'green':+mr>=10?'orange':'red'}"><div class="kpi-label">Marge Brute</div><div class="kpi-value" style="font-size:20px">${eur(marge)}</div><div class="kpi-sub">${mr}%</div></div></div><div class="card" style="padding:0"><div class="table-wrapper" style="border:none;border-radius:var(--radius-lg)"><table><thead><tr><th>Chantier</th><th>État</th><th>Devis TTC</th><th>Coût Mat.</th><th>Factures</th><th>Marge</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div></div>`);
@@ -3504,6 +3517,373 @@ function ctPrintBLPro(fournisseur){
   setTimeout(function(){w.print();},600);
 }
 
+
+
+// ══════════════════════════════════════════════════════════════════
+// MODULE MASSE SALARIALE v9
+// ══════════════════════════════════════════════════════════════════
+
+function pgSalaires() {
+  $('t-pri').style.display='inline-flex';
+  $('t-pri').textContent='+ Ajouter employé';
+  $('t-pri').onclick=()=>modalEmployee();
+  $('t-sec').style.display='inline-flex';
+  $('t-sec').textContent='⏱ Nouveau pointage';
+  $('t-sec').onclick=()=>modalPointage(null);
+
+  var emps = D.employees || [];
+  var entries = D.time_entries || [];
+
+  var totalMensuel = emps.reduce(function(a,e){ return a+(+e.monthly_cost||0); }, 0);
+  var totalHeures  = entries.reduce(function(a,t){ return a+(+t.heures||0); }, 0);
+  var totalCoutMO  = entries.reduce(function(a,t){ return a+(+t.cout_total||0); }, 0);
+  var coutHMoyen   = emps.length > 0
+    ? emps.reduce(function(a,e){ return a+(+e.hourly_cost||0); },0)/emps.length : 0;
+
+  // Calcul MO par chantier
+  var moByChantier = {};
+  entries.forEach(function(t){
+    if(!moByChantier[t.chantier_id]) moByChantier[t.chantier_id]={heures:0,cout:0};
+    moByChantier[t.chantier_id].heures += (+t.heures||0);
+    moByChantier[t.chantier_id].cout   += (+t.cout_total||0);
+  });
+
+  // Tableau employés
+  var empRows = emps.length
+    ? emps.map(function(e){
+        return '<tr>'
+          +'<td><strong>'+esc(e.full_name)+'</strong>'+(e.qualification?'<br><span class="td-muted">'+esc(e.qualification)+'</span>':'')+'</td>'
+          +'<td class="td-muted">'+esc(e.equipe||'—')+'</td>'
+          +'<td><span class="badge badge-'+(e.type==='salarie'?'green':e.type==='interim'?'orange':'blue')+'">'+esc(e.type||'—')+'</span></td>'
+          +'<td class="td-mono">'+eur(e.hourly_rate)+'/h</td>'
+          +'<td class="td-mono" style="color:var(--warning);font-weight:700">'+eur(e.hourly_cost)+'/h</td>'
+          +'<td class="td-mono">'+(e.monthly_cost?eur(e.monthly_cost):'—')+'</td>'
+          +'<td>'
+            +'<button class="btn btn-ghost btn-icon btn-sm" onclick="modalEmployee(''+e.id+'')">✏️</button>'
+            +'<button class="btn btn-ghost btn-icon btn-sm" onclick="delEmployee(''+e.id+'')">🗑️</button>'
+          +'</td>'
+        +'</tr>';
+      }).join('')
+    : '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👷</div><div class="empty-title">Aucun employé</div><div class="text-muted text-sm">Ajoutez vos collaborateurs pour suivre les coûts MO</div></div></td></tr>';
+
+  // Rentabilité chantiers avec MO
+  var rentRows = D.chantiers.filter(function(c){ return +c.devis>0; })
+    .sort(function(a,b){ return +b.devis - +a.devis; })
+    .map(function(c){
+      var mo    = moByChantier[c.id]||{heures:0,cout:0};
+      var coutM = +c.cout_mat||0;
+      var coutT = coutM + mo.cout;
+      var dv    = +c.devis||0;
+      var marge = dv - coutT;
+      var taux  = dv>0 ? Math.round(marge/dv*100) : 0;
+      var ecart = mo.cout - (+c.budget_mo_prevu||0);
+      var col   = taux>=20?'var(--success)':taux>=10?'var(--warning)':'var(--danger)';
+      var eCol  = ecart>0?'var(--danger)':ecart<0?'var(--success)':'var(--text-muted)';
+      return '<tr>'
+        +'<td><strong>'+esc(c.nom)+'</strong><br><span class="td-muted">'+esc(c.client||'')+'</span></td>'
+        +'<td class="td-mono">'+eur(dv)+'</td>'
+        +'<td class="td-mono">'+eur(coutM)+'</td>'
+        +'<td class="td-mono" style="color:var(--warning)">'+eur(mo.cout)
+          +(mo.heures?'<br><span class="td-muted">'+Math.round(mo.heures*10)/10+'h</span>':'')
+          +(mo.heures?'<button class="btn btn-ghost btn-sm" style="padding:2px 5px;font-size:10px" onclick="detailMOChantier(''+c.id+'')">détail</button>':'')
+        +'</td>'
+        +'<td class="td-mono">'+eur(coutT)+'</td>'
+        +'<td class="td-mono" style="color:'+col+';font-weight:700">'+eur(marge)+'<br>'
+          +'<span class="badge badge-'+(taux>=20?'green':taux>=10?'orange':'red')+'">'+taux+'%</span>'
+        +'</td>'
+        +'<td class="td-mono" style="color:'+eCol+'">'+(ecart>=0?'+':'')+eur(ecart)+'</td>'
+        +'<td><button class="btn btn-secondary btn-sm" onclick="modalPointage(''+c.id+'')">⏱ Pointer</button></td>'
+      +'</tr>';
+    }).join('') || '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Aucun chantier actif</div></div></td></tr>';
+
+  // Derniers pointages (10)
+  var ptRows = entries.slice(0,10).map(function(t){
+    var emp = emps.find(function(e){ return e.id===t.employee_id; });
+    var ch  = D.chantiers.find(function(c){ return c.id===t.chantier_id; });
+    return '<tr>'
+      +'<td class="td-mono">'+fdate(t.date_travail)+'</td>'
+      +'<td>'+esc(emp?emp.full_name:'—')+'</td>'
+      +'<td class="td-muted">'+esc(ch?ch.nom:'—')+'</td>'
+      +'<td class="td-mono">'+t.heures+'h</td>'
+      +'<td class="td-mono" style="color:var(--warning)">'+eur(t.cout_total)+'</td>'
+      +'<td><span class="badge badge-'+(t.statut==='valide'?'green':'blue')+'">'+esc(t.statut||'saisi')+'</span></td>'
+      +'<td><button class="btn btn-ghost btn-icon btn-sm" onclick="delPointage(''+t.id+'',''+t.chantier_id+'')">🗑️</button></td>'
+    +'</tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Aucun pointage · Cliquez sur "⏱ Pointer" dans un chantier</td></tr>';
+
+  setContent(
+    '<div class="page-header">'
+    +'<div><div class="page-title">💶 Masse Salariale</div><div class="text-muted text-sm" style="margin-top:4px">Coûts main d'œuvre · Pointage · Rentabilité par chantier</div></div>'
+    +'</div>'
+    +'<div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">'
+      +'<div class="kpi-card orange"><div class="kpi-label">Effectif</div><div class="kpi-value">'+emps.length+'</div><div class="kpi-sub">employés actifs</div></div>'
+      +'<div class="kpi-card"><div class="kpi-label">Masse sal. mensuelle</div><div class="kpi-value" style="font-size:20px">'+eur(totalMensuel)+'</div><div class="kpi-sub">coût chargé estimé</div></div>'
+      +'<div class="kpi-card orange"><div class="kpi-label">Coût MO pointé</div><div class="kpi-value" style="font-size:20px">'+eur(totalCoutMO)+'</div><div class="kpi-sub">'+Math.round(totalHeures*10)/10+'h saisies</div></div>'
+      +'<div class="kpi-card"><div class="kpi-label">Coût horaire moyen</div><div class="kpi-value" style="font-size:20px">'+(coutHMoyen>0?eur(coutHMoyen)+'/h':'—')+'</div></div>'
+    +'</div>'
+    +'<div class="grid-2" style="gap:20px;align-items:start;margin-bottom:20px">'
+      +'<div class="card" style="padding:0">'
+        +'<div class="flex items-center justify-between" style="padding:14px 20px;border-bottom:1px solid var(--border)">'
+          +'<div class="card-title" style="margin:0">Équipe & coûts ('+emps.length+')</div>'
+        +'</div>'
+        +'<div class="table-wrapper" style="border:none">'
+          +'<table><thead><tr><th>Nom / Qualification</th><th>Équipe</th><th>Type</th><th>Taux brut</th><th>Coût chargé</th><th>Mensuel</th><th></th></tr></thead>'
+          +'<tbody>'+empRows+'</tbody></table>'
+        +'</div>'
+      +'</div>'
+      +'<div class="card" style="padding:0">'
+        +'<div class="flex items-center justify-between" style="padding:14px 20px;border-bottom:1px solid var(--border)">'
+          +'<div class="card-title" style="margin:0">⏱ Derniers pointages ('+entries.length+')</div>'
+        +'</div>'
+        +'<div class="table-wrapper" style="border:none">'
+          +'<table><thead><tr><th>Date</th><th>Employé</th><th>Chantier</th><th>Heures</th><th>Coût</th><th>Statut</th><th></th></tr></thead>'
+          +'<tbody>'+ptRows+'</tbody></table>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="card" style="padding:0">'
+      +'<div class="flex items-center justify-between" style="padding:14px 20px;border-bottom:1px solid var(--border)">'
+        +'<div class="card-title" style="margin:0">💹 Rentabilité chantiers (MO incluse)</div>'
+      +'</div>'
+      +'<div class="table-wrapper" style="border:none">'
+        +'<table><thead><tr><th>Chantier</th><th>CA (devis)</th><th>Coût Mat.</th><th>Coût MO</th><th>Coût total</th><th>Marge</th><th>Écart MO prévu</th><th></th></tr></thead>'
+        +'<tbody>'+rentRows+'</tbody></table>'
+      +'</div>'
+    +'</div>'
+  );
+}
+
+// ── Modal employé ──────────────────────────────
+function modalEmployee(id) {
+  var e = id ? (D.employees||[]).find(function(x){ return x.id===id; }) : null;
+  var body = '<div class="form-row form-row-2">'
+    +'<div class="form-group"><label>Nom complet *</label><input id="emp-name" value="'+(e?esc(e.full_name):'')+'" placeholder="Jean Dupont"></div>'
+    +'<div class="form-group"><label>Type</label><select id="emp-type">'
+      +'<option value="salarie"'+(e&&e.type==='salarie'?' selected':'')+'>Salarié</option>'
+      +'<option value="interim"'+(e&&e.type==='interim'?' selected':'')+'>Intérimaire</option>'
+      +'<option value="sous_traitant"'+(e&&e.type==='sous_traitant'?' selected':'')+'>Sous-traitant</option>'
+      +'<option value="apprenti"'+(e&&e.type==='apprenti'?' selected':'')+'>Apprenti</option>'
+    +'</select></div>'
+  +'</div>'
+  +'<div class="form-row form-row-2">'
+    +'<div class="form-group"><label>Équipe</label><input id="emp-equipe" value="'+(e?esc(e.equipe||''):'')+'" placeholder="Équipe A..."></div>'
+    +'<div class="form-group"><label>Qualification</label><input id="emp-qualif" value="'+(e?esc(e.qualification||''):'')+'" placeholder="Chef de chantier, N2P1..."></div>'
+  +'</div>'
+  +'<div class="form-row form-row-3">'
+    +'<div class="form-group"><label>Taux horaire brut (€/h) *</label>'
+      +'<input id="emp-rate" type="number" step="0.01" min="0" value="'+(e?e.hourly_rate:'')+'" placeholder="15.00" oninput="var r=parseFloat(this.value)||0;var c=document.getElementById('emp-cost');if(c&&!c._manual)c.value=(Math.round(r*1.45*100)/100).toFixed(2)">'
+    +'</div>'
+    +'<div class="form-group"><label>Coût chargé patron (€/h) *</label>'
+      +'<input id="emp-cost" type="number" step="0.01" min="0" value="'+(e?e.hourly_cost:'')+'" placeholder="22.00" oninput="this._manual=true">'
+      +'<div class="text-muted text-sm" style="margin-top:4px">≈ taux × 1.45 (charges)</div>'
+    +'</div>'
+    +'<div class="form-group"><label>Coût mensuel chargé (€)</label>'
+      +'<input id="emp-monthly" type="number" step="0.01" min="0" value="'+(e&&e.monthly_cost?e.monthly_cost:'')+'" placeholder="3200">'
+    +'</div>'
+  +'</div>'
+  +'<div class="form-group"><label>Budget MO prévu sur chantiers (€)</label>'
+    +'<input id="emp-budget" type="number" step="0.01" min="0" value="'+(e&&e.budget_mo_prevu?e.budget_mo_prevu:'')+'" placeholder="Optionnel">'
+  +'</div>';
+
+  modal(id?'Modifier l'employé':'Nouvel employé', body,
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    +'<button class="btn btn-primary" onclick="saveEmployee(''+(id||'')+'')">💾 Enregistrer</button>'
+  );
+}
+
+async function saveEmployee(id) {
+  var name = ($('emp-name')||{value:''}).value.trim();
+  if(!name){ toast('Nom obligatoire','error'); return; }
+  var cost = parseFloat(($('emp-cost')||{value:0}).value)||0;
+  if(!cost){ toast('Coût horaire chargé obligatoire','error'); return; }
+  var data = {
+    id: id||uid(),
+    full_name: name,
+    type: ($('emp-type')||{value:'salarie'}).value,
+    equipe: ($('emp-equipe')||{value:''}).value.trim()||null,
+    qualification: ($('emp-qualif')||{value:''}).value.trim()||null,
+    hourly_rate: parseFloat(($('emp-rate')||{value:0}).value)||0,
+    hourly_cost: cost,
+    monthly_cost: parseFloat(($('emp-monthly')||{value:0}).value)||0,
+    budget_mo_prevu: parseFloat(($('emp-budget')||{value:0}).value)||0,
+  };
+  closeModal();
+  if(id){ var idx=(D.employees||[]).findIndex(function(e){ return e.id===id; }); if(idx>=0)D.employees[idx]=data; }
+  else { if(!D.employees)D.employees=[]; D.employees.unshift(data); }
+  await upsert('employees', data);
+  toast(id?'Employé mis à jour !':'Employé ajouté !');
+  pgSalaires();
+}
+
+async function delEmployee(id) {
+  var hasE = (D.time_entries||[]).some(function(t){ return t.employee_id===id; });
+  if(hasE){ toast('Cet employé a des pointages — supprimez-les d'abord','error'); return; }
+  if(!confirm('Supprimer cet employé ?')) return;
+  D.employees = (D.employees||[]).filter(function(e){ return e.id!==id; });
+  await del('employees', id);
+  toast('Supprimé','error');
+  pgSalaires();
+}
+
+// ── Modal pointage ─────────────────────────────
+function modalPointage(chantierId) {
+  var emps = D.employees||[];
+  if(!emps.length){
+    modal('⏱ Pointage',
+      '<div class="alert alert-warning"><span>⚠️</span>Ajoutez d'abord des employés dans Masse Salariale avant de pointer.</div>',
+      '<button class="btn btn-secondary" onclick="closeModal()">Fermer</button><button class="btn btn-primary" onclick="closeModal();go('salaires')">→ Masse Salariale</button>'
+    );
+    return;
+  }
+  var chOpts = D.chantiers.map(function(c){
+    return '<option value="'+c.id+'"'+(c.id===chantierId?' selected':'')+'>'+esc(c.nom)+' — '+esc(c.client||'')+'</option>';
+  }).join('');
+  var empOpts = emps.map(function(e){
+    return '<option value="'+e.id+'" data-cost="'+e.hourly_cost+'">'+esc(e.full_name)+(e.equipe?' ('+esc(e.equipe)+')':'')+'</option>';
+  }).join('');
+  var body = '<div class="form-row form-row-2">'
+    +'<div class="form-group"><label>Chantier *</label><select id="pt-ch">'+chOpts+'</select></div>'
+    +'<div class="form-group"><label>Employé *</label><select id="pt-emp" onchange="ptUpdatePreview()">'+empOpts+'</select></div>'
+  +'</div>'
+  +'<div class="form-row form-row-3">'
+    +'<div class="form-group"><label>Date *</label><input id="pt-date" type="date" value="'+today()+'"></div>'
+    +'<div class="form-group"><label>H. début</label><input id="pt-debut" type="time" value="07:00" oninput="ptCalcH()"></div>'
+    +'<div class="form-group"><label>H. fin</label><input id="pt-fin" type="time" value="17:00" oninput="ptCalcH()"></div>'
+  +'</div>'
+  +'<div class="form-row form-row-2">'
+    +'<div class="form-group"><label>Heures *</label><input id="pt-heures" type="number" step="0.5" min="0.5" max="24" value="10" oninput="ptUpdatePreview()"></div>'
+    +'<div class="form-group"><label>Type</label><select id="pt-type">'
+      +'<option value="normal">Normal</option>'
+      +'<option value="heure_sup">Heures supp.</option>'
+      +'<option value="nuit">Nuit</option>'
+      +'<option value="weekend">Weekend</option>'
+      +'<option value="deplacement">Déplacement</option>'
+    +'</select></div>'
+  +'</div>'
+  +'<div id="pt-preview" style="background:var(--accent-soft);padding:12px 16px;border-radius:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">'
+    +'<span style="color:var(--accent-dark);font-weight:600;font-size:13px">Coût estimé :</span>'
+    +'<span id="pt-preview-val" style="font-family:var(--font-mono);font-size:18px;font-weight:900;color:var(--accent-dark)">—</span>'
+  +'</div>'
+  +'<div class="form-group"><label>Notes</label><input id="pt-notes" placeholder="Optionnel"></div>';
+
+  modal('⏱ Nouveau pointage', body,
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    +'<button class="btn btn-primary" onclick="savePointage()">✅ Enregistrer</button>'
+  );
+  setTimeout(function(){ ptCalcH(); ptUpdatePreview(); }, 60);
+}
+
+function ptCalcH(){
+  var d=($('pt-debut')||{value:''}).value, f=($('pt-fin')||{value:''}).value;
+  if(d&&f){
+    var dp=d.split(':').map(Number), fp=f.split(':').map(Number);
+    var diff=((fp[0]*60+fp[1])-(dp[0]*60+dp[1]))/60;
+    if(diff>0){ var el=$('pt-heures'); if(el)el.value=Math.round(diff*2)/2; }
+  }
+  ptUpdatePreview();
+}
+function ptUpdatePreview(){
+  var sel=$('pt-emp');
+  var cost=parseFloat(sel&&sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].dataset.cost:0)||0;
+  var h=parseFloat(($('pt-heures')||{value:0}).value)||0;
+  var el=$('pt-preview-val');
+  if(el) el.textContent = (cost>0&&h>0)?eur(cost*h):'—';
+}
+
+async function savePointage() {
+  var chId  = ($('pt-ch')||{value:''}).value;
+  var empId = ($('pt-emp')||{value:''}).value;
+  var h     = parseFloat(($('pt-heures')||{value:0}).value)||0;
+  var date  = ($('pt-date')||{value:''}).value;
+  if(!chId||!empId||!h||!date){ toast('Chantier, employé, heures et date obligatoires','error'); return; }
+  var emp = (D.employees||[]).find(function(e){ return e.id===empId; });
+  if(!emp){ toast('Employé introuvable','error'); return; }
+  var entry = {
+    id: uid(),
+    chantier_id: chId,
+    employee_id: empId,
+    date_travail: date,
+    heure_debut: ($('pt-debut')||{value:null}).value||null,
+    heure_fin:   ($('pt-fin')||{value:null}).value||null,
+    heures: h,
+    type_travail: ($('pt-type')||{value:'normal'}).value||'normal',
+    taux_horaire: emp.hourly_rate||0,
+    cout_unitaire: emp.hourly_cost||0,
+    cout_total: h*(+emp.hourly_cost||0),
+    statut: 'saisi',
+    notes: ($('pt-notes')||{value:''}).value||null,
+  };
+  closeModal();
+  if(!D.time_entries)D.time_entries=[];
+  D.time_entries.unshift(entry);
+  // Mettre à jour cout_mo local du chantier
+  var ch = D.chantiers.find(function(c){ return c.id===chId; });
+  if(ch){
+    ch.cout_mo = (D.time_entries||[]).filter(function(t){ return t.chantier_id===chId; }).reduce(function(a,t){ return a+(+t.cout_total||0); },0);
+    ch.marge = (+ch.devis||0)-(+ch.cout_mat||0)-ch.cout_mo;
+  }
+  await insert('time_entries', entry);
+  toast('Pointage enregistré — Coût : '+eur(entry.cout_total));
+  if(D.page==='salaires') pgSalaires();
+}
+
+async function delPointage(id, chantierId) {
+  if(!confirm('Supprimer ce pointage ?')) return;
+  var entry = (D.time_entries||[]).find(function(t){ return t.id===id; });
+  D.time_entries = (D.time_entries||[]).filter(function(t){ return t.id!==id; });
+  // Recalcul MO local
+  if(chantierId){
+    var ch=D.chantiers.find(function(c){ return c.id===chantierId; });
+    if(ch){
+      ch.cout_mo=(D.time_entries||[]).filter(function(t){ return t.chantier_id===chantierId; }).reduce(function(a,t){ return a+(+t.cout_total||0); },0);
+      ch.marge=(+ch.devis||0)-(+ch.cout_mat||0)-ch.cout_mo;
+    }
+  }
+  await del('time_entries', id);
+  toast('Pointage supprimé','error');
+  if(D.page==='salaires') pgSalaires();
+}
+
+function detailMOChantier(cid) {
+  var entries = (D.time_entries||[]).filter(function(t){ return t.chantier_id===cid; });
+  var ch = D.chantiers.find(function(c){ return c.id===cid; });
+  var byEmp = {};
+  entries.forEach(function(t){
+    if(!byEmp[t.employee_id]) byEmp[t.employee_id]={heures:0,cout:0};
+    byEmp[t.employee_id].heures += (+t.heures||0);
+    byEmp[t.employee_id].cout   += (+t.cout_total||0);
+  });
+  var rows = Object.keys(byEmp).map(function(eid){
+    var d=byEmp[eid], emp=(D.employees||[]).find(function(e){ return e.id===eid; });
+    return '<tr>'
+      +'<td>'+esc(emp?emp.full_name:'—')+'</td>'
+      +'<td class="td-muted">'+esc(emp&&emp.equipe?emp.equipe:'—')+'</td>'
+      +'<td class="td-mono">'+Math.round(d.heures*10)/10+'h</td>'
+      +'<td class="td-mono" style="color:var(--warning);font-weight:700">'+eur(d.cout)+'</td>'
+    +'</tr>';
+  }).join('')||'<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Aucun pointage</td></tr>';
+  var totalMO=entries.reduce(function(a,t){ return a+(+t.cout_total||0); },0);
+  var totalH =entries.reduce(function(a,t){ return a+(+t.heures||0); },0);
+  modal('👷 Main d'œuvre — '+(ch?ch.nom:''),
+    '<div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px">'
+      +'<div class="kpi-card orange"><div class="kpi-label">Coût MO total</div><div class="kpi-value" style="font-size:22px">'+eur(totalMO)+'</div></div>'
+      +'<div class="kpi-card"><div class="kpi-label">Heures totales</div><div class="kpi-value" style="font-size:22px">'+Math.round(totalH*10)/10+'h</div></div>'
+    +'</div>'
+    +'<div class="table-wrapper"><table>'
+      +'<thead><tr><th>Employé</th><th>Équipe</th><th>Heures</th><th>Coût</th></tr></thead>'
+      +'<tbody>'+rows+'</tbody>'
+    +'</table></div>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Fermer</button>'
+    +'<button class="btn btn-primary" onclick="closeModal();modalPointage(''+cid+'')">+ Nouveau pointage</button>'
+  );
+}
+
+// ── Injecter "Pointer" dans la fiche chantier ──
+// (surcharge openChantierDetail si elle existe, sinon via modalChantier footer)
+
+// ══════════════════════════════════════════════════════════════════
+// FIN MODULE MASSE SALARIALE
+// ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════════════════
@@ -4893,6 +5273,12 @@ function openOfflineDB() {
       if (!db.objectStoreNames.contains('cached_data')) {
         db.createObjectStore('cached_data', {keyPath: 'key'});
       }
+      if (!db.objectStoreNames.contains('employees_offline')) {
+        db.createObjectStore('employees_offline', {keyPath: 'id'});
+      }
+      if (!db.objectStoreNames.contains('time_entries_offline')) {
+        db.createObjectStore('time_entries_offline', {keyPath: 'id'});
+      }
     };
     req.onsuccess = function(e) {
       _offlineDB = e.target.result;
@@ -5625,47 +6011,80 @@ function ctBudgetConfirmOrder(fnStr) {
 
 // ─── 3. CGV / MENTIONS LÉGALES ──────────────────────────────────
 function pgLegal() {
-  setContent(
-    '<div class="page-header"><div class="page-title">📄 CGV & Mentions légales</div></div>'
-    + '<div style="max-width:800px;margin:0 auto">'
-    + '<div class="card" style="margin-bottom:20px">'
-      + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">Conditions Générales de Vente (CGV)</div>'
-      + '<div style="font-size:13px;color:var(--text-muted);line-height:2">'
-        + '<strong>Article 1 — Objet</strong><br>'
-        + 'BatiPilot est un logiciel SaaS de gestion de chantiers BTP. Les présentes CGV régissent l&apos;accès et l&apos;utilisation du service entre l&apos;éditeur et ses clients professionnels.<br><br>'
-        + '<strong>Article 2 — Accès au service</strong><br>'
-        + 'L&apos;abonnement est souscrit pour une durée mensuelle renouvelable tacitement. L&apos;essai gratuit de 30 jours ne nécessite pas de carte bancaire. Résiliation possible à tout moment depuis votre espace client, sans frais.<br><br>'
-        + '<strong>Article 3 — Prix et paiement</strong><br>'
-        + 'Les tarifs sont affichés TTC. Paiement par carte bancaire via Stripe (certifié PCI-DSS). Aucun prélèvement pendant la période d&apos;essai gratuit.<br><br>'
-        + '<strong>Article 4 — Données et confidentialité</strong><br>'
-        + 'Vos données sont hébergées sur Supabase (AWS EU Francfort). Elles ne sont jamais revendues. Vous restez propriétaire intégral de vos données et pouvez les exporter à tout moment.<br><br>'
-        + '<strong>Article 5 — Limitation de responsabilité</strong><br>'
-        + 'BatiPilot est un outil d&apos;aide à la gestion. L&apos;éditeur ne saurait être tenu responsable des décisions commerciales prises sur la base des informations affichées.<br><br>'
-        + '<strong>Article 6 — Résiliation</strong><br>'
-        + 'La résiliation prend effet à la fin de la période mensuelle en cours. Données conservées 30 jours après résiliation.<br><br>'
-        + '<strong>Article 7 — Droit applicable</strong><br>'
-        + 'Les présentes CGV sont soumises au droit français.'
-      + '</div>'
-    + '</div>'
-    + '<div class="card" style="margin-bottom:20px">'
-      + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">Mentions légales</div>'
-      + '<div style="font-size:13px;color:var(--text-muted);line-height:2">'
-        + '<strong>Éditeur :</strong> [Votre société, forme juridique, capital, SIRET, adresse]<br>'
-        + '<strong>Hébergement :</strong> Supabase Inc. / AWS EU-Central-1 (Francfort, Allemagne)<br>'
-        + '<strong>Contact :</strong> <a href="/cdn-cgi/l/email-protection#64070b0a10050710240605100d140d080b104a0216" style="color:var(--accent)"><span class="__cf_email__" data-cfemail="55363a3b21343621153734213c253c393a217b3327">[email&#160;protected]</span></a><br>'
-        + '<strong>DPO / RGPD :</strong> <a href="/cdn-cgi/l/email-protection#07637768476566736e776e6b6873296175" style="color:var(--accent)"><span class="__cf_email__" data-cfemail="a1c5d1cee1c3c0d5c8d1c8cdced58fc7d3">[email&#160;protected]</span></a><br><br>'
-        + '<strong>Propriété intellectuelle :</strong> L&apos;ensemble du contenu de BatiPilot est protégé par le droit de la propriété intellectuelle.<br><br>'
-        + '<strong>Cookies :</strong> BatiPilot utilise uniquement des cookies strictement nécessaires (session). Aucun cookie publicitaire.'
-      + '</div>'
-    + '</div>'
-    + '<div class="card">'
-      + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:12px">Support</div>'
-      + '<a href="/cdn-cgi/l/email-protection#ed9e989d9d829f99ad8f8c99849d84818299c38b9f" class="btn btn-secondary w-full" style="margin-bottom:8px"><span class="__cf_email__" data-cfemail="6a191f1a1a05181e2a080b1e031a0306051e440c18">[email&#160;protected]</span></a>'
-      + '<button class="btn btn-ghost w-full" onclick="go(&apos;rgpd&apos;)">Gestion des données personnelles</button>'
-    + '</div>'
-    + '</div>'
-  );
+  setContent(`
+    <div class="page-header"><div class="page-title">📄 CGV & Mentions légales</div></div>
+    <div style="max-width:860px;margin:0 auto">
+
+      <div class="card" style="margin-bottom:20px;border-left:4px solid var(--accent)">
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px">BatiPilot — Informations légales</div>
+        <div class="text-muted text-sm">Éditeur du logiciel SaaS de gestion de chantiers BTP</div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">📜 Mentions légales</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:2.2">
+          <strong>Éditeur :</strong> [Nom de votre société] — [Forme juridique] — Capital [X] € — SIRET [000 000 000 00000]<br>
+          <strong>Siège social :</strong> [Adresse complète]<br>
+          <strong>Directeur de publication :</strong> [Prénom Nom]<br>
+          <strong>Contact :</strong> contact@batipilot.fr<br><br>
+          <strong>Hébergement :</strong> Supabase Inc. / AWS EU-Central-1 (Francfort, Allemagne) — conforme RGPD<br>
+          <strong>DPO / RGPD :</strong> dpo@batipilot.fr<br><br>
+          <strong>Propriété intellectuelle :</strong> L'ensemble du contenu de BatiPilot (logo, interface, code) est protégé par le droit de la propriété intellectuelle français. Toute reproduction est interdite sans autorisation préalable.<br><br>
+          <strong>Cookies :</strong> BatiPilot utilise uniquement des cookies strictement nécessaires au fonctionnement (session d'authentification). Aucun cookie publicitaire, aucun tracker tiers.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">📋 Conditions Générales de Vente (CGV)</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:2.1">
+          <strong>Article 1 — Objet</strong><br>
+          BatiPilot est un logiciel SaaS de gestion de chantiers destiné aux professionnels du BTP. Les présentes CGV régissent l'accès et l'utilisation du service entre l'éditeur et ses clients professionnels (B2B).<br><br>
+          <strong>Article 2 — Accès au service & Essai gratuit</strong><br>
+          L'abonnement est souscrit pour une durée mensuelle renouvelable tacitement. Un essai gratuit de 30 jours est offert à tout nouvel utilisateur, sans carte bancaire requise. À l'issue de la période d'essai, l'accès aux fonctionnalités est conditionné à la souscription d'un abonnement payant.<br><br>
+          <strong>Article 3 — Prix et paiement</strong><br>
+          Les tarifs affichés sont HT hors taxes. Paiement par carte bancaire via Stripe (certifié PCI-DSS niveau 1). Facturation mensuelle. Aucun prélèvement pendant la période d'essai gratuit. En cas d'impayé, l'accès au service est suspendu après 7 jours.<br><br>
+          <strong>Article 4 — Propriété des données</strong><br>
+          Vous restez propriétaire intégral de toutes vos données (chantiers, clients, devis, factures). BatiPilot ne cède ni ne vend aucune donnée à des tiers. Vous pouvez exporter l'intégralité de vos données à tout moment depuis « Mes données ».<br><br>
+          <strong>Article 5 — Disponibilité & SLA</strong><br>
+          BatiPilot s'engage à maintenir une disponibilité du service de 99,5% par mois calendaire. En cas d'interruption planifiée, les utilisateurs sont prévenus 48h à l'avance. Le mode hors-ligne permet de continuer à travailler en cas d'indisponibilité.<br><br>
+          <strong>Article 6 — Résiliation</strong><br>
+          La résiliation peut être effectuée à tout moment depuis l'espace abonnement, sans frais ni préavis. Elle prend effet à la fin de la période mensuelle en cours. Les données sont conservées 30 jours après la résiliation, puis définitivement supprimées.<br><br>
+          <strong>Article 7 — Limitation de responsabilité</strong><br>
+          BatiPilot est un outil d'aide à la gestion. L'éditeur ne saurait être tenu responsable des décisions commerciales ou financières prises sur la base des informations affichées. La responsabilité de l'éditeur est limitée au montant des abonnements versés sur les 12 derniers mois.<br><br>
+          <strong>Article 8 — Droit applicable & Médiation</strong><br>
+          Les présentes CGV sont soumises au droit français. En cas de litige, une solution amiable sera recherchée en priorité. À défaut, les tribunaux compétents de [ville] seront saisis. Conformément à l'art. L.612-1 du Code de la consommation, vous pouvez recourir à un médiateur de la consommation.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🔒 Politique de confidentialité (RGPD)</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:2.1">
+          <strong>Responsable du traitement :</strong> [Nom société] — contact@batipilot.fr<br><br>
+          <strong>Données collectées :</strong><br>
+          • Données de compte : adresse email, mot de passe (haché) — base légale : exécution du contrat<br>
+          • Données métier saisies par l'utilisateur (chantiers, clients, devis, factures) — base légale : exécution du contrat<br>
+          • Données de navigation : adresse IP (logs serveur, 30 jours) — base légale : intérêt légitime (sécurité)<br>
+          • Consentement RGPD horodaté lors de l'inscription<br><br>
+          <strong>Durée de conservation :</strong> Données actives pendant toute la durée de l'abonnement + 30 jours après résiliation. Données de facturation : 10 ans (obligation légale CGI).<br><br>
+          <strong>Sous-traitants :</strong><br>
+          • Supabase Inc. (base de données, authentification) — AWS EU-Central-1, Francfort — Accord DPA en vigueur<br>
+          • Stripe Inc. (paiement) — Transfert USA encadré par clauses contractuelles types (SCC)<br><br>
+          <strong>Vos droits (art. 15 à 21 RGPD) :</strong> Accès, rectification, effacement, portabilité, opposition, limitation. Exercer vos droits via « Mes données » dans l'application ou par email à dpo@batipilot.fr. Délai de réponse : 30 jours. Vous pouvez également adresser une réclamation à la CNIL (www.cnil.fr).
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:12px">📬 Contact & Support</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <a href="mailto:contact@batipilot.fr" class="btn btn-secondary">✉️ contact@batipilot.fr</a>
+          <a href="mailto:dpo@batipilot.fr" class="btn btn-secondary">🔒 dpo@batipilot.fr (DPO)</a>
+        </div>
+        <button class="btn btn-ghost w-full" style="margin-top:10px" onclick="go('rgpd')">→ Gérer mes données personnelles</button>
+      </div>
+    </div>
+  `);
 }
+
 
 function initActivityLogHooks() {
   // Hook : création chantier
