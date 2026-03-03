@@ -765,27 +765,13 @@ body.ct-mode #mode-switcher { z-index: 1001; }
   </button>
 </nav>
 
-<script>
-function printDevis(dvId){
-  const html=buildDevisHTML(dvId);if(!html)return;
-  const w=window.open('','_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(function(){w.print();},800);
-}
-
-function modalEnvoiDevis(dvId){
-  const dv=D.devis_docs.find(x=>x.id===dvId);if(!dv)return;
-  const s=D.settings;
-  const cl=D.clients.find(c=>c.nom===dv.client);
-  const clientEmail=(cl&&cl.email)||'';
-  const dateVal=new Date(new Date(dv.date).setDate(new Date(dv.date).getDate()+(+dv.// ── BatiPilot v7 — Variables globales critiques ────────────────
-var OFFLINE_DB_NAME  = 'batipilot-offline';
-var OFFLINE_DB_VER   = 1;
-var _isOnline        = typeof navigator !== 'undefined' ? navigator.onLine : true;
-var _offlineDB       = null;
-var _syncQueue       = [];
-var _offlineReady    = false;
+<script>// ── BatiPilot v7 — Globals ──────────────────────────
+var OFFLINE_DB_NAME = 'batipilot-offline';
+var OFFLINE_DB_VER  = 1;
+var _isOnline       = typeof navigator !== 'undefined' ? navigator.onLine : true;
+var _offlineDB      = null;
+var _syncQueue      = [];
+var _offlineReady   = false;
 
 
 function printDevis(dvId){
@@ -1420,7 +1406,7 @@ function ctPrintBL() {
         + '<div style="color:rgba(255,255,255,0.55);font-size:13px;margin-top:4px">'+(ch?ch.client||'':'')+' · '+(ch?ch.equipe||'':'')+' · Date : '+new Date().toLocaleDateString('fr-FR')+'</div>'
       + '</div>'
       + '<div style="text-align:right">'
-        + ((s.logo&&(s.logo.startsWith('http')||s.logo.startsWith('data:')))?'<img src="'+s.logo+'"' style="max-height:50px;max-width:120px;object-fit:contain" onerror="this.style.display=\'none\'">':'')
+        + (s.logo?'<img src="'+s.logo+'" style="max-height:50px;max-width:120px;object-fit:contain" onerror="this.style.display=\'none\'">':'')
         + '<div style="color:#fff;font-size:13px;font-weight:700;margin-top:4px">'+(s.company||'')+'</div>'
       + '</div>'
     + '</div>'
@@ -1951,26 +1937,26 @@ async function saveSetting(){
       D.settings.trial_ends_at = trialEnd.toISOString().slice(0,10);
     }
     const pFull = {
-      user_id:USER.id,company:D.settings.company||'',trade:D.settings.trade||'',
-      phone:D.settings.phone||'',email:D.settings.email||'',adresse:D.settings.adresse||'',
-      siret:D.settings.siret||'',tva_num:D.settings.tva_num||'',website:D.settings.website||'',
-      tva:D.settings.tva??20,plan:D.settings.plan||'gratuit',
-      devis_couleur:D.settings.devis_couleur||'#2D3E8C',devis_acompte:D.settings.devis_acompte??30,
+      user_id:USER.id, company:D.settings.company||'', trade:D.settings.trade||'',
+      phone:D.settings.phone||'', email:D.settings.email||'', adresse:D.settings.adresse||'',
+      siret:D.settings.siret||'', tva_num:D.settings.tva_num||'', website:D.settings.website||'',
+      tva:D.settings.tva??20, plan:D.settings.plan||'gratuit',
+      devis_couleur:D.settings.devis_couleur||'#2D3E8C', devis_acompte:D.settings.devis_acompte??30,
       devis_conditions:D.settings.devis_conditions||'Paiement à 30 jours fin de mois.',
       devis_mentions:D.settings.devis_mentions||'Devis valable 30 jours.',
       trial_ends_at:D.settings.trial_ends_at||null,
       subscription_status:D.settings.subscription_status||'trial'
     };
     const pMin = {
-      user_id:USER.id,company:D.settings.company||'',trade:D.settings.trade||'',
-      phone:D.settings.phone||'',email:D.settings.email||'',
-      plan:D.settings.plan||'gratuit',subscription_status:D.settings.subscription_status||'trial',
+      user_id:USER.id, company:D.settings.company||'', trade:D.settings.trade||'',
+      phone:D.settings.phone||'', email:D.settings.email||'',
+      plan:D.settings.plan||'gratuit', subscription_status:D.settings.subscription_status||'trial',
       trial_ends_at:D.settings.trial_ends_at||null
     };
-    var r = await SB.from('settings').upsert(pFull,{onConflict:'user_id'});
+    var r = await SB.from('settings').upsert(pFull, {onConflict:'user_id'});
     if (r.error && (r.error.code==='PGRST204'||r.error.code==='42703'||(r.error.message||'').includes('column'))) {
-      console.warn('[BatiPilot] saveSetting fallback minimal:', r.error.message);
-      r = await SB.from('settings').upsert(pMin,{onConflict:'user_id'});
+      console.warn('[BatiPilot] saveSetting fallback:', r.error.message);
+      r = await SB.from('settings').upsert(pMin, {onConflict:'user_id'});
     }
     hideSync();
     if (r.error) { toast('Erreur sauvegarde : '+(r.error.message||r.error.code||'inconnue'),'error'); }
@@ -3194,9 +3180,8 @@ function buildDevisHTML(dvId){
   const dateStr=new Date(dv.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
   const dateVal=vd.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
   // Logo ou nom entreprise
-  const _logoSrc = s.logo && (s.logo.startsWith('http')||s.logo.startsWith('data:')) ? s.logo : '';
-  const logoH=_logoSrc
-    ?'<img src="'+_logoSrc+'" style="max-height:80px;max-width:180px;object-fit:contain" onerror="this.style.display=\'none\'">'
+  const logoH=s.logo
+    ?'<img src="'+s.logo+'" style="max-height:80px;max-width:180px;object-fit:contain" onerror="this.style.display=\'none\'">'
     :'<div style="font-size:22px;font-weight:900;color:'+col+';font-family:Georgia,serif;letter-spacing:-0.5px">'+s.company+'</div>';
   // Adresse émetteur
   const addrLines=[s.trade,s.adresse,s.siret?'SIRET : '+s.siret:'',s.tva_num?'N° TVA : '+s.tva_num:'',s.phone?'📞 '+s.phone:'',s.email?'✉ '+s.email:'',s.website?'🌐 '+s.website:''].filter(Boolean);
@@ -3486,7 +3471,7 @@ function ctPrintBLPro(fournisseur){
         +'</div>'
       +'</div>'
       +'<div style="text-align:right">'
-        +((s.logo&&(s.logo.startsWith('http')||s.logo.startsWith('data:')))?'<img src="'+s.logo+'"' style="max-height:55px;max-width:130px;object-fit:contain;background:rgba(255,255,255,0.9);border-radius:8px;padding:8px">':'')
+        +(s.logo?'<img src="'+s.logo+'" style="max-height:55px;max-width:130px;object-fit:contain;background:rgba(255,255,255,0.9);border-radius:8px;padding:8px">':'')
         +'<div style="color:#fff;font-size:13px;font-weight:700;margin-top:6px">'+(s.company||'')+'</div>'
       +'</div>'
     +'</div>'
@@ -3534,7 +3519,7 @@ setTimeout(function() {
   if (loaderEl && loaderEl.style.display !== 'none' && retryBtn) {
     retryBtn.style.display = 'block';
   }
-}, 8000);
+}, 5000);
 
 async function startApp(user) {
   // Guard strict : une seule tentative de boot à la fois
@@ -4857,7 +4842,7 @@ function initPolish() {
 
   }
 
-// ── SUPPORT OFFLINE ─────────────────────────────────────────
+// ── SUPPORT OFFLINE ─────────────────────────────────
 function initOfflineSupport() {
   // Écouter les changements de connectivité
   window.addEventListener('online', function() {
@@ -5973,7 +5958,24 @@ function _dashQuickLink(page, ico, label, sub) {
   +'</div>';
 }
 
-ot</div>
+</script>
+
+
+<!-- MODE SWITCHER -->
+<div id="mode-switcher">
+  <div class="mode-pill">
+    <button class="mode-btn active" id="mode-patron" onclick="switchMode('patron')">👷 Bureau</button>
+    <button class="mode-btn" id="mode-conducteur" onclick="switchMode('conducteur')">🦺 Terrain</button>
+  </div>
+</div>
+
+<!-- APP CONDUCTEUR DE TRAVAUX -->
+<div id="conducteur-app">
+  <div id="ct-topbar">
+    <div class="ct-logo">
+      <span style="font-size:22px">🦺</span>
+      <div>
+        <div>BatiPilot</div>
         <div style="font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1.5px;text-transform:uppercase">Conducteur de travaux</div>
       </div>
     </div>
