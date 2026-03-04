@@ -1949,11 +1949,11 @@ async function doLogin() {
     if (btn) { btn.disabled = true; btn.textContent = 'Connexion…'; }
     loader('Connexion...');
     const { data, error } = await SB.auth.signInWithPassword({ email, password: pwd });
-    // Toujours masquer le loader immédiatement après la réponse
-    hideLoader();
-    $('auth-screen').style.display = 'flex';
-    if (btn) { btn.disabled = false; btn.textContent = 'Se connecter →'; }
     if (error) {
+      // Échec : afficher l'écran de login avec le message d'erreur
+      hideLoader();
+      $('auth-screen').style.display = 'flex';
+      if (btn) { btn.disabled = false; btn.textContent = 'Se connecter →'; }
       const msg = (error.message||'').toLowerCase().includes('invalid')
         ? 'Email ou mot de passe incorrect. Vérifiez vos identifiants.'
         : (error.status === 400 || error.code === 'invalid_grant')
@@ -1962,9 +1962,15 @@ async function doLogin() {
       authMsg(msg, 'error');
       return;
     }
-    // Si data.session existe, onAuthStateChange prendra la main
-    // Sinon (réponse vide inattendue), afficher l'écran de connexion
-    if (!data?.session) {
+    if (data?.session) {
+      // Succès : NE PAS réafficher auth-screen, laisser onAuthStateChange → startApp()
+      // Le loader reste masqué, l'app va s'afficher via launchApp()
+      if (btn) { btn.disabled = false; btn.textContent = 'Se connecter →'; }
+      // onAuthStateChange(SIGNED_IN) prend la main
+    } else {
+      hideLoader();
+      $('auth-screen').style.display = 'flex';
+      if (btn) { btn.disabled = false; btn.textContent = 'Se connecter →'; }
       authMsg('Connexion impossible. Vérifiez vos identifiants et réessayez.', 'error');
     }
   } catch(e) {
@@ -4235,7 +4241,9 @@ async function startApp(user) {
   if (_appLoaded) return;
   _appLoaded = true;
   USER = user;
+  // Masquer auth-screen et loader avant tout
   $('auth-screen').style.display = 'none';
+  hideLoader();
   $('onboarding').style.display  = 'none';
   loader('Chargement de vos données...');
 
