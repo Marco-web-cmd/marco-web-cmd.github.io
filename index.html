@@ -2059,24 +2059,37 @@ async function doUpdatePwd() {
       switchTab('reset');
       return;
     }
+
+    // Sauvegarder l'email pour pré-remplir le formulaire de connexion
+    const userEmail = currentSession.user.email || '';
+
+    // Mettre à jour le mot de passe
     const { error } = await SB.auth.updateUser({ password: pwd });
+    if (error) {
+      hideLoader();
+      $('auth-screen').style.display = 'flex';
+      authMsg('Erreur : ' + error.message, 'error');
+      return;
+    }
+
+    // Déconnexion explicite de la session recovery (elle est temporaire de toute façon)
+    try { await SB.auth.signOut(); } catch(e) {}
+
     hideLoader();
     $('auth-screen').style.display = 'flex';
-    if (error) { authMsg('Erreur : ' + error.message, 'error'); return; }
-    authMsg('✅ Mot de passe mis à jour ! Connexion en cours…', 'success');
-    // Attendre un court instant puis lancer l'app (session déjà active)
-    setTimeout(async () => {
-      try {
-        const { data: { session } } = await SB.auth.getSession();
-        if (session?.user && !_appLoaded) {
-          await startApp(session.user);
-        } else if (!session?.user) {
-          showAuthScreen();
-          authMsg('Mot de passe mis à jour ! Connectez-vous maintenant.', 'success');
-          switchTab('login');
-        }
-      } catch(e) { showAuthScreen(); }
-    }, 800);
+
+    // Basculer sur le formulaire de connexion avec email pré-rempli
+    switchTab('login');
+    try {
+      if (userEmail) $('l-email').value = userEmail;
+      // Vider le champ mot de passe pour que l'utilisateur tape le nouveau
+      $('l-pwd').value = '';
+      setTimeout(() => { try { $('l-pwd').focus(); } catch(e) {} }, 100);
+    } catch(e) {}
+
+    // Message de succès clair
+    authMsg('✅ Mot de passe modifié avec succès ! Connectez-vous maintenant avec votre nouveau mot de passe.', 'success');
+
   } catch(e) {
     hideLoader();
     $('auth-screen').style.display = 'flex';
@@ -4557,6 +4570,13 @@ SB.auth.onAuthStateChange(async (event, session) => {
     const navCT = $('ct-nav');
     if (appCT) appCT.classList.remove('visible');
     if (navCT) navCT.classList.remove('visible');
+    // Ne pas effacer le message si on vient d'un reset de mot de passe
+    // (le message de succès est déjà affiché sur tab-login)
+    const currentMsg = $('auth-msg');
+    const isSuccessMsg = currentMsg && currentMsg.classList.contains('success');
+    if (!isSuccessMsg) {
+      if (currentMsg) currentMsg.style.display = 'none';
+    }
   } else if (event === 'TOKEN_REFRESHED') {
     // Session prolongée automatiquement — rien à faire
     if (session?.user) USER = session.user;
