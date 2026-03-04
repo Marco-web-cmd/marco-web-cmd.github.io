@@ -1861,8 +1861,20 @@ function catOpts(sel=''){return D.settings.categories.map(c=>`<option value="${c
 function toast(msg,type='success'){const c=$('toast-container'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=(type==='success'?'✓':type==='error'?'✗':'ℹ')+' '+msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
 function modal(title,body,foot='',large=false){const m=$('modal-body');m.className='modal'+(large?' modal-lg':'');m.innerHTML=`<div class="modal-header"><div class="modal-title">${title}</div><button class="modal-close" onclick="closeModal()" aria-label="Fermer">×</button></div><div>${body}</div>${foot?`<div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end">${foot}</div>`:''}`;$('modal-overlay').classList.add('open');}
 function closeModal(){$('modal-overlay').classList.remove('open');}
-function loader(msg='Chargement...'){$('loader').style.display='flex';$('loader-text').textContent=msg;}
-function hideLoader(){$('loader').style.display='none';}
+
+function hideLoader(){
+  var l=$('loader');
+  if(l){ l.style.display='none'; l.style.setProperty('display','none','important'); }
+}
+function loader(msg){
+  // Ne pas afficher le loader si l'app est déjà visible
+  var app=$('app');
+  if(app && app.classList.contains('visible')) return;
+  var l=$('loader');
+  if(l){ l.style.display='flex'; l.style.removeProperty('display'); }
+  var t=$('loader-text');
+  if(t) t.textContent=msg||'Chargement...';
+}
 function showSync(){$('sync').style.display='block';}function hideSync(){$('sync').style.display='none';}
 function applyAccent(){document.documentElement.style.setProperty('--accent',D.settings.accent_color||'#C0622A');}
 function metricsFields(c=null){const ms=(D.settings.metrics||[]).filter(m=>m.label&&m.label.trim());if(!ms.length)return'';const cols=ms.length===1?'1fr':ms.length===2?'1fr 1fr':'1fr 1fr 1fr';return`<div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-muted);margin-bottom:8px">Métriques</div><div class="form-row" style="grid-template-columns:${cols};margin-bottom:4px">${ms.map((m,i)=>`<div class="form-group"><label>${m.label}${m.unit?' ('+m.unit+')':''}</label><input id="m-met-${i}" type="number" min="0" step="0.01" value="${c&&c.metrics&&c.metrics[i]!==undefined?c.metrics[i]:0}"></div>`).join('')}</div>`;}
@@ -1963,11 +1975,17 @@ async function doLogin() {
       return;
     }
     if (data?.session?.user) {
-      // Succès : lancer l'app directement sans attendre onAuthStateChange
-      // (plus fiable sur Safari / GitHub Pages où l'event peut ne pas se déclencher)
+      console.log('[BP] Login OK - user:', data.session.user.email);
+      console.log('[BP] _appLoaded:', _appLoaded, '_recoveryMode:', _recoveryMode);
       if (btn) { btn.disabled = false; btn.textContent = 'Se connecter →'; }
       $('auth-screen').style.display = 'none';
-      if (!_appLoaded) await startApp(data.session.user);
+      if (!_appLoaded) {
+        console.log('[BP] Calling startApp...');
+        await startApp(data.session.user);
+        console.log('[BP] startApp returned');
+      } else {
+        console.log('[BP] startApp skipped - already loaded');
+      }
     } else {
       hideLoader();
       $('auth-screen').style.display = 'flex';
@@ -2153,6 +2171,7 @@ function showSkeletonLoader(n) {
   if (el) el.innerHTML = '<div class="page-header"><div class="skeleton skeleton-title" style="width:200px;height:24px"></div></div>' + cards;
 }
 async function loadAll(){
+  console.log('[BP] loadAll started, USER.id=', USER?.id);
   showSkeletonLoader(4);
   loader('Chargement de vos données...');
   // Wrapper avec timeout : retourne {data:null,error} si la requête échoue ou dépasse 6s
@@ -2228,6 +2247,13 @@ async function loadAll(){
   }
 }
 function launchApp(){
+  console.log('[BP] launchApp called');
+  // Masquer le loader définitivement - forcer via style inline
+  var loaderEl = document.getElementById('loader');
+  if (loaderEl) {
+    loaderEl.style.cssText = 'display:none!important';
+    loaderEl.setAttribute('style','display:none!important');
+  }
   hideLoader();
   setTimeout(showPlanBanner, 800);
   setTimeout(cacheDataForOffline, 2000);
@@ -4238,8 +4264,9 @@ setTimeout(function() {
 }, 5000);
 
 async function startApp(user) {
+  console.log('[BP] startApp called, _appLoaded=', _appLoaded);
   // Guard strict : une seule tentative de boot à la fois
-  if (_appLoaded) return;
+  if (_appLoaded) { console.log('[BP] startApp: already loaded, skipping'); return; }
   _appLoaded = true;
   USER = user;
   // Masquer auth-screen et loader avant tout
@@ -4262,10 +4289,11 @@ async function startApp(user) {
     await loadAll();
     clearTimeout(bootTimeout);
   } catch(e) {
+    console.error('[BP] startApp ERROR:', e.message, e.stack);
     clearTimeout(bootTimeout);
     _appLoaded = false;
     showAuthScreen();
-    authMsg('Erreur de connexion. Vérifiez votre réseau et réessayez.', 'error');
+    authMsg('Erreur de connexion : ' + e.message, 'error');
   }
 }
 
