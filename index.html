@@ -1948,14 +1948,6 @@ async function doLogin() {
     if (!email || !pwd) { authMsg('Email et mot de passe requis','error'); return; }
     if (btn) { btn.disabled = true; btn.textContent = 'Connexion…'; }
     loader('Connexion...');
-    // Purger les tokens Supabase obsolètes avant de se connecter
-    // (évite le conflit avec un token de recovery encore présent en localStorage)
-    try {
-      const sbKey = 'sb-zewyecoxpmycqdziuqzc-auth-token';
-      localStorage.removeItem(sbKey);
-      // Aussi signer out silencieusement pour nettoyer l'état interne du client
-      await SB.auth.signOut({ scope: 'local' });
-    } catch(e) {}
     const { data, error } = await SB.auth.signInWithPassword({ email, password: pwd });
     // Toujours masquer le loader immédiatement après la réponse
     hideLoader();
@@ -2090,6 +2082,8 @@ async function doUpdatePwd() {
     hideLoader();
     $('auth-screen').style.display = 'flex';
 
+    // Sortir du mode recovery
+    _recoveryMode = false;
     // Basculer sur le formulaire de connexion avec email pré-rempli
     switchTab('login');
     try {
@@ -4212,6 +4206,7 @@ function detailMOChantier(cid) {
 // ══════════════════════════════════════════════════════════════════
 let _appLoaded = false;
 let _bootDone  = false; // empêche le double-boot getSession + onAuthStateChange
+let _recoveryMode = false; // true quand l'utilisateur arrive via un lien de reset mdp
 
 function showAuthScreen() {
   hideLoader();
@@ -4284,10 +4279,12 @@ async function startApp(user) {
     const tokenType  = hashParams['type'] || '';
     const isRecovery = tokenType === 'recovery';
 
-    if (isRecovery) {
+    if (tokenType === 'recovery') {
+      // Activer _recoveryMode AVANT getSession() pour bloquer SIGNED_IN → startApp()
+      _recoveryMode = true;
       // Nettoyer le hash immédiatement pour éviter une boucle au rechargement
       try { window.history.replaceState(null, '', window.location.pathname + window.location.search + '#'); } catch(e) {}
-      // Laisser Supabase échanger le token (getSession le consomme)
+      // Laisser Supabase échanger le token
       try {
         const { data } = await SB.auth.getSession();
         if (data?.session?.user) USER = data.session.user;
@@ -4564,9 +4561,8 @@ SB.auth.onAuthStateChange(async (event, session) => {
     switchTab('newpwd');
     return; // Ne pas lancer l'app
   } else if (event === 'SIGNED_IN' && session?.user) {
-    // Ignorer SIGNED_IN si on est en train de faire un reset de mot de passe
-    const tab = document.getElementById('tab-newpwd');
-    if (tab && tab.style.display !== 'none') return;
+    // Bloquer startApp() si on est en mode récupération de mot de passe
+    if (_recoveryMode) return;
     // Si getSession() a déjà géré le boot, ne pas redémarrer
     if (!_appLoaded) await startApp(session.user);
   } else if (event === 'SIGNED_OUT') {
