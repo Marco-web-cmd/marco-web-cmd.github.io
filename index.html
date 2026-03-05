@@ -6252,11 +6252,15 @@ async function compressAndUploadPhoto(base64DataUrl, itemId, maxPx, qualityJpeg)
 // ─── 2. MODALES DE CONFIRMATION SÉCURISÉES ─────────────────────
 // Remplace les 7 confirm() brutaux par des modales pro
 
+// Registry des callbacks confirmDelete (évite eval + permet async/await)
+var _confirmDeleteCallbacks = {};
 function confirmDelete(opts) {
   // opts: { title, label, icon, warning, onConfirm, isDanger }
   var icon = opts.icon || '🗑️';
   var danger = opts.isDanger !== false;
   var btnColor = danger ? '#B91C1C' : 'var(--accent)';
+  var cbId = 'cdel_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  _confirmDeleteCallbacks[cbId] = opts.onConfirm;
   var body = '<div class="alert alert-' + (danger?'danger':'warning') + '" style="margin-bottom:12px">'
     + '<span>' + icon + '</span>'
     + '<div><strong>' + (opts.label || 'Cet élément') + '</strong>'
@@ -6265,9 +6269,15 @@ function confirmDelete(opts) {
     + '<p style="font-size:13px;color:var(--text-muted);margin:0">Cette action est <strong>irréversible</strong>.</p>';
   modal(opts.title || '🗑️ Supprimer ?', body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    + '<button class="btn" style="background:' + btnColor + ';color:white" onclick="closeModal();(' + opts.onConfirm.toString() + ')()">'
+    + '<button class="btn" style="background:' + btnColor + ';color:white" onclick="_execConfirmDelete(\'' + cbId + '\')">'
     + '🗑️ Supprimer définitivement</button>'
   );
+}
+async function _execConfirmDelete(cbId) {
+  closeModal();
+  var fn = _confirmDeleteCallbacks[cbId];
+  delete _confirmDeleteCallbacks[cbId];
+  if (typeof fn === 'function') await fn();
 }
 
 // Wrappers pour les 7 suppressions
