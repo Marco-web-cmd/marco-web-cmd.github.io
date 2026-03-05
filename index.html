@@ -3149,8 +3149,8 @@ function pgChantiers(){
     const avHtml='<div style="margin-top:6px"><div style="background:var(--bg-input);border-radius:20px;height:5px;overflow:hidden;margin-bottom:2px"><div style="height:100%;border-radius:20px;background:'+avColor+';width:'+av+'%;transition:width 0.4s"></div></div>'
       +'<span style="font-size:10px;color:var(--text-muted);font-weight:600">'+av+'% réalisé'+(c.reste_a_faire?'<span style="color:var(--warning);margin-left:6px">• RAF : '+c.reste_a_faire.substring(0,30)+(c.reste_a_faire.length>30?'…':'')+'</span>':'')+'</span></div>';
     return'<tr>'
-      +'<td><strong class="ch-nom-link" data-cid="'+c.id+'" style="cursor:pointer;color:var(--accent)">'+c.nom+'</strong>'+dvBadge
-      +'<br><span class="td-muted">'+(c.client||'—')+'</span>'
+      +'<td><strong class="ch-nom-link" data-cid="'+c.id+'" style="cursor:pointer;color:var(--accent)">'+esc(c.nom||'')+'</strong>'+dvBadge
+      +'<br><span class="td-muted">'+esc(c.client||'—')+'</span>'
       +(md?'<br><span class="td-muted text-sm">'+md+'</span>':'')
       +avHtml
       +(function(){
@@ -3243,14 +3243,22 @@ async function saveChantier(id){
   const avancement=+($('m-avancement')?.value||0);
   const reste_a_faire=$('m-raf')?.value||'';
   const data={id:id||uid(),nom,client,etat:$('m-etat').value,equipe:$('m-equipe').value,devis,date_debut:$('m-debut').value,date_fin:$('m-fin').value,notes:$('m-notes').value,metrics:mv,avancement,reste_a_faire,budget_mat:+($('m-budget-mat')?.value||0),cout_mat:id?(D.chantiers.find(c=>c.id===id)?.cout_mat||0):0,marge:0};
-  data.marge=data.devis-data.cout_mat;closeModal();
-  if(id){const idx=D.chantiers.findIndex(c=>c.id===id);if(idx>=0)D.chantiers[idx]=data;}
-  else{D.chantiers.unshift(data);if(!D.clients.find(c=>c.nom===client)){const nc={id:uid(),nom:client,email:'',tel:'',adresse:'',notes:''};D.clients.push(nc);await insert('clients',nc);}}
+  data.marge=data.devis-data.cout_mat;
+  // Upsert D'ABORD, puis update l'état local uniquement si succès
   const ok = await upsert('chantiers', data);
-  if (ok) {
-    toast(id ? 'Chantier mis à jour !' : 'Chantier créé !');
-    pgChantiers();
+  if (!ok) return; // upsert() a déjà affiché le toast d'erreur
+  closeModal();
+  if(id){const idx=D.chantiers.findIndex(c=>c.id===id);if(idx>=0)D.chantiers[idx]=data;}
+  else{
+    D.chantiers.unshift(data);
+    if(!D.clients.find(c=>c.nom===client)){
+      const nc={id:uid(),nom:client,email:'',tel:'',adresse:'',notes:''};
+      D.clients.push(nc);
+      await insert('clients',nc);
+    }
   }
+  toast(id ? 'Chantier mis à jour !' : 'Chantier créé !');
+  pgChantiers();
 }
 async function delChantier(id){
   const ch=D.chantiers.find(c=>c.id===id);if(!ch)return;
@@ -3499,14 +3507,15 @@ async function createChantierFromDevis(dvId){
     cout_mat:0,
     marge:d.total_ttc||0
   };
-  D.chantiers.unshift(data);
-  // Lier le devis au chantier
-  d.chantier_id=data.id;
-  await SB.from('devis_docs').update({chantier_id:data.id}).eq('id',dvId).eq('user_id',USER.id);
-  // Garantir que le client existe
+  // Insert D'ABORD — update local uniquement si succès
   await ensureClient(d.client,d.client_adresse,d.client_ville);
   const saved=await insert('chantiers',data);
-  if(saved){D.chantiers[0]=saved;toast('Chantier créé ! 🎉');}
+  if(!saved){toast('Erreur création chantier','error');return;}
+  D.chantiers.unshift(saved);
+  // Lier le devis au chantier
+  d.chantier_id=saved.id;
+  await SB.from('devis_docs').update({chantier_id:saved.id}).eq('id',dvId).eq('user_id',USER.id);
+  toast('Chantier créé ! 🎉');
   go('chantiers');
 }
 function modalDevisCreate(chantierId){
@@ -3757,7 +3766,7 @@ function modalFactureCreate(chantierId){
 }
 async function saveFacture(){
   const data={id:uid(),numero:$('fa-num').value.trim(),date:$('fa-date').value,fournisseur:$('fa-fourn').value.trim(),chantier_id:$('fa-ch').value||null,montant:+$('fa-mont').value||0,categorie:$('fa-cat').value,payee:$('fa-payee').value==='true',ref:$('fa-ref').value.trim(),notes:$('fa-notes').value};
-  closeModal();const saved=await insert('factures',data);if(saved){D.factures.unshift(saved);toast('Facture enregistrée !');}
+  const saved=await insert('factures',data);if(!saved)return;closeModal();D.factures.unshift(saved);toast('Facture enregistrée !');
 }
 
 // ── APPRO ─────────────────────────────────────────
@@ -3786,9 +3795,10 @@ async function saveMat(){
   if(!des){toast('Désignation obligatoire','error');return;}
   const cid=$('mat-ch').value,qte=+$('mat-qte').value||0,pu=+$('mat-pu').value||0;
   const mat={id:uid(),chantier_id:cid,ref:$('mat-ref').value.trim(),designation:des,qte,prix_u:pu,total:qte*pu,unite:$('mat-u').value.trim(),source:$('mat-src').value,statut:$('mat-stat').value};
+  const savedMat = await insert('materiaux',mat);
+  if(!savedMat)return; // insert() a affiché l'erreur
   closeModal();
-  D.materiaux.unshift(mat);
-  await insert('materiaux',mat);
+  D.materiaux.unshift(savedMat);
   await recalcChantier(cid);
   // Alerte budget matériaux
   const ch=D.chantiers.find(c=>c.id===cid);
@@ -3832,7 +3842,7 @@ function pgStock(){
   if(catF){const e=$('stock-cat');if(e)e.value=catF;}if(searchF){const e=$('stock-search');if(e)e.value=searchF;}
 }
 function modalStock(id=null){const s=id?D.stocks.find(x=>x.id===id):null;const body=`<div class="form-row form-row-2"><div class="form-group"><label>Référence</label><input id="st-ref" value="${s?.ref||''}"></div><div class="form-group"><label>Libellé *</label><input id="st-lib" value="${s?.libelle||''}"></div></div><div class="form-row form-row-3"><div class="form-group"><label>Catégorie</label><select id="st-cat">${catOpts(s?.categorie)}</select></div><div class="form-group"><label>Quantité</label><input id="st-qte" type="number" min="0" step="0.01" value="${s?.qte||0}"></div><div class="form-group"><label>Unité</label><input id="st-u" value="${s?.unite||''}"></div></div><div class="form-row form-row-3"><div class="form-group"><label>Prix achat HT</label><input id="st-pu" type="number" min="0" step="0.01" value="${s?.prix_achat||0}"></div><div class="form-group"><label>Seuil alerte</label><input id="st-seuil" type="number" min="0" value="${s?.seuil||0}"></div><div class="form-group"><label>Fournisseur</label><input id="st-fourn" value="${s?.fournisseur||''}"></div></div>`;modal(id?'Modifier':'Nouvel article',body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveStock('${id||''}')">💾 Enregistrer</button>`);}
-async function saveStock(id){const lib=$('st-lib').value.trim();if(!lib){toast('Libellé obligatoire','error');return;}const data={id:id||uid(),ref:$('st-ref').value.trim(),libelle:lib,categorie:$('st-cat').value,qte:+$('st-qte').value||0,unite:$('st-u').value.trim(),prix_achat:+$('st-pu').value||0,seuil:+$('st-seuil').value||0,fournisseur:$('st-fourn').value.trim()};closeModal();if(id){const idx=D.stocks.findIndex(s=>s.id===id);if(idx>=0)D.stocks[idx]=data;}else D.stocks.push(data);await upsert('stocks',data);toast(id?'Mis à jour !':'Article ajouté !');pgStock();}
+async function saveStock(id){const lib=$('st-lib').value.trim();if(!lib){toast('Libellé obligatoire','error');return;}const data={id:id||uid(),ref:$('st-ref').value.trim(),libelle:lib,categorie:$('st-cat').value,qte:+$('st-qte').value||0,unite:$('st-u').value.trim(),prix_achat:+$('st-pu').value||0,seuil:+$('st-seuil').value||0,fournisseur:$('st-fourn').value.trim()};const _okSt=await upsert('stocks',data);if(!_okSt)return;closeModal();if(id){const idx=D.stocks.findIndex(s=>s.id===id);if(idx>=0)D.stocks[idx]=data;}else D.stocks.push(data);toast(id?'Mis à jour !':'Article ajouté !');pgStock();}
 function ajuster(id,typeForce=null){
   const s=D.stocks.find(x=>x.id===id);if(!s)return;
   const chOpts=D.chantiers.map(c=>`<option value="${c.nom}">${c.nom} — ${c.client||''}</option>`).join('');
@@ -3906,7 +3916,7 @@ function detailClient(id){
   );
 }
 function modalClient(id=null){const cl=id?D.clients.find(x=>x.id===id):null;const body=`<div class="form-row form-row-2"><div class="form-group"><label>Nom *</label><input id="cl-nom" value="${cl?.nom||''}"></div><div class="form-group"><label>Email</label><input id="cl-email" type="email" value="${cl?.email||''}"></div></div><div class="form-row form-row-2"><div class="form-group"><label>Téléphone</label><input id="cl-tel" type="tel" value="${cl?.tel||''}"></div><div class="form-group"><label>Adresse</label><input id="cl-adr" value="${cl?.adresse||''}"></div></div><div class="form-group"><label>Notes</label><textarea id="cl-notes">${cl?.notes||''}</textarea></div>`;modal(id?'Modifier':'Nouveau client',body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveClient('${id||''}')">💾 Enregistrer</button>`);}
-async function saveClient(id){const nom=$('cl-nom').value.trim();if(!nom){toast('Nom obligatoire','error');return;}const data={id:id||uid(),nom,email:$('cl-email').value.trim(),tel:$('cl-tel').value.trim(),adresse:$('cl-adr').value.trim(),notes:$('cl-notes').value.trim()};closeModal();if(id){const idx=D.clients.findIndex(c=>c.id===id);if(idx>=0)D.clients[idx]=data;}else D.clients.push(data);await upsert('clients',data);toast(id?'Mis à jour !':'Client ajouté !');pgClients();}
+async function saveClient(id){const nom=$('cl-nom').value.trim();if(!nom){toast('Nom obligatoire','error');return;}const data={id:id||uid(),nom,email:$('cl-email').value.trim(),tel:$('cl-tel').value.trim(),adresse:$('cl-adr').value.trim(),notes:$('cl-notes').value.trim()};const _okCl=await upsert('clients',data);if(!_okCl)return;closeModal();if(id){const idx=D.clients.findIndex(c=>c.id===id);if(idx>=0)D.clients[idx]=data;}else D.clients.push(data);toast(id?'Mis à jour !':'Client ajouté !');pgClients();}
 async function delClient(id){ delClientSafe(id); }
 
 // ── PLANNING CALENDRIER ───────────────────────────
@@ -4725,10 +4735,11 @@ async function saveEmployee(id) {
     monthly_cost: parseFloat(($('emp-monthly')||{value:0}).value)||0,
     budget_mo_prevu: parseFloat(($('emp-budget')||{value:0}).value)||0,
   };
+  var _okEmp = await upsert('employees', data);
+  if(!_okEmp) return;
   closeModal();
   if(id){ var idx=(D.employees||[]).findIndex(function(e){ return e.id===id; }); if(idx>=0)D.employees[idx]=data; }
   else { if(!D.employees)D.employees=[]; D.employees.unshift(data); }
-  await upsert('employees', data);
   toast(id?'Employé mis à jour !':'Employé ajouté !');
   pgSalaires();
 }
@@ -4840,7 +4851,11 @@ async function savePointage() {
     ch.cout_mo = (D.time_entries||[]).filter(function(t){ return t.chantier_id===chId; }).reduce(function(a,t){ return a+(+t.cout_total||0); },0);
     ch.marge = (+ch.devis||0)-(+ch.cout_mat||0)-ch.cout_mo;
   }
-  await insert('time_entries', entry);
+  var savedPt = await insert('time_entries', entry);
+  if(!savedPt){ // rollback local state
+    D.time_entries=(D.time_entries||[]).filter(function(t){return t.id!==entry.id;});
+    return;
+  }
   toast('Pointage enregistré — Coût : '+eur(entry.cout_total));
   if(D.page==='salaires') pgSalaires();
 }
@@ -7445,6 +7460,9 @@ function pgActivityLog() {
 
 function ctCheckBudgetAlert(cid, estimatedTotal, onConfirm) {
   if (!estimatedTotal || estimatedTotal <= 0) { onConfirm(); return; }
+  // Enregistrer le callback avec un ID unique (évite eval())
+  var _cbId = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  _registerBudgetCallback(_cbId, onConfirm);
   var ch = D.chantiers.find(function(c){ return c.id === cid; });
   if (!ch || !+ch.budget_mat) { onConfirm(); return; }
   var current = D.materiaux.filter(function(m){ return m.chantier_id === cid; })
@@ -7466,7 +7484,7 @@ function ctCheckBudgetAlert(cid, estimatedTotal, onConfirm) {
         + 'Cette commande dépasse le budget de <strong>' + eur(surplus) + '</strong><br>'
         + 'Budget restant : <strong>' + eur(Math.max(0, budgetRestant)) + '</strong>'
       + '</div>'
-      + '<button class="btn w-full" style="background:#B91C1C;color:white;margin-bottom:8px" onclick="closeModal();ctBudgetConfirmOrder(' + JSON.stringify(onConfirm.toString()) + ')">⚠️ Commander quand même (hors budget)</button>'
+      + '<button class="btn w-full" style="background:#B91C1C;color:white;margin-bottom:8px" onclick="closeModal();ctBudgetConfirmOrder(' + _cbId + ')">⚠️ Commander quand même (hors budget)</button>'
       + '<button class="btn btn-secondary w-full" onclick="closeModal()">✗ Annuler la commande</button>'
       + '</div>';
     modal('🚨 Alerte budget', alertHtml, '');
@@ -7477,7 +7495,7 @@ function ctCheckBudgetAlert(cid, estimatedTotal, onConfirm) {
       + '<div style="font-size:13px;color:#78350f;margin-bottom:12px">'
         + 'Après cette commande, il restera <strong>' + eur(Math.max(0, +ch.budget_mat - after)) + '</strong> de budget matériaux'
       + '</div>'
-      + '<button class="btn w-full btn-primary" style="margin-bottom:8px" onclick="closeModal();ctBudgetConfirmOrder(' + JSON.stringify(onConfirm.toString()) + ')">✅ Confirmer la commande</button>'
+      + '<button class="btn w-full btn-primary" style="margin-bottom:8px" onclick="closeModal();ctBudgetConfirmOrder(' + _cbId + ')">✅ Confirmer la commande</button>'
       + '<button class="btn btn-secondary w-full" onclick="closeModal()">✗ Annuler</button>'
       + '</div>';
     modal('⚠️ Alerte budget', alertHtml2, '');
@@ -7486,8 +7504,13 @@ function ctCheckBudgetAlert(cid, estimatedTotal, onConfirm) {
   }
 }
 
-function ctBudgetConfirmOrder(fnStr) {
-  try { eval('(' + fnStr + ')')(); } catch(e) { /* silencieux */ }
+// Callbacks stockés par ID pour éviter eval() — sécurité XSS
+var _budgetCallbacks = {};
+function _registerBudgetCallback(id, fn) { _budgetCallbacks[id] = fn; }
+function ctBudgetConfirmOrder(cbId) {
+  var fn = _budgetCallbacks[cbId];
+  if(typeof fn === 'function') { try { fn(); } catch(e) { /* silencieux */ } }
+  delete _budgetCallbacks[cbId];
 }
 
 // ─── 3. CGV / MENTIONS LÉGALES ──────────────────────────────────
