@@ -7565,76 +7565,222 @@ function ctBudgetConfirmOrder(cbId) {
 
 // ─── 3. CGV / MENTIONS LÉGALES ──────────────────────────────────
 function pgLegal() {
+  var today = new Date();
+  var dateMAJ = today.toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'});
   setContent(`
-    <div class="page-header"><div class="page-title">📄 CGV & Mentions légales</div></div>
+    <div class="page-header"><div class="page-title">📄 Informations légales</div></div>
     <div style="max-width:860px;margin:0 auto">
 
-      <div class="card" style="margin-bottom:20px;border-left:4px solid var(--accent)">
-        <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px">BatiPilot — Informations légales</div>
-        <div class="text-muted text-sm">Éditeur du logiciel SaaS de gestion de chantiers BTP</div>
-      </div>
-
-      <div class="card" style="margin-bottom:20px">
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">📜 Mentions légales</div>
-        <div style="font-size:13px;color:var(--text-muted);line-height:2.2">
-          <strong>Éditeur :</strong> [Nom de votre société] — [Forme juridique] — Capital [X] € — SIRET [000 000 000 00000]<br>
-          <strong>Siège social :</strong> [Adresse complète]<br>
-          <strong>Directeur de publication :</strong> [Prénom Nom]<br>
-          <strong>Contact :</strong> contact@batipilot.fr<br><br>
-          <strong>Hébergement :</strong> Supabase Inc. / AWS EU-Central-1 (Francfort, Allemagne) — conforme RGPD<br>
-          <strong>DPO / RGPD :</strong> dpo@batipilot.fr<br><br>
-          <strong>Propriété intellectuelle :</strong> L'ensemble du contenu de BatiPilot (logo, interface, code) est protégé par le droit de la propriété intellectuelle français. Toute reproduction est interdite sans autorisation préalable.<br><br>
-          <strong>Cookies :</strong> BatiPilot utilise uniquement des cookies strictement nécessaires au fonctionnement (session d'authentification). Aucun cookie publicitaire, aucun tracker tiers.
+      <!-- En-tête éditeur -->
+      <div class="card" style="margin-bottom:20px;border-left:4px solid var(--accent);display:flex;align-items:center;gap:16px">
+        <div style="font-size:36px">⚖️</div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:700">BatiPilot — Informations légales</div>
+          <div class="text-muted text-sm">Mentions légales · CGU · CGV · Politique de confidentialité — Mise à jour : ${dateMAJ}</div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:20px">
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">📋 Conditions Générales de Vente (CGV)</div>
-        <div style="font-size:13px;color:var(--text-muted);line-height:2.1">
-          <strong>Article 1 — Objet</strong><br>
-          BatiPilot est un logiciel SaaS de gestion de chantiers destiné aux professionnels du BTP. Les présentes CGV régissent l'accès et l'utilisation du service entre l'éditeur et ses clients professionnels (B2B).<br><br>
-          <strong>Article 2 — Accès au service & Essai gratuit</strong><br>
-          L'abonnement est souscrit pour une durée mensuelle renouvelable tacitement. Un essai gratuit de 30 jours est offert à tout nouvel utilisateur, sans carte bancaire requise. À l'issue de la période d'essai, l'accès aux fonctionnalités est conditionné à la souscription d'un abonnement payant.<br><br>
-          <strong>Article 3 — Prix et paiement</strong><br>
-          Les tarifs affichés sont HT hors taxes. Paiement par carte bancaire via Stripe (certifié PCI-DSS niveau 1). Facturation mensuelle. Aucun prélèvement pendant la période d'essai gratuit. En cas d'impayé, l'accès au service est suspendu après 7 jours.<br><br>
-          <strong>Article 4 — Propriété des données</strong><br>
-          Vous restez propriétaire intégral de toutes vos données (chantiers, clients, devis, factures). BatiPilot ne cède ni ne vend aucune donnée à des tiers. Vous pouvez exporter l'intégralité de vos données à tout moment depuis « Mes données ».<br><br>
-          <strong>Article 5 — Disponibilité & SLA</strong><br>
-          BatiPilot s'engage à maintenir une disponibilité du service de 99,5% par mois calendaire. En cas d'interruption planifiée, les utilisateurs sont prévenus 48h à l'avance. Le mode hors-ligne permet de continuer à travailler en cas d'indisponibilité.<br><br>
-          <strong>Article 6 — Résiliation</strong><br>
-          La résiliation peut être effectuée à tout moment depuis l'espace abonnement, sans frais ni préavis. Elle prend effet à la fin de la période mensuelle en cours. Les données sont conservées 30 jours après la résiliation, puis définitivement supprimées.<br><br>
-          <strong>Article 7 — Limitation de responsabilité</strong><br>
-          BatiPilot est un outil d'aide à la gestion. L'éditeur ne saurait être tenu responsable des décisions commerciales ou financières prises sur la base des informations affichées. La responsabilité de l'éditeur est limitée au montant des abonnements versés sur les 12 derniers mois.<br><br>
-          <strong>Article 8 — Droit applicable & Médiation</strong><br>
-          Les présentes CGV sont soumises au droit français. En cas de litige, une solution amiable sera recherchée en priorité. À défaut, les tribunaux compétents de [ville] seront saisis. Conformément à l'art. L.612-1 du Code de la consommation, vous pouvez recourir à un médiateur de la consommation.
+      <!-- NAV ONGLETS -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+        <button class="btn btn-secondary" onclick="document.getElementById('sec-ml').scrollIntoView({behavior:'smooth'})">📜 Mentions légales</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('sec-cgu').scrollIntoView({behavior:'smooth'})">📋 CGU</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('sec-cgv').scrollIntoView({behavior:'smooth'})">💶 CGV</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('sec-rgpd').scrollIntoView({behavior:'smooth'})">🔒 Confidentialité</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('sec-cookies').scrollIntoView({behavior:'smooth'})">🍪 Cookies</button>
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           1. MENTIONS LÉGALES
+      ═══════════════════════════════════════════ -->
+      <div id="sec-ml" class="card" style="margin-bottom:20px;scroll-margin-top:80px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">📜 1. Mentions légales</div>
+        <div style="font-size:13px;line-height:2.4">
+
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px">
+            <strong>Éditeur du service</strong><br>
+            Michelin Marc-Aurèle — Auto-entrepreneur<br>
+            SIRET : 944 940 147 000 19<br>
+            Siège social : 15 Avenue du 8 Mai 1945, 33110 Le Bouscat, France<br>
+            Directeur de publication : Michelin Marc-Aurèle<br>
+            Contact : <a href="mailto:contact@batipilot.fr" style="color:var(--accent)">contact@batipilot.fr</a>
+          </div>
+
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px">
+            <strong>Hébergement</strong><br>
+            — Interface (frontend) : GitHub Pages · GitHub Inc. · 88 Colin P. Kelly Jr. St, San Francisco, CA 94107, États-Unis<br>
+            — Base de données & authentification : Supabase Inc. · 970 Trestle Glen Rd, Oakland, CA 94610, États-Unis · Serveurs EU-West (Frankfurt, Allemagne) — conforme RGPD<br>
+            — Paiement : Stripe Payments Europe Ltd · 1 Grand Canal Street Lower, Dublin 2, Irlande
+          </div>
+
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:14px 16px">
+            <strong>Propriété intellectuelle</strong><br>
+            L'ensemble du service BatiPilot — nom, logo, interface graphique, code source, base de données — est la propriété exclusive de Michelin Marc-Aurèle et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle (Code de la Propriété Intellectuelle, art. L111-1 et suivants). Toute reproduction, représentation, modification ou exploitation, même partielle, est strictement interdite sans autorisation écrite préalable de l'éditeur.
+          </div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:20px">
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🔒 Politique de confidentialité (RGPD)</div>
-        <div style="font-size:13px;color:var(--text-muted);line-height:2.1">
-          <strong>Responsable du traitement :</strong> [Nom société] — contact@batipilot.fr<br><br>
-          <strong>Données collectées :</strong><br>
-          • Données de compte : adresse email, mot de passe (haché) — base légale : exécution du contrat<br>
-          • Données métier saisies par l'utilisateur (chantiers, clients, devis, factures) — base légale : exécution du contrat<br>
-          • Données de navigation : adresse IP (logs serveur, 30 jours) — base légale : intérêt légitime (sécurité)<br>
-          • Consentement RGPD horodaté lors de l'inscription<br><br>
-          <strong>Durée de conservation :</strong> Données actives pendant toute la durée de l'abonnement + 30 jours après résiliation. Données de facturation : 10 ans (obligation légale CGI).<br><br>
-          <strong>Sous-traitants :</strong><br>
-          • Supabase Inc. (base de données, authentification) — AWS EU-Central-1, Francfort — Accord DPA en vigueur<br>
-          • Stripe Inc. (paiement) — Transfert USA encadré par clauses contractuelles types (SCC)<br><br>
-          <strong>Vos droits (art. 15 à 21 RGPD) :</strong> Accès, rectification, effacement, portabilité, opposition, limitation. Exercer vos droits via « Mes données » dans l'application ou par email à dpo@batipilot.fr. Délai de réponse : 30 jours. Vous pouvez également adresser une réclamation à la CNIL (www.cnil.fr).
+      <!-- ═══════════════════════════════════════════
+           2. CONDITIONS GÉNÉRALES D'UTILISATION
+      ═══════════════════════════════════════════ -->
+      <div id="sec-cgu" class="card" style="margin-bottom:20px;scroll-margin-top:80px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">📋 2. Conditions Générales d'Utilisation (CGU)</div>
+        <div style="font-size:13px;line-height:2.2">
+
+          <strong>2.1 — Objet</strong><br>
+          BatiPilot est un logiciel SaaS (Software as a Service) de gestion de chantiers destiné aux artisans et entreprises du BTP. Les présentes CGU définissent les conditions d'accès et d'utilisation du service accessible à l'adresse <em>batipilot.fr</em>.<br><br>
+
+          <strong>2.2 — Accès au service</strong><br>
+          L'accès au service est réservé aux professionnels (artisans, auto-entrepreneurs, sociétés du secteur du BTP) disposant d'un compte actif. Chaque compte est strictement personnel et nominatif. L'utilisateur est seul responsable de la confidentialité de ses identifiants.<br><br>
+
+          <strong>2.3 — Période d'essai</strong><br>
+          Tout nouvel utilisateur bénéficie d'un essai gratuit de <strong>30 jours</strong> sans engagement, sans saisie de coordonnées bancaires. À l'issue de cette période, l'accès aux fonctionnalités d'écriture (création, modification, suppression de données) est suspendu jusqu'à souscription d'un abonnement payant. Les données restent consultables pendant 90 jours supplémentaires.<br><br>
+
+          <strong>2.4 — Utilisation acceptable</strong><br>
+          L'utilisateur s'engage à utiliser BatiPilot exclusivement à des fins professionnelles légales. Sont notamment interdits : toute tentative d'accès non autorisé aux données d'un autre utilisateur, tout contournement des mécanismes de sécurité, toute revente ou mise à disposition du service à des tiers sans autorisation.<br><br>
+
+          <strong>2.5 — Disponibilité du service</strong><br>
+          BatiPilot s'efforce de maintenir le service accessible 24h/24 et 7j/7. Toutefois, l'éditeur ne saurait être tenu responsable d'interruptions liées à des opérations de maintenance, à des défaillances des prestataires techniques (Supabase, GitHub), ou à des événements de force majeure. Aucune garantie de disponibilité contractuelle (SLA) n'est offerte sur le plan gratuit ou Solo.<br><br>
+
+          <strong>2.6 — Données utilisateur</strong><br>
+          L'utilisateur reste propriétaire de l'intégralité de ses données (chantiers, clients, devis, factures). BatiPilot n'utilise pas ces données à des fins commerciales ou publicitaires. L'utilisateur peut exporter ou supprimer ses données à tout moment depuis les paramètres du compte (droit à l'effacement RGPD).<br><br>
+
+          <strong>2.7 — Résiliation</strong><br>
+          L'utilisateur peut résilier son abonnement à tout moment depuis son espace Stripe. La résiliation prend effet à la fin de la période de facturation en cours. L'éditeur se réserve le droit de suspendre ou supprimer tout compte en cas de violation des présentes CGU, sans préavis ni remboursement.<br><br>
+
+          <strong>2.8 — Modification des CGU</strong><br>
+          L'éditeur se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés par email au moins 15 jours avant l'entrée en vigueur des modifications. La poursuite de l'utilisation du service après cette date vaut acceptation des nouvelles CGU.<br><br>
+
+          <strong>2.9 — Droit applicable</strong><br>
+          Les présentes CGU sont soumises au droit français. En cas de litige, les parties s'engagent à rechercher une solution amiable avant tout recours judiciaire. À défaut, le Tribunal de Commerce de Bordeaux sera seul compétent.
         </div>
       </div>
 
-      <div class="card">
-        <div style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:12px">📬 Contact & Support</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <a href="mailto:contact@batipilot.fr" class="btn btn-secondary">✉️ contact@batipilot.fr</a>
-          <a href="mailto:dpo@batipilot.fr" class="btn btn-secondary">🔒 dpo@batipilot.fr (DPO)</a>
+      <!-- ═══════════════════════════════════════════
+           3. CONDITIONS GÉNÉRALES DE VENTE
+      ═══════════════════════════════════════════ -->
+      <div id="sec-cgv" class="card" style="margin-bottom:20px;scroll-margin-top:80px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">💶 3. Conditions Générales de Vente (CGV)</div>
+        <div style="font-size:13px;line-height:2.2">
+
+          <strong>3.1 — Offres et tarifs</strong><br>
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:12px 16px;margin:8px 0 14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div style="background:var(--bg);border-radius:var(--radius);padding:12px;text-align:center">
+                <div style="font-weight:700;font-size:15px;margin-bottom:4px">Solo</div>
+                <div style="font-size:22px;font-weight:800;color:var(--accent)">39 €<span style="font-size:12px;font-weight:400;color:var(--text-muted)">/mois TTC</span></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">1 utilisateur · Toutes fonctionnalités</div>
+              </div>
+              <div style="background:var(--bg);border-radius:var(--radius);padding:12px;text-align:center">
+                <div style="font-weight:700;font-size:15px;margin-bottom:4px">Team</div>
+                <div style="font-size:22px;font-weight:800;color:var(--accent)">79 €<span style="font-size:12px;font-weight:400;color:var(--text-muted)">/mois TTC</span></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Jusqu'à 5 utilisateurs · Conducteurs de travaux</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center">Essai gratuit 30 jours sans CB — Résiliation à tout moment — Prix TTC (auto-entrepreneur, TVA non applicable art. 293B CGI)</div>
+          </div>
+
+          <strong>3.2 — Commande et facturation</strong><br>
+          La souscription s'effectue en ligne via la plateforme de paiement sécurisé Stripe. L'abonnement est conclu pour une durée indéterminée, renouvelé automatiquement chaque mois à la date anniversaire. Une confirmation de paiement est envoyée par email après chaque prélèvement.<br><br>
+
+          <strong>3.3 — Modalités de paiement</strong><br>
+          Le paiement s'effectue par carte bancaire (Visa, Mastercard, American Express) via Stripe. Les coordonnées bancaires ne sont jamais stockées sur les serveurs de BatiPilot. En cas d'échec de prélèvement, l'accès aux fonctionnalités d'écriture est suspendu après 3 tentatives infructueuses sur 7 jours.<br><br>
+
+          <strong>3.4 — Droit de rétractation</strong><br>
+          Conformément à l'article L221-18 du Code de la Consommation, vous disposez d'un délai de <strong>14 jours</strong> à compter de la date de souscription pour exercer votre droit de rétractation, sans avoir à justifier de motifs. Pour exercer ce droit, contactez-nous à <a href="mailto:contact@batipilot.fr" style="color:var(--accent)">contact@batipilot.fr</a>. Le remboursement sera effectué dans un délai de 14 jours. <em>Note : ce droit de rétractation ne s'applique pas si vous avez expressément demandé l'exécution immédiate du service et y avez pleinement accès.</em><br><br>
+
+          <strong>3.5 — Absence de remboursement hors rétractation</strong><br>
+          Passé le délai légal de rétractation de 14 jours, aucun remboursement partiel ou total ne sera accordé pour la période en cours, y compris en cas de résiliation anticipée. La résiliation prend effet à la fin de la période mensuelle déjà payée.<br><br>
+
+          <strong>3.6 — Auto-entrepreneur et TVA</strong><br>
+          Michelin Marc-Aurèle est auto-entrepreneur soumis au régime de franchise en base de TVA (article 293B du CGI). À ce titre, <strong>la TVA n'est pas applicable</strong> et ne figure pas sur les factures. Les prix affichés sont donc des prix TTC équivalents aux prix HT.<br><br>
+
+          <strong>3.7 — Garantie du service</strong><br>
+          BatiPilot garantit la conformité du service aux spécifications décrites sur le site pendant toute la durée de l'abonnement. En cas de défaut avéré imputable au service, la responsabilité de l'éditeur est limitée au montant du dernier mois d'abonnement payé.<br><br>
+
+          <strong>3.8 — Droit applicable et litiges</strong><br>
+          Les présentes CGV sont soumises au droit français. Tout litige relatif à leur interprétation ou exécution sera soumis, à défaut d'accord amiable, à la compétence exclusive du Tribunal de Commerce de Bordeaux (33000).
         </div>
-        <button class="btn btn-ghost w-full" style="margin-top:10px" onclick="go('rgpd')">→ Gérer mes données personnelles</button>
       </div>
+
+      <!-- ═══════════════════════════════════════════
+           4. POLITIQUE DE CONFIDENTIALITÉ (RGPD)
+      ═══════════════════════════════════════════ -->
+      <div id="sec-rgpd" class="card" style="margin-bottom:20px;scroll-margin-top:80px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🔒 4. Politique de confidentialité & RGPD</div>
+        <div style="font-size:13px;line-height:2.2">
+
+          <strong>4.1 — Responsable du traitement</strong><br>
+          Michelin Marc-Aurèle — 15 Avenue du 8 Mai 1945, 33110 Le Bouscat — <a href="mailto:dpo@batipilot.fr" style="color:var(--accent)">dpo@batipilot.fr</a><br><br>
+
+          <strong>4.2 — Données collectées</strong><br>
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:12px 16px;margin:6px 0 14px">
+            <div style="margin-bottom:8px"><strong>Données de compte :</strong> adresse email, mot de passe (haché, jamais en clair), préférences d'affichage</div>
+            <div style="margin-bottom:8px"><strong>Données professionnelles :</strong> informations entreprise, chantiers, clients, devis, factures, matériaux, stocks — toutes saisies volontairement par l'utilisateur</div>
+            <div style="margin-bottom:8px"><strong>Données de paiement :</strong> gérées exclusivement par Stripe — BatiPilot n'a accès qu'au statut de l'abonnement, jamais aux coordonnées bancaires</div>
+            <div><strong>Données techniques :</strong> logs de connexion (adresse IP, navigateur, date) conservés 90 jours à des fins de sécurité uniquement</div>
+          </div>
+
+          <strong>4.3 — Finalités et bases légales</strong><br>
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:12px 16px;margin:6px 0 14px">
+            <div style="margin-bottom:6px">Fourniture du service → <em>Exécution du contrat</em></div>
+            <div style="margin-bottom:6px">Facturation et gestion des abonnements → <em>Obligation légale</em></div>
+            <div style="margin-bottom:6px">Sécurité et prévention des fraudes → <em>Intérêt légitime</em></div>
+            <div>Amélioration du service (statistiques anonymisées) → <em>Intérêt légitime</em></div>
+          </div>
+
+          <strong>4.4 — Sous-traitants et transferts</strong><br>
+          Vos données sont hébergées par Supabase sur des serveurs situés en Allemagne (Union Européenne), conformément au RGPD. Stripe traite les données de paiement en Irlande (UE). Aucune donnée n'est vendue ou transmise à des tiers à des fins commerciales.<br><br>
+
+          <strong>4.5 — Durée de conservation</strong><br>
+          Données de compte : durée de l'abonnement + 3 ans après résiliation (obligation comptable).<br>
+          Données professionnelles : durée de l'abonnement + 90 jours après résiliation (permettre la réactivation ou l'export).<br>
+          Données de facturation : 10 ans (obligation légale française).<br><br>
+
+          <strong>4.6 — Vos droits</strong><br>
+          Conformément au RGPD (Règlement UE 2016/679) et à la loi Informatique et Libertés, vous disposez des droits suivants :<br>
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:12px 16px;margin:6px 0 14px">
+            <div>✅ <strong>Droit d'accès</strong> — obtenir une copie de vos données</div>
+            <div>✅ <strong>Droit de rectification</strong> — corriger des données inexactes</div>
+            <div>✅ <strong>Droit à l'effacement</strong> — demander la suppression de votre compte et données (bouton disponible dans Paramètres → Compte)</div>
+            <div>✅ <strong>Droit à la portabilité</strong> — export de vos données en CSV depuis l'application</div>
+            <div>✅ <strong>Droit d'opposition</strong> — vous opposer à certains traitements</div>
+            <div>✅ <strong>Droit de limitation</strong> — demander la suspension d'un traitement</div>
+          </div>
+          Pour exercer ces droits : <a href="mailto:dpo@batipilot.fr" style="color:var(--accent)">dpo@batipilot.fr</a> — Réponse sous 30 jours maximum.<br>
+          Vous pouvez également introduire une réclamation auprès de la <strong>CNIL</strong> (www.cnil.fr).<br><br>
+
+          <strong>4.7 — Sécurité des données</strong><br>
+          BatiPilot met en œuvre les mesures techniques et organisationnelles suivantes : chiffrement TLS en transit, isolation des données par Row Level Security (RLS) Supabase, authentification JWT, hachage des mots de passe (bcrypt via Supabase Auth), accès aux données de production limité à l'éditeur.
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           5. POLITIQUE DE COOKIES
+      ═══════════════════════════════════════════ -->
+      <div id="sec-cookies" class="card" style="margin-bottom:20px;scroll-margin-top:80px">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🍪 5. Politique de cookies</div>
+        <div style="font-size:13px;line-height:2.2">
+          BatiPilot utilise un nombre strictement minimal de cookies, tous nécessaires au fonctionnement du service :<br><br>
+          <div style="background:var(--bg-input);border-radius:var(--radius);padding:12px 16px;margin:6px 0 14px">
+            <div style="margin-bottom:10px"><strong>sb-access-token / sb-refresh-token</strong> (Supabase Auth)<br>
+            <span style="color:var(--text-muted)">Session d'authentification — Durée : session + 7 jours — Strictement nécessaire</span></div>
+            <div><strong>localStorage BatiPilot</strong><br>
+            <span style="color:var(--text-muted)">Préférences d'affichage, page courante — Stockage local uniquement, jamais transmis — Strictement nécessaire</span></div>
+          </div>
+          <strong>Aucun cookie publicitaire.</strong> Aucun cookie de tracking. Aucun script tiers d'analyse (Google Analytics, Facebook Pixel, etc.).<br><br>
+          Conformément à la directive ePrivacy et aux recommandations de la CNIL, les cookies strictement nécessaires ne requièrent pas de consentement préalable.
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="card" style="margin-bottom:32px;text-align:center;background:var(--bg-input)">
+        <div style="font-size:13px;color:var(--text-muted)">
+          Questions légales : <a href="mailto:contact@batipilot.fr" style="color:var(--accent);font-weight:600">contact@batipilot.fr</a> &nbsp;·&nbsp;
+          RGPD / DPO : <a href="mailto:dpo@batipilot.fr" style="color:var(--accent);font-weight:600">dpo@batipilot.fr</a> &nbsp;·&nbsp;
+          Réclamation CNIL : <a href="https://www.cnil.fr" target="_blank" style="color:var(--accent)">www.cnil.fr</a>
+        </div>
+      </div>
+
     </div>
   `);
 }
