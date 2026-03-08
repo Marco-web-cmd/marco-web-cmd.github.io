@@ -4069,46 +4069,82 @@ function pgAbonnement(){
     </div>
   </div>
 
-  <div class="grid-2" style="gap:20px;max-width:860px;margin-bottom:32px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:900px;margin-bottom:32px">
+
+    <!-- SOLO -->
     <div class="plan-card">
       <div style="font-size:28px;margin-bottom:8px">🔧</div>
       <div style="font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:4px">Solo</div>
       <div class="plan-price">39 €</div>
       <div class="plan-period">/ mois · sans engagement</div>
-      <ul style="text-align:left;margin:20px 0;font-size:14px;line-height:2.2;list-style:none;padding:0">
+      <ul style="text-align:left;margin:16px 0;font-size:13px;line-height:2.2;list-style:none;padding:0">
         <li>✅ 1 utilisateur</li>
         <li>✅ Chantiers illimités</li>
-        <li>✅ Devis PDF professionnels</li>
-        <li>✅ Conducteur de travaux terrain</li>
-        <li>✅ BL fournisseurs imprimables</li>
-        <li>✅ Gestion du stock & appro</li>
-        <li>✅ Planning & agenda chantier</li>
+        <li>✅ Devis & Factures PDF</li>
+        <li>✅ Mode terrain conducteur</li>
+        <li>✅ Stock & Appro</li>
+        <li>✅ Planning chantier</li>
+        <li>✅ Assistant IA (50 msg/mois)</li>
         <li>❌ Multi-utilisateurs</li>
-        <li>❌ Partage équipe</li>
       </ul>
       <button class="btn btn-secondary w-full" style="padding:14px;font-size:15px" onclick="openStripe('solo')">
         Démarrer — Solo 39 €/mois
       </button>
     </div>
 
+    <!-- PRO -->
     <div class="plan-card featured">
-      <div style="background:var(--accent);color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:8px">⭐ Recommandé</div>
-      <div style="font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:4px">Team</div>
-      <div class="plan-price">79 €</div>
+      <div style="background:#7C3AED;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:8px">🚀 Meilleure valeur</div>
+      <div style="font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:4px">Pro</div>
+      <div class="plan-price">69 €</div>
       <div class="plan-period">/ mois · sans engagement</div>
-      <ul style="text-align:left;margin:20px 0;font-size:14px;line-height:2.2;list-style:none;padding:0">
-        <li>✅ Jusqu'à 5 utilisateurs</li>
-        <li>✅ Tout le plan Solo</li>
-        <li>✅ Conducteur terrain dédié</li>
-        <li>✅ Partage chantiers en équipe</li>
+      <ul style="text-align:left;margin:16px 0;font-size:13px;line-height:2.2;list-style:none;padding:0">
+        <li>✅ Tout Solo inclus</li>
+        <li>✅ <strong>Assistant IA illimité</strong></li>
+        <li>✅ Génération devis par IA</li>
+        <li>✅ Relances automatiques</li>
+        <li>✅ Export comptabilité</li>
+        <li>✅ Rapports avancés</li>
         <li>✅ Support prioritaire</li>
-        <li>✅ Onboarding téléphonique</li>
+        <li>❌ Multi-utilisateurs</li>
       </ul>
-      <button class="btn btn-primary w-full" style="padding:14px;font-size:15px" onclick="openStripe('team')">
-        Démarrer — Team 79 €/mois
+      <button class="btn btn-primary w-full" style="padding:14px;font-size:15px" onclick="openStripe('pro')">
+        Démarrer — Pro 69 €/mois
       </button>
     </div>
+
+    <!-- TEAM -->
+    <div class="plan-card">
+      <div style="background:var(--accent);color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:8px">⭐ Équipe</div>
+      <div style="font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:4px">Team</div>
+      <div class="plan-price">99 €</div>
+      <div class="plan-period">/ mois · sans engagement</div>
+      <ul style="text-align:left;margin:16px 0;font-size:13px;line-height:2.2;list-style:none;padding:0">
+        <li>✅ Tout Pro inclus</li>
+        <li>✅ <strong>Jusqu'à 5 utilisateurs</strong></li>
+        <li>✅ Conducteurs terrain dédiés</li>
+        <li>✅ Partage des chantiers</li>
+        <li>✅ Gestion des équipes</li>
+        <li>✅ Tableaux de bord partagés</li>
+        <li>✅ Onboarding téléphonique</li>
+      </ul>
+      <button class="btn btn-secondary w-full" style="padding:14px;font-size:15px" onclick="openStripe('team')">
+        Démarrer — Team 99 €/mois
+      </button>
+    </div>
+
   </div>
+
+  <!-- Entreprise -->
+  <div class="card" style="max-width:900px;margin-bottom:24px;background:linear-gradient(135deg,#1C2B4A,#2D3E8C);color:white;border:none;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+    <div>
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px">🏢 Entreprise — Sur devis</div>
+      <div style="opacity:0.85;font-size:13px">+5 utilisateurs · Intégration sur mesure · Support dédié · Formation équipe · SLA garanti</div>
+    </div>
+    <button class="btn" style="background:white;color:#1C2B4A;font-weight:700;white-space:nowrap" onclick="window.open('mailto:contact@bati-pilot.fr?subject=Demande%20offre%20Entreprise%20BatiPilot','_blank')">
+      📧 Nous contacter
+    </button>
+  </div></div>
 
   <div class="card" style="max-width:860px">
     <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">💳 Gérer mon abonnement actuel</div>
@@ -5212,7 +5248,7 @@ function checkLimit(resource, currentCount) {
     + '<p style="font-size:15px;font-weight:600;margin-bottom:8px">Limite atteinte</p>'
     + '<p style="font-size:13.5px;color:var(--text-muted);margin-bottom:20px;line-height:1.7">'
     + 'Le plan <strong>Gratuit</strong> est limité à <strong>' + max + ' ' + resource + '</strong>.'
-    + '<br>Passez au plan <strong>Solo (39€/mois)</strong> pour tout débloquer.</p>'
+    + '<br>Passez au plan <strong>Solo (39€/mois) ou Pro (69€/mois)</strong> pour tout débloquer.</p>'
     + '<div style="display:grid;gap:10px">'
     + '<button class="btn" style="background:var(--accent);color:white;padding:14px" onclick="closeModal();upgradeToSolo()">⚡ Passer au plan Solo</button>'
     + '<button class="btn btn-ghost" onclick="closeModal()">Rester sur le plan gratuit</button>'
@@ -5221,6 +5257,7 @@ function checkLimit(resource, currentCount) {
   return false;
 }
 function upgradeToSolo() { openStripe('solo'); }
+function upgradeToPro()  { openStripe('pro');  }
 
 // Affiche un badge plan dans le sidebar
 function renderPlanBadge() {
@@ -5230,6 +5267,7 @@ function renderPlanBadge() {
   const cfg = {
     gratuit: { label:'Gratuit', color:'var(--text-muted)', bg:'var(--bg-input)' },
     solo:    { label:'Solo ✓',  color:'white',           bg:'var(--accent)'   },
+    pro:     { label:'Pro ✓',   color:'white',           bg:'#7C3AED'         },
     team:    { label:'Team ✓',  color:'white',           bg:'#2D7A4F'         },
   };
   const c = cfg[plan] || cfg.gratuit;
@@ -5435,6 +5473,7 @@ SB.auth.onAuthStateChange(async (event, session) => {
 // ⚠️ Remplacer ces URLs par vos vrais Payment Links Stripe
 const STRIPE_LINKS = {
   solo: 'https://buy.stripe.com/REMPLACER_LIEN_SOLO',
+  pro:  'https://buy.stripe.com/REMPLACER_LIEN_PRO',
   team: 'https://buy.stripe.com/REMPLACER_LIEN_TEAM',
 };
 
@@ -7046,6 +7085,7 @@ function renderPlanBadgeV9() {
   var cfg = {
     gratuit: { label: info.days !== null ? '🎁 Essai — ' + info.days + 'j' : 'Gratuit', color: 'var(--text-muted)', bg: 'var(--bg-input)' },
     solo:    { label: 'Solo ✓',  color: 'white', bg: 'var(--accent)' },
+    pro:     { label: 'Pro ✓',   color: 'white', bg: '#7C3AED' },
     team:    { label: 'Team ✓',  color: 'white', bg: '#2D7A4F' },
   };
   var c = cfg[plan] || cfg.gratuit;
@@ -7707,12 +7747,18 @@ function pgLegal() {
               <div style="background:var(--bg);border-radius:var(--radius);padding:12px;text-align:center">
                 <div style="font-weight:700;font-size:15px;margin-bottom:4px">Solo</div>
                 <div style="font-size:22px;font-weight:800;color:var(--accent)">39 €<span style="font-size:12px;font-weight:400;color:var(--text-muted)">/mois TTC</span></div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">1 utilisateur · Toutes fonctionnalités</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">1 utilisateur · IA 50 msg/mois</div>
               </div>
               <div style="background:var(--bg);border-radius:var(--radius);padding:12px;text-align:center">
                 <div style="font-weight:700;font-size:15px;margin-bottom:4px">Team</div>
-                <div style="font-size:22px;font-weight:800;color:var(--accent)">79 €<span style="font-size:12px;font-weight:400;color:var(--text-muted)">/mois TTC</span></div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Jusqu'à 5 utilisateurs · Conducteurs de travaux</div>
+                <div style="font-size:22px;font-weight:800;color:var(--accent)">99 €<span style="font-size:12px;font-weight:400;color:var(--text-muted)">/mois TTC</span></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Jusqu'à 5 utilisateurs · IA illimitée</div>
+              </div>
+            </div>
+            <div style="background:var(--bg);border-radius:var(--radius);padding:12px;text-align:center">
+                <div style="font-weight:700;font-size:15px;margin-bottom:4px">Pro</div>
+                <div style="font-size:22px;font-weight:800;color:#7C3AED">69 €<span style="font-size:12px;font-weight:400;color:var(--text-muted)">/mois TTC</span></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">1 utilisateur · IA illimitée · Export compta</div>
               </div>
             </div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center">Essai gratuit 30 jours sans CB — Résiliation à tout moment — Prix TTC (auto-entrepreneur, TVA non applicable art. 293B CGI)</div>
@@ -8515,11 +8561,17 @@ var _bp = {
 };
 
 /* System prompt expert BatiPilot */
-var BP_SYS = 'Tu es l\'assistant intégré de BatiPilot, un SaaS de gestion de chantiers pour artisans du bâtiment français.'
-  + ' Réponds en français, de façon concise (max 4 phrases sauf si l\'utilisateur demande plus).'
-  + ' Tu es expert en : navigation BatiPilot (devis, chantiers, facturation, stock, planning), TVA BTP, LME, assurance décennale, gestion de marge.'
-  + ' Pour les actions dans l\'app, cite le menu exact : "Allez dans X → cliquez Y".'
-  + ' Si hors périmètre (conseil juridique complexe), oriente vers un professionnel. Ne mentionne jamais de concurrents.';
+var BP_SYS = [
+  'Tu es le copilote IA de BatiPilot, expert en gestion de chantiers BTP pour artisans français.',
+  'Tu as accès aux données réelles de l\'entreprise (fournies dans le message utilisateur).',
+  'Tu incarnes 4 agents selon la demande :',
+  '- Agent Chantiers : analyse chantiers, détecte retards, suggère priorités',
+  '- Agent Commercial : rédige devis, estime matériaux, répond clients',
+  '- Agent Finances : analyse factures, identifie impayés, prépare relances',
+  '- Agent Logistique : vérifie stock, génère commandes fournisseurs',
+  'Réponds en français, de façon concise et pratique (max 5 phrases sauf si demande détaillée).',
+  'Quand tu as des données chiffrées, utilise-les. Propose toujours une action concrète.'
+].join(' ');
 
 var BP_QUICK_INIT = [
   '📋 Créer un devis',
@@ -8528,6 +8580,32 @@ var BP_QUICK_INIT = [
   '💳 Mon abonnement',
   '🧾 Relance facture impayée',
 ];
+
+// Génère des quick buttons contextuels selon l'état réel des données
+function _bpContextualQuickButtons() {
+  var btns = [];
+  if (!window.D) return BP_QUICK_INIT;
+
+  var today = new Date().toISOString().slice(0,10);
+  var chEC  = (D.chantiers||[]).filter(function(c){return c.statut==='En cours';});
+  var retard = chEC.filter(function(c){return c.date_fin&&c.date_fin<today;});
+  var fimp  = (D.factures_client||[]).filter(function(f){return f.statut==='En attente'||f.statut==='Envoyée';});
+  var stk   = (D.stocks||[]).filter(function(s){return s.qte<=(s.seuil||0);});
+  var devis = (D.devis_docs||[]).filter(function(d){return d.statut==='Envoyé'||d.statut==='En attente';});
+
+  // Boutons prioritaires selon l'urgence
+  if (retard.length)  btns.push('⚠️ Chantiers en retard (' + retard.length + ')');
+  if (fimp.length)    btns.push('💰 Relancer ' + fimp.length + ' facture(s) impayée(s)');
+  if (stk.length)     btns.push('📦 Commander le stock manquant');
+  if (devis.length)   btns.push('📋 Devis en attente de réponse (' + devis.length + ')');
+
+  // Toujours proposer des actions courantes
+  btns.push('📅 Organiser mes chantiers cette semaine');
+  btns.push('💼 Préparer un devis client');
+  if (chEC.length) btns.push('🔍 Résumé de mes chantiers en cours');
+
+  return btns.slice(0, 5); // max 5 boutons
+}
 
 /* ── Toggle ───────────────────────────────────────────────────── */
 window.bpToggle = function() {
@@ -8552,7 +8630,23 @@ window.bpToggle = function() {
 /* ── Message de bienvenue ─────────────────────────────────────── */
 function _bpWelcome() {
   var company = window.D && D.settings && D.settings.company ? ' chez ' + D.settings.company : '';
-  _bpMsg('assistant', 'Bonjour' + company + ' ! 👋\nJe suis votre assistant BatiPilot — posez-moi toutes vos questions sur l\'application ou la gestion de vos chantiers.');
+  // Message de bienvenue contextuel
+  var welcomeLines = [];
+  welcomeLines.push('Bonjour' + company + ' ! 👋');
+  if (window.D) {
+    var _chEC  = (D.chantiers||[]).filter(function(c){return c.statut==='En cours';});
+    var _fimp  = (D.factures_client||[]).filter(function(f){return f.statut==='En attente'||f.statut==='Envoyée';});
+    var _stk   = (D.stocks||[]).filter(function(s){return s.qte<=(s.seuil||0);});
+    var _today2 = new Date().toISOString().slice(0,10);
+    var _retard = _chEC.filter(function(c){return c.date_fin&&c.date_fin<_today2;});
+    if (_retard.length)  welcomeLines.push('\u26a0\ufe0f **' + _retard.length + ' chantier(s) en retard** \u2014 je peux vous aider.');
+    if (_fimp.length)    welcomeLines.push('\ud83d\udcb0 **' + _fimp.length + ' facture(s) impay\u00e9e(s)** en attente.');
+    if (_stk.length)     welcomeLines.push('\ud83d\udce6 **' + _stk.length + ' article(s) en rupture** de stock.');
+    if (!_retard.length && !_fimp.length && !_stk.length) welcomeLines.push('Tout semble bien se passer ! Comment puis-je vous aider ?');
+  } else {
+    welcomeLines.push('Je suis votre copilote BTP \u2014 posez-moi n\'importe quelle question.');
+  }
+  _bpMsg('assistant', welcomeLines.join('\n'));
 
   // Si pas de proxy ET pas de clé dev → message transparent + config bar
   if (!SUPPORT_PROXY_URL && !_bp.devKey) {
@@ -8570,8 +8664,7 @@ function _bpWelcome() {
     return;
   }
 
-  _bpMsg('assistant', '');  // spacer (will render quick buttons)
-  _bpRenderQuick(BP_QUICK_INIT);
+  _bpRenderQuick(_bpContextualQuickButtons());
 }
 
 /* ── Sauvegarder clé dev ──────────────────────────────────────── */
@@ -8591,7 +8684,7 @@ window.bpSaveKey = function() {
   document.getElementById('bp-quick-btns').innerHTML = '';
   _bp.history = [];
   _bpMsg('assistant', '✅ Clé validée (session uniquement). Posez votre première question !');
-  _bpRenderQuick(BP_QUICK_INIT);
+  _bpRenderQuick(_bpContextualQuickButtons());
 };
 
 /* ── Envoyer ──────────────────────────────────────────────────── */
@@ -8628,19 +8721,67 @@ async function _bpCallAI() {
   // Indicateur de frappe
   var typingEl = _bpMsg('assistant', '●●●', false, true);
 
-  // Contexte utilisateur (injecté dans le dernier message)
+  // Contexte utilisateur enrichi — données réelles de l'app
   var ctx = '';
   if (window.D) {
-    ctx = ' [Contexte: '
-      + D.chantiers.length + ' chantiers, '
-      + D.clients.length + ' clients'
-      + (D.settings.trade ? ', métier=' + D.settings.trade : '')
-      + ', plan=' + (D.settings.subscription_status || 'trial')
-      + ']';
+    var now = new Date();
+    var today = now.toISOString().slice(0,10);
+
+    // Chantiers en cours
+    var chEnCours = D.chantiers.filter(function(c){ return c.statut === 'En cours'; });
+    var chTermines = D.chantiers.filter(function(c){ return c.statut === 'Terminé'; });
+    var chEnRetard = chEnCours.filter(function(c){
+      return c.date_fin && c.date_fin < today;
+    });
+
+    // Factures impayées
+    var factImpayees = (D.factures_client || []).filter(function(f){
+      return f.statut === 'En attente' || f.statut === 'Envoyée';
+    });
+    var montantImpaye = factImpayees.reduce(function(s,f){ return s + (parseFloat(f.montant)||0); }, 0);
+
+    // Devis en attente
+    var devisEnAttente = (D.devis_docs || []).filter(function(d){
+      return d.statut === 'Envoyé' || d.statut === 'En attente';
+    });
+
+    // Stock en alerte
+    var stockAlerte = (D.stocks || []).filter(function(s){
+      return s.qte <= (s.seuil || 0);
+    });
+
+    // Commandes urgentes terrain
+    var commandesUrgentes = (D.bl_items || []).filter(function(b){
+      return b.urgent && b.statut === 'En attente';
+    });
+
+    // Prochain chantier à démarrer
+    var prochainChantier = D.chantiers
+      .filter(function(c){ return c.statut === 'Planifié' && c.date_debut >= today; })
+      .sort(function(a,b){ return a.date_debut > b.date_debut ? 1 : -1; })[0];
+
+    ctx = '\n\n[DONNÉES TEMPS RÉEL BATIPILOT — ' + today + ']'
+      + '\nEntreprise: ' + (D.settings.company || 'Non renseigné')
+      + ' | Métier: ' + (D.settings.trade || 'BTP')
+      + '\nChantiers: ' + D.chantiers.length + ' total'
+      + ' | ' + chEnCours.length + ' en cours'
+      + ' | ' + chTermines.length + ' terminés'
+      + (chEnRetard.length ? ' | ⚠️ ' + chEnRetard.length + ' EN RETARD (' + chEnRetard.map(function(c){return c.nom;}).join(', ') + ')' : '')
+      + '\nClients: ' + D.clients.length
+      + '\nDevis: ' + D.devis_docs.length + ' total'
+      + (devisEnAttente.length ? ' | ' + devisEnAttente.length + ' en attente de réponse' : '')
+      + '\nFactures impayées: ' + factImpayees.length
+      + (factImpayees.length ? ' (' + Math.round(montantImpaye) + ' €)' : '')
+      + (stockAlerte.length ? '\nStock en alerte: ' + stockAlerte.map(function(s){return s.libelle;}).join(', ') : '')
+      + (commandesUrgentes.length ? '\nCommandes urgentes terrain: ' + commandesUrgentes.length : '')
+      + (prochainChantier ? '\nProchain chantier: ' + prochainChantier.nom + ' le ' + prochainChantier.date_debut : '')
+      + '\nPlan: ' + (D.settings.subscription_status || 'trial');
   }
   var msgs = _bp.history.slice(-10).map(function(m, i, arr) {
     if (i === arr.length - 1 && m.role === 'user') {
-      return { role: 'user', content: m.content + ctx };
+      // Nettoyer le contexte pour éviter les caractères qui cassent JSON
+      var safeCtx = ctx.replace(/[\u0000-\u001F\u007F]/g, ' ');
+      return { role: 'user', content: m.content + safeCtx };
     }
     return { role: m.role, content: m.content };
   });
@@ -8695,6 +8836,7 @@ async function _bpCallAI() {
     if (!resp.ok) {
       var errBody = await resp.json().catch(function(){ return {}; });
       var errMsg = (errBody.error && errBody.error.message) ? errBody.error.message : 'HTTP ' + resp.status;
+      console.error('[BatiPilot chat] Error', resp.status, JSON.stringify(errBody).slice(0,200));
       throw new Error(errMsg);
     }
 
@@ -8776,3 +8918,4 @@ window.bpSend = window.bpSend;
 
 </body>
 </html>
+function openPro()  { openStripe('pro');  }
