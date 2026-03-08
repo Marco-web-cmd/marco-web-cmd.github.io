@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BatiPilot — Le copilote IA des artisans BTP</title>
+<meta name="description" content="BatiPilot transforme la gestion de vos chantiers. Devis, planning, facturation, stock et agents IA pour artisans du bâtiment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Variables ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:    #1C2B4A;
+  --blue:    #2D3E8C;
+  --orange:  #C0622A;
+  --purple:  #7C3AED;
+  --green:   #2D7A4F;
+  --bg:      #F8F7F4;
+  --white:   #FFFFFF;
+  --text:    #1a1a2e;
+  --muted:   #6B7280;
+  --border:  #E5E7EB;
+  --font:    'Inter', sans-serif;
+  --display: 'Fraunces', Georgia, serif;
+  --radius:  16px;
+  --shadow:  0 4px 24px rgba(28,43,74,.10);
+  --shadow-lg: 0 12px 48px rgba(28,43,74,.18);
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+/* ── Animations ── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(32px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+@keyframes float    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
+@keyframes pulse    { 0%,100% { transform:scale(1); } 50% { transform:scale(1.04); } }
+@keyframes slideRight { from { transform:translateX(-40px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+@keyframes gradient { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+
+.reveal { opacity:0; transform:translateY(28px); transition: opacity .65s ease, transform .65s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.reveal-left  { opacity:0; transform:translateX(-28px); transition: opacity .65s ease, transform .65s ease; }
+.reveal-left.visible { opacity:1; transform:translateX(0); }
+.reveal-right { opacity:0; transform:translateX(28px); transition: opacity .65s ease, transform .65s ease; }
+.reveal-right.visible { opacity:1; transform:translateX(0); }
+
+/* ── Nav ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 5%;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 68px;
+  background: rgba(248,247,244,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow .3s;
+}
+nav.scrolled { box-shadow: var(--shadow); }
+.nav-logo { font-family: var(--display); font-size: 22px; font-weight: 900; color: var(--navy); text-decoration: none; }
+.nav-logo span { color: var(--orange); }
+.nav-links { display: flex; gap: 32px; align-items: center; }
+.nav-links a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; transition: color .2s; }
+.nav-links a:hover { color: var(--navy); }
+.btn-nav {
+  background: var(--navy); color: white; padding: 9px 20px;
+  border-radius: 50px; font-size: 14px; font-weight: 600;
+  text-decoration: none; transition: background .2s, transform .15s;
+}
+.btn-nav:hover { background: var(--blue); transform: translateY(-1px); color: white; }
+.nav-mobile-hide { display: flex; }
+
+/* ── Boutons ── */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--orange); color: white;
+  padding: 14px 28px; border-radius: 50px;
+  font-size: 16px; font-weight: 700; text-decoration: none;
+  transition: all .2s; border: none; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(192,98,42,.35);
+}
+.btn-primary:hover { background: #a8511e; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(192,98,42,.45); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: var(--navy);
+  padding: 14px 28px; border-radius: 50px;
+  font-size: 16px; font-weight: 600; text-decoration: none;
+  border: 2px solid var(--border); transition: all .2s; cursor: pointer;
+}
+.btn-ghost:hover { border-color: var(--navy); background: rgba(28,43,74,.05); transform: translateY(-1px); }
+
+/* ── Hero ── */
+#hero {
+  min-height: 100vh;
+  padding: 120px 5% 80px;
+  display: flex; align-items: center;
+  background: linear-gradient(135deg, #1C2B4A 0%, #2D3E8C 50%, #1a3a6b 100%);
+  background-size: 400% 400%;
+  animation: gradient 12s ease infinite;
+  position: relative; overflow: hidden;
+}
+#hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-inner {
+  max-width: 1200px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  padding: 6px 16px; border-radius: 50px; font-size: 13px; color: rgba(255,255,255,.9);
+  margin-bottom: 24px; animation: fadeIn .8s ease;
+}
+.hero-title {
+  font-family: var(--display); font-size: clamp(36px,5vw,60px);
+  font-weight: 900; color: white; line-height: 1.1;
+  margin-bottom: 24px;
+  animation: fadeUp .8s ease .1s both;
+}
+.hero-title span { color: #F5A623; }
+.hero-sub {
+  font-size: clamp(16px,2vw,20px); color: rgba(255,255,255,.8);
+  line-height: 1.7; margin-bottom: 40px;
+  animation: fadeUp .8s ease .2s both;
+}
+.hero-ctas {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  animation: fadeUp .8s ease .3s both;
+}
+.hero-stats {
+  display: flex; gap: 32px; margin-top: 48px;
+  animation: fadeUp .8s ease .4s both;
+}
+.hero-stat { text-align: center; }
+.hero-stat-num { font-family: var(--display); font-size: 32px; font-weight: 900; color: white; }
+.hero-stat-lbl { font-size: 12px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: 1px; }
+
+/* Mockup flottant */
+.hero-visual { animation: float 6s ease-in-out infinite; position: relative; }
+.mockup-shell {
+  background: var(--white); border-radius: 20px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.4);
+  overflow: hidden;
+  animation: fadeUp .9s ease .2s both;
+}
+.mockup-bar {
+  background: #1C2B4A; padding: 12px 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mockup-dots { display: flex; gap: 6px; }
+.mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mockup-body { padding: 20px; background: #F8F7F4; }
+.mockup-header { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.kpi-card {
+  background: white; border-radius: 12px; padding: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.kpi-num { font-family: monospace; font-size: 22px; font-weight: 700; }
+.kpi-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.ai-bubble {
+  background: linear-gradient(135deg, #1C2B4A, #2D3E8C);
+  color: white; border-radius: 12px 12px 12px 4px;
+  padding: 12px 14px; font-size: 13px; line-height: 1.5;
+  margin-top: 12px; position: relative;
+}
+.ai-bubble::before {
+  content: '🤖 Assistant IA';
+  display: block; font-size: 11px; opacity: .7; margin-bottom: 4px;
+}
+
+/* ── Sections communes ── */
+section { padding: 96px 5%; }
+.section-inner { max-width: 1200px; margin: 0 auto; }
+.section-badge {
+  display: inline-block; background: rgba(192,98,42,.1); color: var(--orange);
+  padding: 5px 14px; border-radius: 50px; font-size: 13px; font-weight: 600;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--display); font-size: clamp(28px,4vw,44px);
+  font-weight: 900; color: var(--navy); line-height: 1.2;
+  margin-bottom: 16px;
+}
+.section-sub { font-size: 18px; color: var(--muted); line-height: 1.7; max-width: 640px; }
+
+/* ── Features ── */
+#features { background: white; }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap: 24px; margin-top: 56px; }
+.feature-card {
+  background: var(--bg); border-radius: var(--radius); padding: 28px;
+  border: 1px solid var(--border);
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+}
+.feature-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--orange); }
+.feature-icon { font-size: 36px; margin-bottom: 16px; }
+.feature-title { font-family: var(--display); font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.feature-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+/* ── Agents IA ── */
+#agents { background: linear-gradient(180deg, #F8F7F4 0%, #EEF0F8 100%); }
+.agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 24px; margin-top: 56px; }
+.agent-card {
+  background: white; border-radius: var(--radius); padding: 28px;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+  transition: transform .25s, box-shadow .25s;
+}
+.agent-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.agent-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 4px;
+}
+.agent-commercial::before  { background: var(--orange); }
+.agent-chantier::before    { background: var(--blue); }
+.agent-admin::before       { background: var(--green); }
+.agent-logistique::before  { background: var(--purple); }
+.agent-emoji { font-size: 40px; margin-bottom: 14px; }
+.agent-name { font-family: var(--display); font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.agent-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+.agent-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.agent-tag {
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 3px 10px; border-radius: 50px; font-size: 12px; color: var(--navy);
+}
+
+/* ── Chat démo ── */
+#demo { background: white; }
+.demo-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.chat-demo {
+  background: var(--bg); border-radius: 20px;
+  box-shadow: var(--shadow-lg); overflow: hidden;
+}
+.chat-header {
+  background: var(--navy); padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px; color: white;
+}
+.chat-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.chat-messages { padding: 20px; display: flex; flex-direction: column; gap: 14px; min-height: 300px; }
+.msg { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.6; max-width: 85%; animation: fadeUp .4s ease; }
+.msg-user { background: var(--orange); color: white; align-self: flex-end; border-radius: 14px 14px 4px 14px; }
+.msg-ai { background: white; color: var(--navy); box-shadow: var(--shadow); border-radius: 14px 14px 14px 4px; }
+.msg-ai strong { display: block; font-size: 12px; color: var(--orange); margin-bottom: 4px; }
+.chat-input-bar {
+  padding: 12px 16px; background: white; border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+.chat-input-fake {
+  flex: 1; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 14px; font-size: 14px; color: var(--muted);
+}
+.chat-send-fake {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--navy); display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 14px;
+}
+
+/* ── Pricing ── */
+#pricing { background: var(--bg); }
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 24px; margin-top: 56px; max-width: 960px; }
+.plan {
+  background: white; border-radius: var(--radius); padding: 32px;
+  border: 2px solid var(--border);
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+}
+.plan:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.plan.featured { border-color: var(--purple); position: relative; }
+.plan-badge {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: var(--purple); color: white;
+  padding: 4px 16px; border-radius: 50px; font-size: 12px; font-weight: 700;
+  white-space: nowrap;
+}
+.plan-name { font-family: var(--display); font-size: 24px; font-weight: 900; color: var(--navy); margin-bottom: 4px; }
+.plan-price { font-family: var(--display); font-size: 42px; font-weight: 900; color: var(--navy); }
+.plan-price span { font-size: 16px; font-weight: 400; color: var(--muted); }
+.plan-period { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.plan-features { list-style: none; margin-bottom: 28px; }
+.plan-features li { padding: 6px 0; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--border); }
+.plan-features li:last-child { border: none; }
+.plan-features li::before { content: '✅ '; }
+.plan-features li.no::before { content: '❌ '; }
+.plan-cta {
+  display: block; text-align: center; padding: 13px;
+  border-radius: 50px; font-weight: 700; font-size: 15px;
+  text-decoration: none; transition: all .2s;
+}
+.plan-cta-primary { background: var(--purple); color: white; }
+.plan-cta-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+.plan-cta-secondary { background: var(--bg); color: var(--navy); border: 2px solid var(--border); }
+.plan-cta-secondary:hover { border-color: var(--navy); background: rgba(28,43,74,.05); }
+.pricing-enterprise {
+  max-width: 960px; margin-top: 24px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border-radius: var(--radius); padding: 28px 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+}
+.pricing-enterprise-text h3 { font-family: var(--display); font-size: 20px; font-weight: 700; color: white; }
+.pricing-enterprise-text p { color: rgba(255,255,255,.75); font-size: 14px; margin-top: 4px; }
+
+/* ── CTA Final ── */
+#cta {
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  text-align: center; padding: 120px 5%;
+}
+#cta .section-title { color: white; }
+#cta .section-sub { color: rgba(255,255,255,.75); margin: 0 auto 40px; }
+.cta-trial { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 16px; }
+
+/* ── Footer ── */
+footer {
+  background: var(--navy); color: rgba(255,255,255,.6);
+  padding: 48px 5% 32px;
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; margin-bottom: 40px; }
+.footer-logo { font-family: var(--display); font-size: 24px; font-weight: 900; color: white; margin-bottom: 8px; }
+.footer-logo span { color: var(--orange); }
+.footer-tagline { font-size: 14px; }
+.footer-links { display: flex; gap: 48px; flex-wrap: wrap; }
+.footer-col h4 { color: white; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+.footer-col a { display: block; color: rgba(255,255,255,.6); text-decoration: none; font-size: 14px; margin-bottom: 8px; transition: color .2s; }
+.footer-col a:hover { color: white; }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 13px; }
+.footer-legal { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-legal a { color: rgba(255,255,255,.5); text-decoration: none; }
+.footer-legal a:hover { color: white; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero-inner, .demo-inner { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .hero-stats { flex-wrap: wrap; gap: 24px; }
+  .nav-mobile-hide { display: none; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+  .pricing-enterprise { flex-direction: column; text-align: center; }
+  .footer-top { flex-direction: column; }
+  .footer-links { gap: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Bati<span>Pilot</span></a>
+  <div class="nav-links nav-mobile-hide">
+    <a href="#features">Fonctionnalités</a>
+    <a href="#agents">Agents IA</a>
+    <a href="#pricing">Tarifs</a>
+  </div>
+  <a href="https://bati-pilot.fr/batipilot_v12.html" class="btn-nav">Accéder à l'app →</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">🏗️ Conçu pour les artisans du BTP</div>
+      <h1 class="hero-title">
+        Le copilote IA<br>de votre <span>chantier</span>
+      </h1>
+      <p class="hero-sub">
+        BatiPilot gère vos devis, chantiers, finances et stock — pendant que l'IA s'occupe de l'administratif à votre place.
+      </p>
+      <div class="hero-ctas">
+        <a href="https://bati-pilot.fr/batipilot_v12.html" class="btn-primary">🚀 Essai gratuit 30 jours</a>
+        <a href="#demo" class="btn-ghost" style="color:white;border-color:rgba(255,255,255,.3)">Voir la démo</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">30j</div>
+          <div class="hero-stat-lbl">Essai gratuit</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">4</div>
+          <div class="hero-stat-lbl">Agents IA</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">0€</div>
+          <div class="hero-stat-lbl">Sans CB</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="mockup-shell">
+        <div class="mockup-bar">
+          <div class="mockup-dots">
+            <div class="mockup-dot" style="background:#ff5f57"></div>
+            <div class="mockup-dot" style="background:#febc2e"></div>
+            <div class="mockup-dot" style="background:#28c840"></div>
+          </div>
+          <span style="color:rgba(255,255,255,.6);font-size:12px;margin-left:8px">BatiPilot — Tableau de bord</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-header">📊 Tableau de bord</div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-num" style="color:#2D3E8C">8</div>
+              <div class="kpi-lbl">Chantiers en cours</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-num" style="color:#C0622A">24 700 €</div>
+              <div class="kpi-lbl">Devis en attente</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-num" style="color:#2D7A4F">12 400 €</div>
+              <div class="kpi-lbl">Encaissé ce mois</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-num" style="color:#DC2626">3 200 €</div>
+              <div class="kpi-lbl">Factures impayées</div>
+            </div>
+          </div>
+          <div class="ai-bubble">
+            ⚠️ 2 chantiers en retard. Je vous suggère de relancer Martin & Co — facture de 3 200€ en attente depuis 18 jours.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FONCTIONNALITÉS ── -->
+<section id="features">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center;margin-bottom:8px">
+      <span class="section-badge">✨ Tout-en-un</span>
+    </div>
+    <h2 class="section-title reveal" style="text-align:center">Tout ce qu'il faut pour piloter votre activité</h2>
+    <p class="section-sub reveal" style="text-align:center;margin:0 auto">Du chantier à la facture, BatiPilot centralise tout dans une seule application, accessible sur PC et mobile.</p>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">🏗️</div>
+        <div class="feature-title">Gestion des chantiers</div>
+        <div class="feature-desc">Créez, suivez et pilotez tous vos chantiers. Planning, équipes, avancement et budget en temps réel.</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Devis professionnels</div>
+        <div class="feature-desc">Générez des devis PDF en quelques clics. L'IA peut les préparer automatiquement à partir de votre description.</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">💰</div>
+        <div class="feature-title">Facturation & Finances</div>
+        <div class="feature-desc">Suivez encaissements, impayés et marges. Relances automatiques pour les factures en retard.</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">📦</div>
+        <div class="feature-title">Stock & Approvisionnement</div>
+        <div class="feature-desc">Gérez votre stock en temps réel. Alertes de rupture et commandes fournisseurs générées automatiquement.</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">👷</div>
+        <div class="feature-title">Mode terrain conducteur</div>
+        <div class="feature-desc">Interface mobile optimisée pour les conducteurs de travaux. BL, photos de chantier et commandes depuis le terrain.</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">👥</div>
+        <div class="feature-title">Gestion d'équipe</div>
+        <div class="feature-desc">Planifiez vos équipes, suivez les heures et gérez la masse salariale depuis un seul tableau de bord.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AGENTS IA ── -->
+<section id="agents">
+  <div class="section-inner">
+    <div class="reveal">
+      <span class="section-badge">🤖 Intelligence Artificielle</span>
+    </div>
+    <h2 class="section-title reveal">4 agents IA à votre service</h2>
+    <p class="section-sub reveal">Chaque agent est spécialisé dans un domaine de votre activité. Posez-leur des questions en langage naturel — ils répondent avec vos vraies données.</p>
+
+    <div class="agents-grid">
+      <div class="agent-card agent-commercial reveal">
+        <div class="agent-emoji">💼</div>
+        <div class="agent-name">Agent Commercial</div>
+        <div class="agent-desc">Prépare vos devis, répond aux demandes clients, estime les matériaux et propose des dates de chantier.</div>
+        <div class="agent-tags">
+          <span class="agent-tag">Génération devis</span>
+          <span class="agent-tag">Estimation matériaux</span>
+          <span class="agent-tag">Email client</span>
+        </div>
+      </div>
+      <div class="agent-card agent-chantier reveal">
+        <div class="agent-emoji">🏗️</div>
+        <div class="agent-name">Agent Conducteur</div>
+        <div class="agent-desc">Analyse votre planning, détecte les retards, suggère l'ordre des tâches et alerte sur les risques.</div>
+        <div class="agent-tags">
+          <span class="agent-tag">Détection retards</span>
+          <span class="agent-tag">Priorités chantier</span>
+          <span class="agent-tag">Alertes risques</span>
+        </div>
+      </div>
+      <div class="agent-card agent-admin reveal">
+        <div class="agent-emoji">📑</div>
+        <div class="agent-name">Agent Administratif</div>
+        <div class="agent-desc">Génère les factures, rédige les relances d'impayés et prépare vos données comptables.</div>
+        <div class="agent-tags">
+          <span class="agent-tag">Factures auto</span>
+          <span class="agent-tag">Relances impayés</span>
+          <span class="agent-tag">Export compta</span>
+        </div>
+      </div>
+      <div class="agent-card agent-logistique reveal">
+        <div class="agent-emoji">📦</div>
+        <div class="agent-name">Agent Logistique</div>
+        <div class="agent-desc">Calcule les matériaux nécessaires, vérifie votre stock et génère les commandes fournisseurs.</div>
+        <div class="agent-tags">
+          <span class="agent-tag">Calcul matériaux</span>
+          <span class="agent-tag">Vérif stock</span>
+          <span class="agent-tag">Commandes auto</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DÉMO CHAT ── -->
+<section id="demo">
+  <div class="section-inner">
+    <div class="demo-inner">
+      <div class="reveal-left">
+        <span class="section-badge">💬 Assistant intégré</span>
+        <h2 class="section-title">Parlez à votre application</h2>
+        <p class="section-sub" style="margin-bottom:32px">L'assistant connaît vos chantiers, vos clients et vos finances en temps réel. Demandez-lui n'importe quoi en français simple.</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:20px">💬</span>
+            <div><em style="color:var(--navy)">"Relance les factures impayées"</em><br><span style="font-size:13px;color:var(--muted)">→ L'IA rédige les emails de relance personnalisés</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:20px">💬</span>
+            <div><em style="color:var(--navy)">"Prépare un devis pour une rénovation salle de bain 15m²"</em><br><span style="font-size:13px;color:var(--muted)">→ L'IA génère un devis complet avec estimation matériaux</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:20px">💬</span>
+            <div><em style="color:var(--navy)">"Organise mes chantiers cette semaine"</em><br><span style="font-size:13px;color:var(--muted)">→ L'IA analyse et suggère un planning optimisé</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-demo reveal-right">
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div style="font-weight:600;font-size:14px">Assistant BatiPilot</div>
+            <div style="font-size:11px;opacity:.7">● En ligne · Données en temps réel</div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chat-demo-messages">
+          <div class="msg msg-ai"><strong>Assistant BatiPilot</strong>Bonjour ! ⚠️ <strong>2 chantiers en retard</strong> et 💰 <strong>3 200€ de factures impayées</strong>. Que voulez-vous faire ?</div>
+          <div class="msg msg-user" id="demo-user-msg" style="display:none"></div>
+          <div class="msg msg-ai" id="demo-ai-reply" style="display:none"><strong>Assistant BatiPilot</strong><span id="demo-ai-text"></span></div>
+        </div>
+        <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;background:white;border-top:1px solid var(--border)">
+          <button onclick="demoMsg('Relancer les impayés','Je rédige un email de relance pour Martin & Co (3 200€ · 18j de retard) :\n\n\"Bonjour, votre facture N°2024-087 de 3 200€ est arrivée à échéance. Merci de procéder au règlement. Cordialement.\"')" style="background:#EEF0F8;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--navy)">💰 Relancer les impayés</button>
+          <button onclick="demoMsg('Chantiers cette semaine','Cette semaine, je priorise : 1/ Chantier Dubois (retard 3j, finition plâtrerie) 2/ Chantier École (RDV vendredi) 3/ Devis Martin à envoyer avant jeudi.')" style="background:#EEF0F8;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--navy)">📅 Chantiers cette semaine</button>
+          <button onclick="demoMsg('Vérifier le stock','⚠️ 3 articles en rupture : Ciment CEM II (0/10 sacs), Câble 2,5mm² (2/15m), Vis 6x50 (12/100). Je génère les commandes fournisseurs ?')" style="background:#EEF0F8;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--navy)">📦 Vérifier le stock</button>
+        </div>
+        <div class="chat-input-bar">
+          <div class="chat-input-fake">Posez votre question…</div>
+          <div class="chat-send-fake">➤</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="pricing">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center">
+      <span class="section-badge">💶 Tarifs</span>
+    </div>
+    <h2 class="section-title reveal" style="text-align:center">Simple et transparent</h2>
+    <p class="section-sub reveal" style="text-align:center;margin:0 auto">30 jours gratuits, sans carte bancaire. Résiliation en 1 clic, sans engagement.</p>
+
+    <div class="pricing-grid reveal" style="margin:0 auto">
+
+      <div class="plan">
+        <div class="plan-name">Solo</div>
+        <div class="plan-price">39 €<span>/mois</span></div>
+        <div class="plan-period">Pour l'artisan indépendant</div>
+        <ul class="plan-features">
+          <li>1 utilisateur</li>
+          <li>Chantiers illimités</li>
+          <li>Devis & Factures PDF</li>
+          <li>Mode terrain conducteur</li>
+          <li>Stock & Appro</li>
+          <li>Assistant IA (50 msg/mois)</li>
+          <li class="no" style="color:var(--muted)">Multi-utilisateurs</li>
+        </ul>
+        <a href="https://bati-pilot.fr/batipilot_v12.html" class="plan-cta plan-cta-secondary">Démarrer</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-badge">🚀 Meilleure valeur</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">69 €<span>/mois</span></div>
+        <div class="plan-period">Pour l'artisan confirmé</div>
+        <ul class="plan-features">
+          <li>Tout Solo inclus</li>
+          <li><strong>IA illimitée</strong></li>
+          <li>Génération devis par IA</li>
+          <li>Relances automatiques</li>
+          <li>Export comptabilité</li>
+          <li>Rapports avancés</li>
+          <li>Support prioritaire</li>
+        </ul>
+        <a href="https://bati-pilot.fr/batipilot_v12.html" class="plan-cta plan-cta-primary">Démarrer</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Team</div>
+        <div class="plan-price">99 €<span>/mois</span></div>
+        <div class="plan-period">Pour les équipes jusqu'à 5</div>
+        <ul class="plan-features">
+          <li>Tout Pro inclus</li>
+          <li><strong>Jusqu'à 5 utilisateurs</strong></li>
+          <li>Conducteurs terrain dédiés</li>
+          <li>Partage des chantiers</li>
+          <li>Tableaux de bord partagés</li>
+          <li>Onboarding téléphonique</li>
+        </ul>
+        <a href="https://bati-pilot.fr/batipilot_v12.html" class="plan-cta plan-cta-secondary">Démarrer</a>
+      </div>
+
+    </div>
+
+    <div class="pricing-enterprise reveal">
+      <div class="pricing-enterprise-text">
+        <h3>🏢 Entreprise — Sur devis</h3>
+        <p>+5 utilisateurs · Intégration personnalisée · Formation équipe · Support dédié · SLA garanti</p>
+      </div>
+      <a href="/cdn-cgi/l/email-protection#2e4d41405a4f4d5a6e4c4f5a47035e4742415a00485c115d5b4c444b4d5a136a4b434f404a4b0b1c1e4148485c4b0b1c1e6b405a5c4b5e5c475d4b0b1c1e6c4f5a477e4742415a" class="btn-primary" style="white-space:nowrap">📧 Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section id="cta">
+  <div class="section-inner reveal" style="text-align:center">
+    <h2 class="section-title">Prêt à gagner du temps sur vos chantiers ?</h2>
+    <p class="section-sub">Rejoignez les artisans qui ont transformé leur gestion d'entreprise avec BatiPilot.</p>
+    <a href="https://bati-pilot.fr/batipilot_v12.html" class="btn-primary" style="font-size:18px;padding:18px 36px">
+      🚀 Démarrer gratuitement — 30 jours sans CB
+    </a>
+    <p class="cta-trial">Aucune carte bancaire requise · Résiliation en 1 clic · Données sécurisées en Europe</p>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Bati<span>Pilot</span></div>
+        <div class="footer-tagline">Le copilote IA des artisans BTP</div>
+        <div style="margin-top:16px;font-size:13px">
+          Michelin Marc-Aurèle · Auto-entrepreneur<br>
+          SIRET : 944 940 147 000 19<br>
+          15 Avenue du 8 Mai 1945, 33110 Le Bouscat
+        </div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Produit</h4>
+          <a href="#features">Fonctionnalités</a>
+          <a href="#agents">Agents IA</a>
+          <a href="#pricing">Tarifs</a>
+          <a href="https://bati-pilot.fr/batipilot_v12.html">Accéder à l'app</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <a href="/cdn-cgi/l/email-protection#a1c2cecfd5c0c2d5e1c3c0d5c88cd1c8cdced58fc7d3"><span class="__cf_email__" data-cfemail="6d0e0203190c0e192d0f0c1904401d04010219430b1f">[email&#160;protected]</span></a>
+          <a href="/cdn-cgi/l/email-protection#8bf8fefbfbe4f9ffcbe9eaffe2a6fbe2e7e4ffa5edf9"><span class="__cf_email__" data-cfemail="90e3e5e0e0ffe2e4d0f2f1e4f9bde0f9fcffe4bef6e2">[email&#160;protected]</span></a>
+        </div>
+        <div class="footer-col">
+          <h4>Légal</h4>
+          <a href="https://bati-pilot.fr/batipilot_v12.html#legal">Mentions légales</a>
+          <a href="https://bati-pilot.fr/batipilot_v12.html#legal">CGV / CGU</a>
+          <a href="https://bati-pilot.fr/batipilot_v12.html#legal">Confidentialité</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 BatiPilot · Michelin Marc-Aurèle · Tous droits réservés</span>
+      <div class="footer-legal">
+        <a href="https://bati-pilot.fr/batipilot_v12.html#legal">Mentions légales</a>
+        <a href="https://bati-pilot.fr/batipilot_v12.html#legal">CGV</a>
+        <a href="https://bati-pilot.fr/batipilot_v12.html#legal">RGPD</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── Scroll animations ──────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // Staggered children
+      const children = e.target.querySelectorAll('.reveal, .feature-card, .agent-card, .plan');
+      children.forEach((child, i) => {
+        setTimeout(() => child.classList.add('visible'), i * 80);
+      });
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+
+// ── Navbar shadow on scroll ───────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ── Chat démo ────────────────────────────────────────────────
+function demoMsg(question, reply) {
+  var userEl = document.getElementById('demo-user-msg');
+  var aiEl   = document.getElementById('demo-ai-reply');
+  var textEl = document.getElementById('demo-ai-text');
+
+  userEl.textContent = question;
+  userEl.style.display = 'block';
+  aiEl.style.display = 'none';
+
+  setTimeout(function() {
+    textEl.innerHTML = reply.replace(/\n/g,'<br>');
+    aiEl.style.display = '
