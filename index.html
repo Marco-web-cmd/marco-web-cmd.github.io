@@ -1444,6 +1444,7 @@ function ctModalCommander() {
     + '<div class="form-group"><label>Unité</label><input id="ct-unite" placeholder="m², kg, unité..." style="font-size:16px;padding:14px"></div>'
   + '</div>'
   + '<div class="form-row form-row-2">'+ '<div class="form-group"><label>Fournisseur</label><input id="ct-fourn" placeholder="Point P, Leroy Merlin..." style="font-size:15px;padding:12px"></div>'+ '<div class="form-group"><label>Prix estimé HT (€) <span style="font-size:10px;color:var(--text-muted)">pour alerte budget</span></label>'
+    + '<div class="form-group"><label>Email fournisseur <span style="font-size:10px;color:var(--text-muted)">(pour envoi direct)</span></label><input id="ct-fourn-email" type="email" placeholder="commandes@fournisseur.fr" style="font-size:15px;padding:12px"></div>'
     + '<input id="ct-prix-estime" type="number" min="0" step="0.01" placeholder="0" style="font-size:15px;padding:12px"></div>'+ '</div>'
   + '<div class="form-group"><label>Photo du bon (optionnel)</label>'
     + '<label for="ct-photo-input" class="photo-capture-btn"><span style="font-size:24px">📷</span> Prendre une photo / choisir</label>'
@@ -1545,6 +1546,7 @@ async function ctSaveCommande() {
     qte:         qte,
     unite:       ($('ct-unite')||{value:''}).value.trim(),
     fournisseur: ($('ct-fourn')||{value:''}).value.trim(),
+    fourn_email:  ($('ct-fourn-email')||{value:''}).value.trim(),
     commentaire: ($('ct-comment')||{value:''}).value.trim(),
     urgent:      ($('ct-urgent')||{}).checked || false,
     photo:       await uploadPhotoToStorage(CT.photoData, item2.id) || null,
@@ -1568,6 +1570,35 @@ async function ctSaveCommande() {
   CT.photoData = null;
   toast('Commande enregistrée' + (item2.urgent ? ' 🔴 URGENT' : '') + ' !');
   logActivity('commande', 'commande', item2.id, item2.designation, { montant: prixEstime });
+
+  // ── Proposer l'envoi par email au fournisseur ──────────────
+  if (item2.fournisseur) {
+    var ch = D.chantiers.find(function(c){ return c.id === CT.chantierId; });
+    var chNom = ch ? ch.nom : 'Chantier';
+    var company = (D.settings && D.settings.company) ? D.settings.company : 'BatiPilot';
+    var urgTxt = item2.urgent ? ' [URGENT]' : '';
+    var sujet = encodeURIComponent('[' + company + '] Commande' + urgTxt + ' — ' + chNom);
+    var corps = 'Bonjour,' +
+      '\n\nNous souhaitons passer la commande suivante :' +
+      '\n\n📦 Désignation : ' + item2.designation +
+      '\n📊 Quantité : ' + item2.qte + (item2.unite ? ' ' + item2.unite : '') +
+      (item2.commentaire ? '\n💬 Commentaire : ' + item2.commentaire : '') +
+      (item2.urgent ? '\n\n🔴 COMMANDE URGENTE' : '') +
+      '\n\nChantier : ' + chNom +
+      '\nDate : ' + item2.date +
+      '\n\nCordialement,' +
+      '\n' + company;
+    var fournEmail = ($('ct-fourn-email')||{value:''}).value.trim() || item2.fourn_email || '';
+    var mailtoUrl = 'mailto:' + fournEmail + '?subject=' + sujet + '&body=' + encodeURIComponent(corps);
+
+    setTimeout(function() {
+      var confirmed = confirm('Commande enregistree !\n\nVoulez-vous envoyer par email a ' + item2.fournisseur + ' ?');
+      if (confirmed) {
+        window.open(mailtoUrl, '_blank');
+      }
+    }, 300);
+  }
+
   ctGo('terrain');
   }; // fin _doSaveCommande
   ctCheckBudgetAlert(CT.chantierId, prixEstime, _doSaveCommande);
@@ -2515,7 +2546,7 @@ async function loadAll(){
 
   // Wrapper timeout universel
   function sq(q, ms){
-    ms = ms || 12000;
+    ms = ms || 8000;
     const t = new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), ms));
     return Promise.race([q, t]).catch(e => ({data:null, error:{message:String(e)}}));
   }
@@ -2528,23 +2559,29 @@ async function loadAll(){
     // Si oui, _USER_ROLE ← son rôle réel ; sinon il est patron de sa propre entreprise.
     // Note : la vraie sécurité est dans les policies RLS côté Supabase (get_user_role()).
     // Ce fetch côté client sert uniquement à adapter l'UI (cacher les pages financières).
-    const roleQuery = await sq(
+    // ── Rôle + données critiques en PARALLÈLE (gain ~300-500ms) ────────────
+    const roleQuery = sq(
       SB.from('company_users')
         .select('role, owner_id')
         .eq('user_id', USER.id)
         .eq('actif', true)
         .maybeSingle()
     );
-    if (roleQuery.data && roleQuery.data.role) {
-      _USER_ROLE = roleQuery.data.role; // 'conducteur' | 'lecture'
-      // Stocker l'owner_id pour que loadAll puisse requêter avec le bon user_id
-      USER._ownerIdForQuery = roleQuery.data.owner_id;
+
+    // Pré-résoudre le rôle pour déterminer _qid, avec fallback immédiat owner
+    const roleResult = await Promise.race([
+      roleQuery,
+      new Promise(r => setTimeout(() => r({data:null,error:null}), 1500))
+    ]);
+    if (roleResult.data && roleResult.data.role) {
+      _USER_ROLE = roleResult.data.role;
+      USER._ownerIdForQuery = roleResult.data.owner_id;
     } else {
       _USER_ROLE = 'owner';
       USER._ownerIdForQuery = USER.id;
     }
 
-    const _qid = USER._ownerIdForQuery; // shortcut pour toutes les requêtes Phase 1
+    const _qid = USER._ownerIdForQuery;
 
     const [sr,cr,clr,dr,fr,fclr,str,mr,cpr,docr] = await Promise.all([
       sq(SB.from('settings').select('*').eq('user_id',_qid).maybeSingle()),
@@ -5067,8 +5104,8 @@ async function startApp(user) {
       } catch(e) { first = { data: { session: null } }; }
       if (first.data?.session) return first;
 
-      // Tentative 2 : attente 600ms (iOS Safari / GitHub Pages localStorage timing)
-      await new Promise(r => setTimeout(r, 600));
+      // Tentative 2 : attente 200ms (iOS Safari / GitHub Pages localStorage timing)
+      await new Promise(r => setTimeout(r, 200));
       let second;
       try { second = await SB.auth.getSession(); } catch(e) { second = { data: { session: null } }; }
       if (second.data?.session) return second;
@@ -7034,6 +7071,8 @@ function renderPlanBadgeV9() {
 function showOnboardingWaouh() {
   var isNew = D.chantiers.length === 0 && D.clients.length === 0;
   if (!isNew) return;
+  // Si l'entreprise est déjà configurée → pas de wizard (compte existant recréé)
+  if (D.settings && D.settings.company && D.settings.company.trim().length > 0) return;
   var alreadyShown = localStorage.getItem('batipilot_onboarding_v12');
   if (alreadyShown) return;
   localStorage.setItem('batipilot_onboarding_v12', '1');
@@ -8465,7 +8504,7 @@ function _dashQuickLink(page, ico, label, sub) {
 // ── ⚙️  À CONFIGURER ──────────────────────────────────────────
 // Remplacez par votre URL Supabase Edge Function après déploiement.
 // Tant que cette valeur est '', le widget passe en mode dev (saisie clé).
-var SUPPORT_PROXY_URL = '';   // ex: 'https://xyz.supabase.co/functions/v1/chat-proxy'
+var SUPPORT_PROXY_URL = 'https://zewyecoxpmycqdziuqzc.supabase.co/functions/v1/chat-proxy';
 // ─────────────────────────────────────────────────────────────
 
 var _bp = {
