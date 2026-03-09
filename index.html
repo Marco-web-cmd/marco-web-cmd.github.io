@@ -38,12 +38,23 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); over
 @keyframes slideRight { from { transform:translateX(-40px); opacity:0; } to { transform:translateX(0); opacity:1; } }
 @keyframes gradient { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
 
-.reveal { opacity:0; transform:translateY(28px); transition: opacity .65s ease, transform .65s ease; }
-.reveal.visible { opacity:1; transform:translateY(0); }
-.reveal-left  { opacity:0; transform:translateX(-28px); transition: opacity .65s ease, transform .65s ease; }
-.reveal-left.visible { opacity:1; transform:translateX(0); }
-.reveal-right { opacity:0; transform:translateX(28px); transition: opacity .65s ease, transform .65s ease; }
-.reveal-right.visible { opacity:1; transform:translateX(0); }
+/* Animations scroll — visibles par défaut, animées si JS ok */
+.reveal, .reveal-left, .reveal-right {
+  opacity: 1; /* visible par défaut — JS surcharge si disponible */
+  transform: none;
+  transition: opacity .65s ease, transform .65s ease;
+}
+/* Classe .js-ready ajoutée par JS quand il est prêt */
+.js-ready .reveal       { opacity:0; transform:translateY(28px); }
+.js-ready .reveal-left  { opacity:0; transform:translateX(-28px); }
+.js-ready .reveal-right { opacity:0; transform:translateX(28px); }
+.js-ready .reveal.visible,
+.js-ready .reveal-left.visible,
+.js-ready .reveal-right.visible { opacity:1; transform:none; }
+/* Cards toujours visibles */
+.feature-card, .agent-card, .plan {
+  opacity: 1 !important; transform: none !important;
+}
 
 /* ── Nav ── */
 nav {
@@ -91,8 +102,8 @@ nav.scrolled { box-shadow: var(--shadow); }
 
 /* ── Hero ── */
 #hero {
-  min-height: 100vh;
-  padding: 120px 5% 80px;
+  min-height: 100svh;
+  padding: clamp(90px, 15vw, 120px) 5% clamp(48px, 8vw, 80px);
   display: flex; align-items: center;
   background: linear-gradient(135deg, #1C2B4A 0%, #2D3E8C 50%, #1a3a6b 100%);
   background-size: 400% 400%;
@@ -173,7 +184,7 @@ nav.scrolled { box-shadow: var(--shadow); }
 }
 
 /* ── Sections communes ── */
-section { padding: 96px 5%; }
+section { padding: clamp(48px, 8vw, 96px) 5%; }
 .section-inner { max-width: 1200px; margin: 0 auto; }
 .section-badge {
   display: inline-block; background: rgba(192,98,42,.1); color: var(--orange);
@@ -238,7 +249,7 @@ section { padding: 96px 5%; }
   display: flex; align-items: center; gap: 10px; color: white;
 }
 .chat-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 16px; }
-.chat-messages { padding: 20px; display: flex; flex-direction: column; gap: 14px; min-height: 300px; }
+.chat-messages { padding: 20px; display: flex; flex-direction: column; gap: 14px; min-height: 220px; }
 .msg { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.6; max-width: 85%; animation: fadeUp .4s ease; }
 .msg-user { background: var(--orange); color: white; align-self: flex-end; border-radius: 14px 14px 4px 14px; }
 .msg-ai { background: white; color: var(--navy); box-shadow: var(--shadow); border-radius: 14px 14px 14px 4px; }
@@ -303,7 +314,7 @@ section { padding: 96px 5%; }
 /* ── CTA Final ── */
 #cta {
   background: linear-gradient(135deg, var(--navy), var(--blue));
-  text-align: center; padding: 120px 5%;
+  text-align: center; padding: clamp(64px, 10vw, 120px) 5%;
 }
 #cta .section-title { color: white; }
 #cta .section-sub { color: rgba(255,255,255,.75); margin: 0 auto 40px; }
@@ -338,6 +349,15 @@ footer {
   .pricing-enterprise { flex-direction: column; text-align: center; }
   .footer-top { flex-direction: column; }
   .footer-links { gap: 32px; }
+  /* Réduire les grilles sur mobile */
+  .features-grid, .agents-grid { gap: 16px; }
+  .feature-card, .agent-card { padding: 20px; }
+  .section-title { font-size: 26px !important; }
+  .hero-title { font-size: 32px !important; }
+  .hero-ctas { flex-direction: column; }
+  .hero-ctas a { text-align: center; justify-content: center; }
+  .plan { padding: 24px; }
+  footer { padding: 40px 5% 24px; }
 }
 </style>
 </head>
@@ -701,21 +721,32 @@ footer {
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ── Scroll animations ──────────────────────────────────────────
+// ── Scroll animations (progressive enhancement) ────────────────
+// Marquer le document comme JS-ready pour activer les animations
+document.documentElement.classList.add('js-ready');
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       e.target.classList.add('visible');
-      // Staggered children
-      const children = e.target.querySelectorAll('.reveal, .feature-card, .agent-card, .plan');
-      children.forEach((child, i) => {
-        setTimeout(() => child.classList.add('visible'), i * 80);
-      });
     }
   });
-}, { threshold: 0.12 });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+// Observer tous les éléments animés
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+  observer.observe(el);
+});
+
+// Révéler immédiatement ce qui est déjà visible au chargement
+setTimeout(() => {
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight) {
+      el.classList.add('visible');
+    }
+  });
+}, 100);
 
 // ── Navbar shadow on scroll ───────────────────────────────────
 window.addEventListener('scroll', () => {
