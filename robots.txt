@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bati-pilot.fr/sitemap.xml
+
+# Bloquer l'accès à l'app (contenu privé)
+Disallow: /app.html
