@@ -452,10 +452,9 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
 /* ── Mobile ≤ 768px ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
   #sidebar      { display: none !important; }
-  /* mobile-open gère le cas du hamburger */
-  #sidebar.mobile-open { display: flex !important; }
+  #sidebar.mobile-open { display: none !important; }
   #mobile-nav   { display: flex !important; }
-  #topbar-menu-btn { display: flex !important; }
+  #topbar-menu-btn { display: none !important; }
   #app          { height: 100%; min-height: 100dvh; overflow: visible; }
   #main         { height: 100%; min-height: 100dvh; }
   #content      { padding: 16px 16px 84px; overflow-y: auto; }
@@ -635,7 +634,7 @@ body.ct-mode
 <body>
 <div id="offline-indicator"></div>
 <div id="offline-badge" role="alert" aria-live="assertive">📵 Hors-ligne — Lecture seule</div>
-<div id="loader" style="display:flex"><div class="loader-logo" id="loader-logo-wrap"><img id="loader-logo-img" src="/logo.png" alt="BatiPilot" style="max-height:48px;max-width:160px;object-fit:contain;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5))"><span id="loader-logo-text" style="display:none">Bati<span style="color:var(--accent)">Pilot</span></span></div><div class="spinner"></div><div class="loader-text" id="loader-text">Vérification de la session...</div><div id="loader-retry" style="display:none;margin-top:20px"><button onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
+<div id="loader" style="display:flex"><div class="loader-logo" id="loader-logo-wrap"><img id="loader-logo-img" src="/logo.png" alt="BatiPilot" style="max-height:48px;max-width:160px;object-fit:contain;display:block;filter:brightness(0) invert(1)"><span id="loader-logo-text" style="display:none">Bati<span style="color:var(--accent)">Pilot</span></span></div><div class="spinner"></div><div class="loader-text" id="loader-text">Vérification de la session...</div><div id="loader-retry" style="display:none;margin-top:20px"><button onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
 
 <div id="auth-screen" style="display:none">
   <div class="auth-card">
@@ -852,7 +851,7 @@ body.ct-mode
 
 <div id="app">
   <nav id="sidebar">
-    <div class="sidebar-logo" id="sidebar-logo-wrap"><div class="logo-mark"><img id="sidebar-logo-img" src="/logo.png" alt="BatiPilot" style="max-height:44px;max-width:130px;object-fit:contain;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4))"><div id="sidebar-logo-text" class="logo-icon-text" style="display:none"><div class="logo-icon">🏗️</div>BatiPilot</div></div><div class="logo-sub" id="sidebar-logo-sub">Gestion de chantiers</div></div>
+    <div class="sidebar-logo" id="sidebar-logo-wrap"><div class="logo-mark"><img id="sidebar-logo-img" src="/logo.png" alt="BatiPilot" style="max-height:44px;max-width:130px;object-fit:contain;display:block;filter:brightness(0) invert(1)"><div id="sidebar-logo-text" class="logo-icon-text" style="display:none"><div class="logo-icon">🏗️</div>BatiPilot</div></div><div class="logo-sub" id="sidebar-logo-sub">Gestion de chantiers</div></div>
     <div class="company-tag" id="sidebar-company">—</div>
     <nav class="sidebar-nav">
       <div class="nav-label">Vue d'ensemble</div>
