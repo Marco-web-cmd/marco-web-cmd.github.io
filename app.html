@@ -148,9 +148,9 @@ input,select,textarea{width:100%;padding:10px 14px;background:var(--bg-input);bo
 input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(192,98,42,0.14),0 1px 4px rgba(28,30,34,0.08);}
 textarea{resize:vertical;min-height:80px;}
 select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7670' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;}
-.table-wrapper{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--border);-webkit-overflow-scrolling:touch;}
+.table-wrapper{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--border);-webkit-overflow-scrolling:touch;width:100%;display:block;}
 /* Fallback: les tables directement dans .card sont aussi scrollables */
-.card > table, .card > div > table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.card > /* overflow géré par .table-wrapper — display:block retiré car il casse le layout des tables */
 table{width:100%;border-collapse:collapse;}
 thead th{background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
 tbody tr{border-bottom:1px solid var(--border);transition:var(--transition);}tbody tr:last-child{border-bottom:none;}tbody tr:hover{background:var(--bg);}
@@ -2107,6 +2107,7 @@ const SB=supabase.createClient('https://zewyecoxpmycqdziuqzc.supabase.co','eyJhb
     flowType: 'implicit',
     // storageKey stable : évite les ruptures si l'URL Supabase change
     storageKey: 'batipilot_auth_v1',
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
   },
   global:{fetch:(url,opts={})=>{const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),15000);return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(tid));}}
 });
@@ -2563,6 +2564,7 @@ async function loadAll(){
       $('onboarding').style.display='flex';
       obRenderMetrics(); obRenderCats();
     } else {
+      D._loaded = true;
       launchApp();
     }
   } catch(e) {
@@ -4937,11 +4939,15 @@ async function startApp(user) {
     // iOS Safari peut mettre quelques ms à rendre localStorage disponible
     // → on retente une fois si la première lecture retourne null
     async function getSessionWithRetry() {
-      const sessionTimeout = new Promise((_,r)=>setTimeout(()=>r(new Error('session_timeout')),8000));
+      const sessionTimeout = new Promise((_,r)=>setTimeout(()=>r(new Error('session_timeout')),15000));
       const first = await Promise.race([SB.auth.getSession(), sessionTimeout]);
       if (first.data?.session) return first;
-      // Retry après 400ms (iOS Safari localStorage timing)
+      // Retry 1 après 400ms (iOS Safari localStorage timing)
       await new Promise(r => setTimeout(r, 400));
+      const second = await SB.auth.getSession();
+      if (second.data?.session) return second;
+      // Retry 2 après 1s (connexions très lentes)
+      await new Promise(r => setTimeout(r, 1000));
       return SB.auth.getSession();
     }
     const { data: { session } } = await getSessionWithRetry();
@@ -7655,6 +7661,10 @@ function pgDashboardPro() {
   var now = new Date();
 
   // ── EMPTY STATE premium ───────────────────────────────────────────
+  if (!ch.length && !D._loaded) {
+    setContent('<div class="empty-state"><div class="empty-icon" style="font-size:48px">⏳</div><div class="empty-title">Chargement...</div></div>');
+    return;
+  }
   if (!ch.length) {
     setContent(
       '<div class="page-enter" style="max-width:560px;margin:0 auto;padding:40px 20px">'
