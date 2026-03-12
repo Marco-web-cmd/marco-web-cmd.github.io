@@ -32,9 +32,8 @@ html{font-size:15px;color-scheme:light;}body{font-family:var(--font-body);backgr
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .loader-text{color:rgba(255,255,255,0.4);font-size:13px;margin-top:14px;}
-#auth-screen{position:fixed;inset:0;background:var(--bg-sidebar);display:none;align-items:center;justify-content:center;z-index:2000;overflow-y:auto;padding:20px;box-sizing:border-box;}
-.auth-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;width:min(440px,92vw);max-width:440px;box-shadow:var(--shadow-lg);animation:fadeIn 0.4s ease;max-height:92dvh;overflow-y:auto;box-sizing:border-box;}
-.auth-card input:not([type=checkbox]),.auth-card select,.auth-card textarea,.auth-card button{max-width:100%;box-sizing:border-box;}
+#auth-screen{position:fixed;inset:0;background:var(--bg-sidebar);display:none;align-items:center;justify-content:center;z-index:2000;overflow-y:auto;padding:20px;}
+.auth-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:48px;width:90%;max-width:440px;box-shadow:var(--shadow-lg);animation:fadeIn 0.4s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .auth-logo{font-family:var(--font-display);font-size:32px;font-weight:900;text-align:center;margin-bottom:4px;}.auth-logo span{color:var(--accent);}
 .auth-sub{font-size:12px;color:var(--text-muted);text-align:center;letter-spacing:1px;text-transform:uppercase;margin-bottom:36px;}
@@ -81,7 +80,7 @@ html{font-size:15px;color-scheme:light;}body{font-family:var(--font-body);backgr
 .topbar-actions{display:flex;align-items:center;gap:10px;}
 /* ── Transitions de page ────────────────────────── */
 @keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-#content{flex:1;overflow-y:auto;overflow-x:hidden;padding:28px;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;}
+#content{flex:1;overflow-y:auto;padding:28px;contain:layout style;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;}
 #content > *:first-child,.page-enter{animation:pageIn 0.22s cubic-bezier(0.34,1,0.64,1);}
 
 /* ── Sidebar Premium ────────────────────────────── */
@@ -145,11 +144,11 @@ html{font-size:15px;color-scheme:light;}body{font-family:var(--font-body);backgr
 .form-row{display:grid;gap:14px;margin-bottom:16px;}
 .form-row-2{grid-template-columns:1fr 1fr;}.form-row-3{grid-template-columns:1fr 1fr 1fr;}.form-row-4{grid-template-columns:1fr 1fr 1fr 1fr;}
 label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-muted);margin-bottom:6px;}
-input:not([type=checkbox]):not([type=radio]),select,textarea{width:100%;padding:10px 14px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+input,select,textarea{width:100%;padding:10px 14px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(192,98,42,0.14),0 1px 4px rgba(28,30,34,0.08);}
 textarea{resize:vertical;min-height:80px;}
 select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7670' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;}
-.table-wrapper{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--border);-webkit-overflow-scrolling:touch;max-width:100%;}
+.table-wrapper{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--border);-webkit-overflow-scrolling:touch;}
 /* Fallback: les tables directement dans .card sont aussi scrollables */
 .card > table, .card > div > table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 table{width:100%;border-collapse:collapse;}
@@ -452,10 +451,9 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
 
 /* ── Mobile ≤ 768px ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  #sidebar      { position:fixed;top:0;left:0;height:100%;width:260px;z-index:300;transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);display:flex !important;flex-direction:column; }
-  #sidebar.mob-open { transform:translateX(0); }
-  #sidebar-overlay  { display:none;position:fixed;inset:0;background:rgba(17,24,39,0.5);z-index:299; }
-  #sidebar-overlay.open { display:block; }
+  #sidebar      { display: none !important; }
+  /* mobile-open gère le cas du hamburger */
+  #sidebar.mobile-open { display: flex !important; }
   #mobile-nav   { display: flex !important; }
   #topbar-menu-btn { display: flex !important; }
   #app          { height: 100%; min-height: 100dvh; overflow: visible; }
@@ -481,7 +479,7 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
   .devis-line input { font-size: 14px !important; }
 
   /* ── Input font-size ≥ 16px : évite le zoom automatique iOS Safari ── */
-  input:not([type=checkbox]):not([type=radio]), select, textarea {
+  input, select, textarea {
     font-size: 16px !important;
   }
   /* Exceptions : petits champs stylisés (gardent une taille réduite mais restent > 16px visuellement) */
@@ -512,11 +510,6 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
   .kpi-card { padding: 12px 14px; }
   .kpi-value { font-size: 20px; }
   .kpi-label { font-size: 11px; }
-  /* Auth card sur mobile */
-  .auth-card { padding: 20px 16px !important; width: min(96vw, 420px) !important; box-sizing: border-box !important; }
-  .auth-card input, .auth-card select, .auth-card textarea { max-width: 100% !important; box-sizing: border-box !important; }
-  .auth-card label { max-width: 100% !important; box-sizing: border-box !important; }
-  .auth-logo img { height: 40px !important; }
 }
 
 /* ── Print ──────────────────────────────────────────────────────── */
@@ -542,7 +535,7 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
 
 /* ════ CONDUCTEUR DE TRAVAUX ════ */
 /* Switcher de mode */
-#mode-switcher{display:none;position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:201;}
+#mode-switcher{display:none;}
 #mode-switcher.visible{display:flex;}
 .mode-pill{display:flex;background:rgba(20,22,26,0.95);border-radius:50px;padding:3px;gap:2px;box-shadow:0 4px 24px rgba(0,0,0,0.40);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.10);}
 .mode-btn{padding:7px 18px;border-radius:40px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--font-body);color:rgba(255,255,255,0.42);background:transparent;transition:all 0.18s var(--ease-out);letter-spacing:0.2px;white-space:nowrap;}
@@ -636,18 +629,17 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
 
 /* Mode conducteur : sidebar cachée, conducteur full-screen */
 body.ct-mode #sidebar { display: none !important; }
-body.ct-mode #mobile-nav { display: none !important; }
-body.ct-mode #topbar { display: none !important; }
+body.ct-mode 
 </style>
 </head>
 <body>
 <div id="offline-indicator"></div>
 <div id="offline-badge" role="alert" aria-live="assertive">📵 Hors-ligne — Lecture seule</div>
-<div id="loader" style="display:flex"><div class="loader-logo"><img src="logo.png" alt="BatiPilot" style="height:52px;object-fit:contain;filter:brightness(0) invert(1)" onerror="this.style.display='none'"></div><div class="spinner"></div><div class="loader-text" id="loader-text">Vérification de la session...</div><div id="loader-retry" style="display:none;margin-top:20px"><button onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
+<div id="loader" style="display:flex"><div class="loader-logo">Bati<span>Pilot</span></div><div class="spinner"></div><div class="loader-text" id="loader-text">Vérification de la session...</div><div id="loader-retry" style="display:none;margin-top:20px"><button onclick="window.location.reload()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit">↺ Recharger la page</button><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center">Si le problème persiste, vérifiez votre connexion</div></div></div>
 
 <div id="auth-screen" style="display:none">
   <div class="auth-card">
-    <div class="auth-logo"><img src="logo.png" alt="BatiPilot" style="height:56px;object-fit:contain" onerror="this.style.display='none'"></div>
+    <div class="auth-logo">Bati<span>Pilot</span></div>
     <div class="auth-sub">Gestion de chantiers professionnelle</div>
 
     <!-- Onglets principaux (masqués en mode reset/newpwd) -->
@@ -713,9 +705,9 @@ body.ct-mode #topbar { display: none !important; }
         <label style="font-size:12px;color:var(--text-muted)">Code partenaire <span style="font-weight:400">(optionnel)</span></label>
         <input id="s-code" type="text" placeholder="Ex: PARTENAIRE2024" style="font-size:13px">
       </div>
-      <label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;background:var(--bg-input);border-radius:8px;cursor:pointer;width:100%;box-sizing:border-box;">
+      <label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;background:var(--bg-input);border-radius:8px;cursor:pointer">
         <input type="checkbox" id="s-rgpd" style="margin-top:2px;flex-shrink:0">
-        <span style="font-size:12px;color:var(--text-muted);line-height:1.6;flex:1;">
+        <span style="font-size:12px;color:var(--text-muted);line-height:1.6">
           J'accepte les <a href="#" onclick="event.stopPropagation();go('legal')" style="color:var(--accent)">CGV</a>
           et la <a href="#" onclick="event.stopPropagation();go('rgpd')" style="color:var(--accent)">politique de confidentialité</a>.
           Données hébergées en Europe.
@@ -793,7 +785,7 @@ body.ct-mode #topbar { display: none !important; }
     <!-- HEADER -->
     <div style="text-align:center;padding:32px 32px 20px">
       <div style="font-size:42px;margin-bottom:8px">🏗️</div>
-      <div class="ob-logo" style="margin-bottom:4px"><img src="logo.png" alt="BatiPilot" style="height:60px;object-fit:contain" onerror="this.style.display='none'"></div>
+      <div class="ob-logo" style="margin-bottom:4px">Bati<span>Pilot</span></div>
       <div style="font-size:13px;color:var(--text-muted)">Prêt en <strong>60 secondes</strong></div>
     </div>
 
@@ -860,10 +852,7 @@ body.ct-mode #topbar { display: none !important; }
 
 <div id="app">
   <nav id="sidebar">
-    <div class="sidebar-logo">
-      <img src="logo.png" alt="BatiPilot" style="height:44px;max-width:180px;object-fit:contain;filter:brightness(0) invert(1);display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="logo-mark" style="display:none"><div class="logo-icon">🏗️</div>BatiPilot</div>
-    </div>
+    <div class="sidebar-logo"><div class="logo-mark"><div class="logo-icon">🏗️</div>BatiPilot</div><div class="logo-sub">Gestion de chantiers</div></div>
     <div class="company-tag" id="sidebar-company">—</div>
     <nav class="sidebar-nav">
       <div class="nav-label">Vue d'ensemble</div>
@@ -879,8 +868,8 @@ body.ct-mode #topbar { display: none !important; }
       <div class="nav-item" onclick="go('finances')"><span class="nav-ico">💰</span>Finances</div>
       <div class="nav-item" onclick="go('facturation')"><span class="nav-ico">🧾</span>Facturation</div>
       <div class="nav-label">Compte</div>
-      <div class="nav-item" onclick="go('justificatifs')"><span class="nav-ico">🧾</span>Justificatifs</div>
       <div class="nav-item" onclick="go('salaires')"><span class="nav-ico">💶</span>Masse Salariale</div>
+      <div class="nav-item" onclick="go('justificatifs')"><span class="nav-ico">🧾</span>Justificatifs</div>
       <div class="nav-item" onclick="go('conducteur')"><span class="nav-ico">👷</span>Conducteur</div>
       <div class="nav-item" onclick="go('abonnement')"><span class="nav-ico">💳</span>Abonnement</div>
       <div class="nav-item" onclick="go('rgpd')"><span class="nav-ico">🔒</span>Mes données</div>
@@ -909,7 +898,7 @@ body.ct-mode #topbar { display: none !important; }
 </div>
 
 <div id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
-<nav id="mobile-nav"><button class="mob-nav-item" onclick="go('dashboard');closeMobDrawer()"><span class="mob-nav-ico">📊</span><span class="mob-nav-label">Accueil</span></button><button class="mob-nav-item" onclick="go('chantiers');closeMobDrawer()"><span class="mob-nav-ico">🚧</span><span class="mob-nav-label">Chantiers</span></button><button class="mob-nav-item" onclick="go('devis');closeMobDrawer()"><span class="mob-nav-ico">📋</span><span class="mob-nav-label">Devis</span></button><button class="mob-nav-item" onclick="go('clients');closeMobDrawer()"><span class="mob-nav-ico">👥</span><span class="mob-nav-label">Clients</span></button><button class="mob-nav-item" onclick="toggleMobDrawer()"><span class="mob-nav-ico">⋯</span><span class="mob-nav-label">Plus</span></button></nav><div id="mobile-more-drawer"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:rgba(255,255,255,0.9)">Navigation</div><button onclick="closeMobDrawer()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer">×</button></div><div class="mob-drawer-grid"><div class="mob-drawer-item" onclick="go('appro');closeMobDrawer()">🛒 <span>Appro</span></div><div class="mob-drawer-item" onclick="go('stock');closeMobDrawer()">📦 <span>Stock</span></div><div class="mob-drawer-item" onclick="go('planning');closeMobDrawer()">📅 <span>Planning</span></div><div class="mob-drawer-item" onclick="go('finances');closeMobDrawer()">💰 <span>Finances</span></div><div class="mob-drawer-item" onclick="go('salaires');closeMobDrawer()">💶 <span>Salaires</span></div><div class="mob-drawer-item" onclick="go('conducteur');closeMobDrawer()">👷 <span>Conducteur</span></div>
+<nav id="mobile-nav"><button class="mob-nav-item" onclick="go('dashboard');closeMobDrawer()"><span class="mob-nav-ico">📊</span><span class="mob-nav-label">Accueil</span></button><button class="mob-nav-item" onclick="go('chantiers');closeMobDrawer()"><span class="mob-nav-ico">🚧</span><span class="mob-nav-label">Chantiers</span></button><button class="mob-nav-item" onclick="go('devis');closeMobDrawer()"><span class="mob-nav-ico">📋</span><span class="mob-nav-label">Devis</span></button><button class="mob-nav-item" onclick="go('clients');closeMobDrawer()"><span class="mob-nav-ico">👥</span><span class="mob-nav-label">Clients</span></button><button class="mob-nav-item" onclick="toggleMobDrawer()"><span class="mob-nav-ico">⋯</span><span class="mob-nav-label">Plus</span></button></nav><div id="mobile-more-drawer"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:rgba(255,255,255,0.9)">Navigation</div><button onclick="closeMobDrawer()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer">×</button></div><div class="mob-drawer-grid"><div class="mob-drawer-item" onclick="go('appro');closeMobDrawer()">🛒 <span>Appro</span></div><div class="mob-drawer-item" onclick="go('stock');closeMobDrawer()">📦 <span>Stock</span></div><div class="mob-drawer-item" onclick="go('planning');closeMobDrawer()">📅 <span>Planning</span></div><div class="mob-drawer-item" onclick="go('finances');closeMobDrawer()">💰 <span>Finances</span></div><div class="mob-drawer-item" onclick="go('salaires');closeMobDrawer()">💶 <span>Salaires</span></div><div class="mob-drawer-item" onclick="go('justificatifs');closeMobDrawer()">🧾 <span>Justificatifs</span></div><div class="mob-drawer-item" onclick="go('conducteur');closeMobDrawer()">👷 <span>Conducteur</span></div>
     <div class="mob-drawer-item" onclick="go('settings');closeMobDrawer()">⚙️ <span>Paramètres</span></div>
 <div class="mob-drawer-item" onclick="go('rgpd');closeMobDrawer()">🔒 <span>Mes données</span></div><div class="mob-drawer-item" onclick="doLogout()">⎋ <span>Déconnexion</span></div></div></div>
 <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
@@ -1029,7 +1018,9 @@ function previewDevis(dvId){
 let CT = {
   page: 'terrain',
   chantierId: null,
-  photoData: null,   // base64 de la photo en cours
+  photoData: null,   // base64 de la photo en cours,
+  photosData: [],
+  _removeExistingPhoto: false
 };
 
 // ── SWITCH DE MODE ────────────────────────────────────────────────
@@ -1207,67 +1198,99 @@ function ctPageTerrain() {
 // ══════════════════════════════════════════════════════════════════
 // MODAL COMMANDER
 // ══════════════════════════════════════════════════════════════════
-function ctModalCommander() {
-  if (!CT.chantierId) { toast('Choisissez un chantier d\'abord', 'error'); ctModalChantierSelect(); return; }
-  CT.photoData = null;
-  const body = '<div class="form-group">'
-    + '<label>Désignation *</label>'
-    + '<input id="ct-desig" placeholder="Ex: Parpaings 20x20, Câble 2.5mm²..." style="font-size:16px;padding:14px" autofocus>'
-  + '</div>'
-  + '<div class="form-row form-row-2">'
-    + '<div class="form-group"><label>Quantité *</label><input id="ct-qte" type="number" min="0.01" step="any" placeholder="0" style="font-size:18px;padding:14px;font-weight:700"></div>'
-    + '<div class="form-group"><label>Unité</label><input id="ct-unite" placeholder="m², kg, unité..." style="font-size:16px;padding:14px"></div>'
-  + '</div>'
-  + '<div class="form-row form-row-2">'+ '<div class="form-group"><label>Fournisseur</label><input id="ct-fourn" placeholder="Point P, Leroy Merlin..." style="font-size:15px;padding:12px"></div>'+ '<div class="form-group"><label>Prix estimé HT (€) <span style="font-size:10px;color:var(--text-muted)">pour alerte budget</span></label>'
-    + '<input id="ct-prix-estime" type="number" min="0" step="0.01" placeholder="0" style="font-size:15px;padding:12px"></div>'+ '</div>'
-  + '<div class="form-group"><label>Photo du bon (optionnel)</label>'
-    + '<label for="ct-photo-input" class="photo-capture-btn"><span style="font-size:24px">📷</span> Prendre une photo / choisir</label>'
-    + '<input type="file" id="ct-photo-input" accept="image/*" capture="environment" style="display:none" onchange="ctCapturePhoto(this)">'
-    + '<img id="photo-preview-img" src="" alt="aperçu">'
-  + '</div>'
-  + '<div class="form-group"><label>Commentaire (optionnel)</label><textarea id="ct-comment" placeholder="Précisions, urgence..." style="min-height:50px"></textarea></div>'
-  + '<div style="display:flex;gap:8px;margin-top:4px">'
-    + '<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg)">'
-      + '<input type="checkbox" id="ct-urgent"> <span>🔴 Urgent</span>'
-    + '</label>'
-  + '</div>';
+function ctModalCommander(editId) {
+  CT.photosData = [];
+  CT._removeExistingPhoto = false;
+  var existing = editId ? (D.bl_items||[]).find(function(b){ return b.id === editId; }) : null;
+  var isEdit = !!existing;
 
-  modal('🛒 Commander', body,
+  var chOpts = (D.chantiers||[]).map(function(c){
+    return '<option value="' + c.id + '"' + (c.id === CT.chantierId?' selected':'') + '>' + c.nom + '</option>';
+  }).join('');
+
+  var ex = existing || {};
+  var exDes = ex.designation || '';
+  var exRef = ex.reference || '';
+  var exQte = ex.qte || '';
+  var exUn  = ex.unite || 'u';
+  var exPU  = ex.pu || '';
+  var exFourn = ex.fournisseur || '';
+  var exNote  = ex.commentaire || '';
+  var exUrg  = !!ex.urgent;
+  var exChId = ex.chantier_id || CT.chantierId;
+
+  var body = '<div class="form-row form-row-2">'
+    + '<div class="form-group"><label>Désignation *</label><input id="cmd-des" placeholder="Parpaings, ciment..." value="' + exDes + '"></div>'
+    + '<div class="form-group"><label>Réf. fournisseur</label><input id="cmd-ref" placeholder="SKU ou code" value="' + exRef + '"></div>'
+    + '</div>'
+    + '<div class="form-row form-row-3">'
+    + '<div class="form-group"><label>Qté *</label><input id="cmd-qte" type="number" min="0.01" step="any" placeholder="10" value="' + exQte + '"></div>'
+    + '<div class="form-group"><label>Unité</label><select id="cmd-un"><option' + (exUn==='u'?' selected':'') + '>u</option><option' + (exUn==='m'?' selected':'') + '>m</option><option' + (exUn==='m²'?' selected':'') + '>m²</option><option' + (exUn==='m³'?' selected':'') + '>m³</option><option' + (exUn==='kg'?' selected':'') + '>kg</option><option' + (exUn==='t'?' selected':'') + '>t</option><option' + (exUn==='L'?' selected':'') + '>L</option></select></div>'
+    + '<div class="form-group"><label>PU HT (€)</label><input id="cmd-pu" type="number" min="0" step="any" placeholder="0" value="' + exPU + '"></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Fournisseur</label><input id="cmd-fourn" placeholder="Leroy Merlin, Point P..." value="' + exFourn + '"></div>'
+    + '<div class="form-group"><label>Chantier</label><select id="cmd-ch">' + chOpts + '</select></div>'
+    + '<div class="form-group"><label>Note</label><textarea id="cmd-note" placeholder="Précisions..." style="min-height:50px">' + exNote + '</textarea></div>'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'
+    + '<input type="checkbox" id="cmd-urgent"' + (exUrg?' checked':'') + ' style="width:18px;height:18px">'
+    + '<label for="cmd-urgent" style="font-size:14px;cursor:pointer;margin:0">🔴 Urgent</label>'
+    + '</div>'
+    + (isEdit && ex.photo
+      ? '<div style="margin-bottom:10px"><label style="font-size:13px;color:var(--text-muted)">Photo existante</label>'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">'
+        + '<img src="' + ex.photo + '" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="ctViewPhotoUrl(\'' + ex.photo + '\')">'
+        + '<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="CT._removeExistingPhoto=true;this.parentElement.parentElement.remove()">× Supprimer</button>'
+        + '</div></div>'
+      : '')
+    + ctPhotoWidget('cmd-photo', 'cmd-photos-preview');
+
+  modal(isEdit ? '✏️ Modifier la commande' : '🛒 Commander du matériel', body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    + '<button class="btn btn-primary" style="padding:10px 24px;font-size:15px" onclick="ctSaveCommande()">✅ Enregistrer</button>'
+    + (isEdit ? '<button class="btn btn-danger btn-sm" onclick="ctDeleteNoteSafe(\'' + editId + '\',\'commande\')">🗑️</button>' : '')
+    + '<button class="btn btn-primary" onclick="ctSaveCommande(\'' + (editId||'') + '\')">✅ ' + (isEdit?'Enregistrer':'Commander') + '</button>'
   );
 }
 
-function ctModalPrelever() {
-  if (!CT.chantierId) { toast('Choisissez un chantier d\'abord', 'error'); ctModalChantierSelect(); return; }
-  CT.photoData = null;
-  const stockItems = D.stocks.filter(s => +s.qte > 0);
-  const stockOpts = stockItems.length
-    ? stockItems.map(s => '<option value="'+s.id+'">'+s.libelle+' ('+s.qte+' '+( s.unite||'')+')</option>').join('')
-    : '<option value="">Dépôt vide</option>';
+function ctModalPrelever(editId) {
+  CT.photosData = [];
+  CT._removeExistingPhoto = false;
+  var existing = editId ? (D.bl_items||[]).find(function(b){ return b.id === editId; }) : null;
+  var isEdit = !!existing;
+  var ex = existing || {};
 
-  const body = '<div class="form-group">'
-    + '<label>Article du dépôt</label>'
-    + '<select id="ct-stock-id" style="font-size:15px;padding:12px" onchange="ctFillFromStock(this.value)">'
-      + '<option value="">— Choisir ou saisir manuellement —</option>'
-      + stockOpts
-    + '</select>'
-  + '</div>'
-  + '<div class="form-group"><label>Désignation</label><input id="ct-desig" placeholder="Ou saisir librement..." style="font-size:16px;padding:14px"></div>'
-  + '<div class="form-row form-row-2">'
-    + '<div class="form-group"><label>Quantité prélevée *</label><input id="ct-qte" type="number" min="0.01" step="any" placeholder="0" style="font-size:18px;padding:14px;font-weight:700"></div>'
-    + '<div class="form-group"><label>Unité</label><input id="ct-unite" placeholder="m², kg..." style="font-size:16px;padding:14px"></div>'
-  + '</div>'
-  + '<div class="form-group"><label>Photo (optionnel)</label>'
-    + '<label for="ct-photo-input" class="photo-capture-btn"><span style="font-size:24px">📷</span> Prendre une photo</label>'
-    + '<input type="file" id="ct-photo-input" accept="image/*" capture="environment" style="display:none" onchange="ctCapturePhoto(this)">'
-    + '<img id="photo-preview-img" src="" alt="aperçu">'
-  + '</div>'
-  + '<div class="form-group"><label>Commentaire (optionnel)</label><textarea id="ct-comment" placeholder="..." style="min-height:50px"></textarea></div>';
+  var stockOpts = '<option value="">-- Choisir --</option>'
+    + (D.materiaux||[]).filter(function(m){ return (+m.stock_actuel||0) > 0; }).map(function(m){
+      return '<option value="' + m.id + '">' + m.designation + ' (stock: ' + (+m.stock_actuel||0) + ' ' + (m.unite||'u') + ')</option>';
+    }).join('');
 
-  modal('📦 Prélever au dépôt', body,
+  var body = '<div class="form-group"><label>Depuis le stock (optionnel)</label>'
+    + '<select id="prel-stock" onchange="ctFillFromStock(this.value)">' + stockOpts + '</select></div>'
+    + '<div class="form-row form-row-2">'
+    + '<div class="form-group"><label>Désignation *</label><input id="prel-des" placeholder="Ciment, ferrailles..." value="' + (ex.designation||'') + '"></div>'
+    + '<div class="form-group"><label>Chantier dest.</label><select id="prel-ch">'
+    + (D.chantiers||[]).map(function(c){
+        return '<option value="' + c.id + '"' + (c.id===(ex.chantier_id||CT.chantierId)?' selected':'') + '>' + c.nom + '</option>';
+      }).join('')
+    + '</select></div></div>'
+    + '<div class="form-row form-row-3">'
+    + '<div class="form-group"><label>Qté *</label><input id="prel-qte" type="number" min="0.01" step="any" placeholder="5" value="' + (ex.qte||'') + '"></div>'
+    + '<div class="form-group"><label>Unité</label><select id="prel-un"><option' + ((ex.unite||'u')==='u'?' selected':'') + '>u</option><option' + ((ex.unite||'u')==='m'?' selected':'') + '>m</option><option' + ((ex.unite||'u')==='m²'?' selected':'') + '>m²</option><option' + ((ex.unite||'u')==='m³'?' selected':'') + '>m³</option><option' + ((ex.unite||'u')==='kg'?' selected':'') + '>kg</option><option' + ((ex.unite||'u')==='t'?' selected':'') + '>t</option><option' + ((ex.unite||'u')==='L'?' selected':'') + '>L</option></select></div>'
+    + '<div class="form-group"><label>PU HT (€)</label><input id="prel-pu" type="number" min="0" step="any" placeholder="0" value="' + (ex.pu||'') + '"></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Note</label><textarea id="prel-note" placeholder="Précisions..." style="min-height:50px">' + (ex.commentaire||'') + '</textarea></div>'
+    + (isEdit && ex.photo
+      ? '<div style="margin-bottom:10px"><label style="font-size:13px;color:var(--text-muted)">Photo existante</label>'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">'
+        + '<img src="' + ex.photo + '" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="ctViewPhotoUrl(\'' + ex.photo + '\')">'
+        + '<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="CT._removeExistingPhoto=true;this.parentElement.parentElement.remove()">× Supprimer</button>'
+        + '</div></div>'
+      : '')
+    + ctPhotoWidget('prel-photo', 'prel-photos-preview');
+
+  modal(isEdit ? '✏️ Modifier le prélèvement' : '📦 Prélever du stock', body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    + '<button class="btn btn-primary" style="padding:10px 24px;font-size:15px" onclick="ctSavePrelevement()">✅ Prélever</button>'
+    + (isEdit ? '<button class="btn btn-danger btn-sm" onclick="ctDeleteNoteSafe(\'' + editId + '\',\'prelevement\')">🗑️</button>' : '')
+    + '<button class="btn btn-primary" onclick="ctSavePrelevement(\'' + (editId||'') + '\')">✅ ' + (isEdit?'Enregistrer':'Prélever') + '</button>'
   );
 }
 
@@ -1279,185 +1302,366 @@ function ctFillFromStock(stockId) {
   const unite = $('ct-unite'); if (unite) unite.value = s.unite || '';
 }
 
-function ctCapturePhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  // Compresser via canvas
-  const reader = new FileReader();
+function ctCapturePhoto(input, containerId) {
+  containerId = containerId || 'ct-photos-preview';
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
   reader.onload = function(e) {
-    const img = new Image();
+    var img = new Image();
     img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const MAX = 800;
-      let w = img.width, h = img.height;
-      if (w > MAX) { h = h * MAX / w; w = MAX; }
-      if (h > MAX) { w = w * MAX / h; h = MAX; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      CT.photoData = canvas.toDataURL('image/jpeg', 0.7);
-      const prev = $('photo-preview-img');
-      if (prev) { prev.src = CT.photoData; prev.style.display = 'block'; }
+      var MAX = 1024;
+      var canvas = document.createElement('canvas');
+      var ratio = Math.min(MAX/img.width, MAX/img.height, 1);
+      canvas.width  = Math.round(img.width  * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      var b64 = canvas.toDataURL('image/jpeg', 0.75);
+      if (!CT.photosData) CT.photosData = [];
+      var idx = CT.photosData.length;
+      CT.photosData.push(b64);
+      // Afficher dans le container
+      var container = document.getElementById(containerId);
+      if (container) {
+        var thumb = document.createElement('div');
+        thumb.style.cssText = 'position:relative;display:inline-block';
+        thumb.innerHTML = '<img src="' + b64 + '" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="ctViewPhotoB64(' + idx + ')">'
+          + '<button onclick="ctRemovePhoto(' + idx + ',\'' + containerId + '\')" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;line-height:18px;padding:0">×</button>';
+        container.appendChild(thumb);
+      }
+      input.value = '';
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-async function ctSaveCommande() {
-  const desig = ($('ct-desig')||{value:''}).value.trim();
-  const qte   = +($('ct-qte')||{value:0}).value;
-  if (!desig || qte <= 0) { toast('Désignation et quantité requis', 'error'); return; }
-
-  var prixEstime = +($('ct-prix-estime')||{value:0}).value || 0;
-  var _doSaveCommande = async function() {
-  var item2 = {
-    id:          uid(),
-    user_id:     USER.id,
-    chantier_id: CT.chantierId,
-    type:        'commande',
-    date:        today(),
-    designation: desig,
-    qte:         qte,
-    unite:       ($('ct-unite')||{value:''}).value.trim(),
-    fournisseur: ($('ct-fourn')||{value:''}).value.trim(),
-    commentaire: ($('ct-comment')||{value:''}).value.trim(),
-    urgent:      ($('ct-urgent')||{}).checked || false,
-    photo:       await uploadPhotoToStorage(CT.photoData, item2.id) || null,
-    statut:      'En attente',
-    created_by:  USER.email || USER.id,
-    prix_estime: prixEstime,
-  };
-  if (!D.bl_items) D.bl_items = [];
-  D.bl_items.unshift(item2);
-
-  // Sauvegarder Supabase
-  const saved = await insert('bl_items', {
-    id: item2.id, chantier_id: item2.chantier_id, type: item2.type,
-    date: item2.date, designation: item2.designation, qte: item2.qte,
-    unite: item2.unite, fournisseur: item2.fournisseur, commentaire: item2.commentaire,
-    urgent: item2.urgent, photo: item2.photo, statut: item2.statut, created_by: item2.created_by
+function ctRemovePhoto(idx, containerId) {
+  if (!CT.photosData) return;
+  CT.photosData.splice(idx, 1);
+  // Re-render
+  var container = document.getElementById(containerId || 'ct-photos-preview');
+  if (!container) return;
+  container.innerHTML = '';
+  (CT.photosData || []).forEach(function(b64, i) {
+    var thumb = document.createElement('div');
+    thumb.style.cssText = 'position:relative;display:inline-block';
+    thumb.innerHTML = '<img src="' + b64 + '" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="ctViewPhotoB64(' + i + ')">'
+      + '<button onclick="ctRemovePhoto(' + i + ',\'' + (containerId||'ct-photos-preview') + '\')" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;line-height:18px;padding:0">×</button>';
+    container.appendChild(thumb);
   });
-  if (saved) D.bl_items[0] = saved;
-
-  closeModal();
-  CT.photoData = null;
-  toast('Commande enregistrée' + (item2.urgent ? ' 🔴 URGENT' : '') + ' !');
-  logActivity('commande', 'commande', item2.id, item2.designation, { montant: prixEstime });
-  ctGo('terrain');
-  }; // fin _doSaveCommande
-  ctCheckBudgetAlert(CT.chantierId, prixEstime, _doSaveCommande);
 }
 
-async function ctSavePrelevement() {
-  const desig = ($('ct-desig')||{value:''}).value.trim();
-  const qte   = +($('ct-qte')||{value:0}).value;
-  if (!desig || qte <= 0) { toast('Désignation et quantité requis', 'error'); return; }
-  const stockId = ($('ct-stock-id')||{value:''}).value;
+function ctPhotoWidget(inputId, previewId) {
+  inputId   = inputId   || 'ct-photo-input';
+  previewId = previewId || 'ct-photos-preview';
+  return '<div class="form-group" style="margin-top:4px">'
+    + '<label style="font-size:13px;color:var(--text-muted);margin-bottom:6px;display:block">📷 Photos (optionnel)</label>'
+    + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+    + '<label for="' + inputId + '" class="photo-capture-btn" style="margin:0;padding:8px 14px;font-size:13px;white-space:nowrap">'
+    + '<span>📷</span> Ajouter photo</label>'
+    + '<input type="file" id="' + inputId + '" accept="image/*" capture="environment" style="display:none" '
+    + 'onchange="ctCapturePhoto(this,\'' + previewId + '\')">'
+    + '</div>'
+    + '<div id="' + previewId + '" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>'
+    + '</div>';
+}
 
-  // Déduire du stock si article sélectionné
-  if (stockId) {
-    const s = D.stocks.find(x => x.id === stockId);
-    if (s) {
-      s.qte = Math.max(0, (+s.qte || 0) - qte);
-      try { await SB.from('stocks').update({ qte: s.qte }).eq('id', stockId).eq('user_id', USER.id); }
-      catch(e) { toast('Erreur mise à jour stock: ' + (e.message||e), 'error'); }
+function ctViewPhotoB64(idx) {
+  var b64 = (CT.photosData||[])[idx];
+  if (!b64) return;
+  modal('📷 Photo', '<img src="' + b64 + '" style="width:100%;border-radius:8px;max-height:70vh;object-fit:contain">');
+}
+
+function ctViewPhotoUrl(url) {
+  if (!url) return;
+  modal('📷 Photo', '<img src="' + url + '" style="width:100%;border-radius:8px;max-height:70vh;object-fit:contain">'
+    + '<div style="margin-top:8px;text-align:center"><a href="' + url + '" target="_blank" class="btn btn-secondary btn-sm">Ouvrir ↗</a></div>');
+}
+
+
+async function ctSaveCommande(editId) {
+  var des   = ($('cmd-des')||{value:''}).value.trim();
+  if (!des) { toast('Désignation requise','error'); return; }
+  var ref   = ($('cmd-ref')||{value:''}).value.trim();
+  var qte   = parseFloat(($('cmd-qte')||{value:0}).value) || 0;
+  var un    = ($('cmd-un')||{value:'u'}).value;
+  var pu    = parseFloat(($('cmd-pu')||{value:0}).value) || 0;
+  var fourn = ($('cmd-fourn')||{value:''}).value.trim();
+  var chId  = ($('cmd-ch')||{value:CT.chantierId}).value || CT.chantierId;
+  var note  = ($('cmd-note')||{value:''}).value.trim();
+  var urgent= ($('cmd-urgent')||{}).checked || false;
+  var isEdit = !!(editId && editId !== '');
+
+  if (!qte || qte <= 0) { toast('Quantité invalide','error'); return; }
+
+  var photoUrl = null;
+  var newPhotos = (CT.photosData || []).filter(Boolean);
+  if (isEdit) {
+    var existing = (D.bl_items||[]).find(function(b){ return b.id === editId; });
+    if (existing) photoUrl = CT._removeExistingPhoto ? null : (existing.photo || null);
+  } else {
+    // Vérif budget seulement à la création
+    var ch = D.chantiers.find(function(c){ return c.id === chId; });
+    if (ch && ch.budget_mat) ctCheckBudgetAlert(chId, pu * qte);
+  }
+  if (newPhotos.length > 0) {
+    var uploaded = await uploadPhotoToStorage(newPhotos[0], editId || uid());
+    photoUrl = uploaded || newPhotos[0];
+  }
+  CT._removeExistingPhoto = false;
+
+  if (isEdit) {
+    var item = (D.bl_items||[]).find(function(b){ return b.id === editId; });
+    if (!item) { toast('Commande introuvable','error'); return; }
+    Object.assign(item, {
+      designation: des, reference: ref, qte: qte, unite: un,
+      pu: pu, fournisseur: fourn, chantier_id: chId,
+      commentaire: note, urgent: urgent,
+      photo: photoUrl !== undefined ? photoUrl : item.photo
+    });
+    try {
+      await SB.from('bl_items').update({
+        designation: item.designation, reference: item.reference,
+        qte: item.qte, unite: item.unite, pu: item.pu,
+        fournisseur: item.fournisseur, chantier_id: item.chantier_id,
+        commentaire: item.commentaire, urgent: item.urgent, photo: item.photo || null
+      }).eq('id', editId).eq('user_id', USER.id);
+    } catch(e) { toast('Erreur mise à jour','error'); return; }
+    closeModal(); CT.photosData = [];
+    toast('Commande mise à jour !'); ctPageBL();
+  } else {
+    var itemId = uid();
+    var newItem = {
+      id: itemId, user_id: USER.id, chantier_id: chId, type: 'commande', date: today(),
+      designation: des, reference: ref, qte: qte, unite: un, pu: pu,
+      fournisseur: fourn, commentaire: note, urgent: urgent,
+      photo: photoUrl, statut: 'Commandé', livre: false, created_by: USER.email || USER.id
+    };
+    if (!D.bl_items) D.bl_items = [];
+    D.bl_items.unshift(newItem);
+    var saved = await insert('bl_items', {
+      id: newItem.id, chantier_id: newItem.chantier_id, type: newItem.type,
+      date: newItem.date, designation: newItem.designation, reference: newItem.reference,
+      qte: newItem.qte, unite: newItem.unite, pu: newItem.pu, fournisseur: newItem.fournisseur,
+      commentaire: newItem.commentaire, urgent: newItem.urgent, photo: newItem.photo,
+      statut: newItem.statut, livre: newItem.livre, created_by: newItem.created_by
+    });
+    if (saved) D.bl_items[0] = saved;
+    closeModal(); CT.photosData = [];
+    toast('Commande enregistrée !'); ctGo('terrain');
+  }
+}
+
+async function ctSavePrelevement(editId) {
+  var des  = ($('prel-des')||{value:''}).value.trim();
+  if (!des) { toast('Désignation requise','error'); return; }
+  var qte  = parseFloat(($('prel-qte')||{value:0}).value) || 0;
+  if (!qte || qte <= 0) { toast('Quantité invalide','error'); return; }
+  var un   = ($('prel-un')||{value:'u'}).value;
+  var pu   = parseFloat(($('prel-pu')||{value:0}).value) || 0;
+  var chId = ($('prel-ch')||{value:CT.chantierId}).value || CT.chantierId;
+  var note = ($('prel-note')||{value:''}).value.trim();
+  var stockId = ($('prel-stock')||{value:''}).value;
+  var isEdit = !!(editId && editId !== '');
+
+  var photoUrl = null;
+  var newPhotos = (CT.photosData || []).filter(Boolean);
+  if (isEdit) {
+    var existing = (D.bl_items||[]).find(function(b){ return b.id === editId; });
+    if (existing) photoUrl = CT._removeExistingPhoto ? null : (existing.photo || null);
+  } else {
+    // Déduire du stock seulement à la création
+    if (stockId) {
+      var mat = (D.materiaux||[]).find(function(m){ return m.id === stockId; });
+      if (mat) {
+        mat.stock_actuel = Math.max(0, (+mat.stock_actuel||0) - qte);
+        try { await SB.from('materiaux').update({ stock_actuel: mat.stock_actuel }).eq('id', stockId).eq('user_id', USER.id); }
+        catch(e) { console.warn('stock update:', e); }
+      }
     }
   }
+  if (newPhotos.length > 0) {
+    var uploaded = await uploadPhotoToStorage(newPhotos[0], editId || uid());
+    photoUrl = uploaded || newPhotos[0];
+  }
+  CT._removeExistingPhoto = false;
 
-  const item = {
-    id:          uid(),
-    user_id:     USER.id,
-    chantier_id: CT.chantierId,
-    type:        'prelevement',
-    date:        today(),
-    designation: desig,
-    qte:         qte,
-    unite:       ($('ct-unite')||{value:''}).value.trim(),
-    fournisseur: 'Dépôt',
-    commentaire: ($('ct-comment')||{value:''}).value.trim(),
-    urgent:      false,
-    photo:       await uploadPhotoToStorage(CT.photoData, item.id) || null,
-    statut:      'Prélevé',
-    stock_id:    stockId || null,
-    created_by:  USER.email || USER.id,
-  };
-  if (!D.bl_items) D.bl_items = [];
-  D.bl_items.unshift(item);
-  const saved = await insert('bl_items', {
-    id: item.id, chantier_id: item.chantier_id, type: item.type,
-    date: item.date, designation: item.designation, qte: item.qte,
-    unite: item.unite, fournisseur: item.fournisseur, commentaire: item.commentaire,
-    photo: item.photo, statut: item.statut, stock_id: item.stock_id, created_by: item.created_by
-  });
-  if (saved) D.bl_items[0] = saved;
-
-  closeModal();
-  CT.photoData = null;
-  toast('Prélèvement enregistré !');
-  ctGo('terrain');
+  if (isEdit) {
+    var item = (D.bl_items||[]).find(function(b){ return b.id === editId; });
+    if (!item) { toast('Prélèvement introuvable','error'); return; }
+    Object.assign(item, {
+      designation: des, qte: qte, unite: un, pu: pu,
+      chantier_id: chId, commentaire: note,
+      photo: photoUrl !== undefined ? photoUrl : item.photo
+    });
+    try {
+      await SB.from('bl_items').update({
+        designation: item.designation, qte: item.qte, unite: item.unite, pu: item.pu,
+        chantier_id: item.chantier_id, commentaire: item.commentaire, photo: item.photo || null
+      }).eq('id', editId).eq('user_id', USER.id);
+    } catch(e) { toast('Erreur mise à jour','error'); return; }
+    closeModal(); CT.photosData = [];
+    toast('Prélèvement mis à jour !'); ctPageBL();
+  } else {
+    var itemId = uid();
+    var newItem = {
+      id: itemId, user_id: USER.id, chantier_id: chId, type: 'prelevement', date: today(),
+      designation: des, qte: qte, unite: un, pu: pu, commentaire: note,
+      photo: photoUrl, statut: 'Prélevé', created_by: USER.email || USER.id
+    };
+    if (!D.bl_items) D.bl_items = [];
+    D.bl_items.unshift(newItem);
+    var saved = await insert('bl_items', {
+      id: newItem.id, chantier_id: newItem.chantier_id, type: newItem.type,
+      date: newItem.date, designation: newItem.designation, qte: newItem.qte,
+      unite: newItem.unite, pu: newItem.pu, commentaire: newItem.commentaire,
+      photo: newItem.photo, statut: newItem.statut, created_by: newItem.created_by
+    });
+    if (saved) D.bl_items[0] = saved;
+    closeModal(); CT.photosData = [];
+    toast('Prélèvement enregistré !'); ctGo('terrain');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
 // MODAL NOTES
 // ══════════════════════════════════════════════════════════════════
-function ctModalNote() {
-  if (!CT.chantierId) { toast('Choisissez un chantier d\'abord','error'); ctModalChantierSelect(); return; }
-  CT.photoData=null;
-  const body='<div class="form-group"><label>Note / Observation *</label>'    +'<textarea id="ct-note" placeholder="Décrivez ce que vous constatez..." style="min-height:110px;font-size:16px;line-height:1.5" autofocus></textarea>'  +'</div>'  +'<div class="form-row form-row-2">'    +'<div class="form-group"><label>Catégorie</label>'      +'<select id="ct-note-cat" style="font-size:14px">'        +'<option>Observation</option><option>Anomalie</option><option>Constat</option>'        +'<option>PV de réunion</option><option>Sécurité</option><option>Qualité</option><option>Autre</option>'      +'</select>'    +'</div>'    +'<div class="form-group"><label>Photo</label>'      +'<label for="ct-photo-input" class="photo-capture-btn" style="margin:0;padding:10px"><span style="font-size:20px">📷</span> Photo</label>'      +'<input type="file" id="ct-photo-input" accept="image/*" capture="environment" style="display:none" onchange="ctCapturePhoto(this)">'    +'</div>'  +'</div>'  +'<img id="photo-preview-img" src="" alt="" style="border-radius:8px;margin-top:4px">'  +'<label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);margin-top:8px">'    +'<input type="checkbox" id="ct-urgent"> <span>🔴 Urgent</span>'  +'</label>';
-  modal('📝 Note rapide',body,
+function ctModalNote(editId) {
+  CT.photosData = [];
+  CT._removeExistingPhoto = false;
+  var existing = editId ? (D.bl_items||[]).find(function(b){ return b.id === editId; }) : null;
+  var isEdit = !!existing;
+
+  // Pré-remplir si édition
+  var noteVal = '';
+  var catVal = 'Observation';
+  var urgentChecked = false;
+  if (isEdit) {
+    // La désignation est "[Catégorie] note"
+    var match = (existing.designation||'').match(/^\[([^\]]+)\]\s*(.*)/s);
+    if (match) { catVal = match[1]; noteVal = match[2]; }
+    else noteVal = existing.designation || '';
+    urgentChecked = !!existing.urgent;
+  }
+
+  var cats = ['Observation','Problème','Réserve','Sécurité','Qualité','Autre'];
+  var body = '<div class="form-group">'
+    + '<label>Catégorie</label>'
+    + '<select id="ct-note-cat" style="font-size:14px">'
+    + cats.map(function(c){ return '<option' + (c===catVal?' selected':'') + '>' + c + '</option>'; }).join('')
+    + '</select></div>'
+    + '<div class="form-group">'
+    + '<label>Note *</label>'
+    + '<textarea id="ct-note" placeholder="Décrivez l\'observation..." style="min-height:80px">' + noteVal + '</textarea>'
+    + '</div>'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'
+    + '<input type="checkbox" id="ct-urgent"' + (urgentChecked?' checked':'') + ' style="width:18px;height:18px">'
+    + '<label for="ct-urgent" style="font-size:14px;cursor:pointer;margin:0">🔴 Urgent</label>'
+    + '</div>'
+    + (isEdit && existing.photo
+      ? '<div style="margin-bottom:10px"><label style="font-size:13px;color:var(--text-muted)">Photo existante</label>'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">'
+        + '<img src="' + existing.photo + '" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="ctViewPhotoUrl(\'' + existing.photo + '\')">'
+        + '<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="CT._removeExistingPhoto=true;this.parentElement.parentElement.remove()">× Supprimer</button>'
+        + '</div></div>'
+      : '')
+    + ctPhotoWidget('ct-photo-note', 'ct-photos-note');
+
+  modal(isEdit ? '✏️ Modifier la note' : '📝 Nouvelle note', body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    +'<button class="btn btn-primary" style="padding:10px 24px;font-size:15px" onclick="ctSaveNote()">✅ Enregistrer</button>'
+    + (isEdit ? '<button class="btn btn-danger btn-sm" onclick="ctDeleteNoteSafe(\'' + editId + '\',\'note\')">🗑️ Supprimer</button>' : '')
+    + '<button class="btn btn-primary" onclick="ctSaveNote(\'' + (editId||'') + '\')">✅ ' + (isEdit?'Enregistrer':'Ajouter') + '</button>'
   );
 }
-function ctModalRdv() {
-  if (!CT.chantierId) { ctModalChantierSelect(); return; }
-  const body = '<div class="form-group"><label>Titre de la réunion *</label>'
-    + '<input id="ct-rdv-titre" placeholder="Ex: Réunion de chantier, Visite client, Livraison béton..." style="font-size:16px;padding:14px" autofocus>'
-  + '</div>'
-  + '<div class="form-row form-row-2">'
-    + '<div class="form-group"><label>Date *</label><input id="ct-rdv-date" type="date" value="'+today()+'" style="font-size:15px;padding:12px"></div>'
-    + '<div class="form-group"><label>Heure</label><input id="ct-rdv-heure" type="time" value="09:00" style="font-size:15px;padding:12px"></div>'
-  + '</div>'
-  + '<div class="form-group"><label>Participants</label><input id="ct-rdv-part" placeholder="Ex: Client, Architecte, Chef de chantier..." style="font-size:14px"></div>'
-  + '<div class="form-group"><label>Notes / ordre du jour</label><textarea id="ct-rdv-notes" placeholder="Points à aborder..." style="min-height:70px"></textarea></div>';
 
-  modal('📅 Réunion / RDV', body,
+function ctModalRdv(editId) {
+  var existing = editId ? (D.bl_items||[]).find(function(b){ return b.id === editId; }) : null;
+  var isEdit = !!existing;
+  var ex = existing || {};
+
+  // Parser commentaire existant: "heure | lieu | participants | notes"
+  var exTitre = ex.designation || '';
+  var exDate = ex.date || today();
+  var exHeure = '', exLieu = '', exParts = '', exNotes = '';
+  if (isEdit && ex.commentaire) {
+    var parts = ex.commentaire.split(' | ');
+    exHeure = (parts[0]||'').replace('⏰ ','');
+    exLieu  = (parts[1]||'').replace('📍 ','');
+    exParts = (parts[2]||'').replace('👥 ','');
+    exNotes = (parts[3]||'').replace('📝 ','');
+  }
+
+  var chOpts = (D.chantiers||[]).map(function(c){
+    return '<option value="' + c.id + '"' + (c.id===(ex.chantier_id||CT.chantierId)?' selected':'') + '>' + c.nom + '</option>';
+  }).join('');
+
+  var body = '<div class="form-group"><label>Titre *</label><input id="rdv-titre" placeholder="Réunion de chantier, visite architecte..." value="' + exTitre + '"></div>'
+    + '<div class="form-row form-row-2">'
+    + '<div class="form-group"><label>Date *</label><input id="rdv-date" type="date" value="' + exDate + '"></div>'
+    + '<div class="form-group"><label>Heure</label><input id="rdv-heure" type="time" value="' + exHeure + '"></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Lieu</label><input id="rdv-lieu" placeholder="Sur site, bureau, salle de réunion..." value="' + exLieu + '"></div>'
+    + '<div class="form-group"><label>Chantier</label><select id="rdv-ch">' + chOpts + '</select></div>'
+    + '<div class="form-group"><label>Participants</label><input id="rdv-parts" placeholder="Architecte, client, MO..." value="' + exParts + '"></div>'
+    + '<div class="form-group"><label>Notes</label><textarea id="rdv-notes" placeholder="Ordre du jour, points à aborder..." style="min-height:60px">' + exNotes + '</textarea></div>';
+
+  modal(isEdit ? '✏️ Modifier le RDV' : '📅 Planifier un RDV', body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    + '<button class="btn btn-primary" style="padding:10px 24px;font-size:15px" onclick="ctSaveRdv()">✅ Planifier</button>'
+    + (isEdit ? '<button class="btn btn-danger btn-sm" onclick="ctDeleteNoteSafe(\'' + editId + '\',\'rdv\')">🗑️</button>' : '')
+    + '<button class="btn btn-primary" onclick="ctSaveRdv(\'' + (editId||'') + '\')">✅ ' + (isEdit?'Enregistrer':'Créer') + '</button>'
   );
 }
 
-async function ctSaveRdv() {
-  const titre = ($('ct-rdv-titre')||{value:''}).value.trim();
-  const date  = ($('ct-rdv-date')||{value:''}).value;
-  if (!titre || !date) { toast('Titre et date requis', 'error'); return; }
-  const heure = ($('ct-rdv-heure')||{value:''}).value;
-  const part  = ($('ct-rdv-part')||{value:''}).value.trim();
-  const notes = ($('ct-rdv-notes')||{value:''}).value.trim();
+async function ctSaveRdv(editId) {
+  var titre = ($('rdv-titre')||{value:''}).value.trim();
+  if (!titre) { toast('Titre requis','error'); return; }
+  var date  = ($('rdv-date')||{value:today()}).value || today();
+  var heure = ($('rdv-heure')||{value:''}).value;
+  var lieu  = ($('rdv-lieu')||{value:''}).value.trim();
+  var chId  = ($('rdv-ch')||{value:CT.chantierId}).value || CT.chantierId;
+  var parts = ($('rdv-parts')||{value:''}).value.trim();
+  var notes = ($('rdv-notes')||{value:''}).value.trim();
+  var isEdit = !!(editId && editId !== '');
 
-  const item = {
-    id:          uid(),
-    user_id:     USER.id,
-    chantier_id: CT.chantierId,
-    type:        'rdv',
-    date:        date,
-    designation: titre,
-    commentaire: (heure?heure+' — ':'') + (part?'Participants: '+part+(notes?'\n':''):'') + (notes||''),
-    qte:         0, unite: '', urgent: false, photo: null, statut: 'Planifié',
-    created_by:  USER.email || USER.id,
-  };
-  if (!D.bl_items) D.bl_items = [];
-  D.bl_items.unshift(item);
-  const saved = await insert('bl_items', {
-    id: item.id, chantier_id: item.chantier_id, type: item.type,
-    date: item.date, designation: item.designation, commentaire: item.commentaire,
-    statut: item.statut, qte: 0, unite: '', urgent: false, created_by: item.created_by
-  });
-  if (saved) D.bl_items[0] = saved;
+  var commentaire = [
+    heure ? '⏰ ' + heure : '',
+    lieu  ? '📍 ' + lieu  : '',
+    parts ? '👥 ' + parts : '',
+    notes ? '📝 ' + notes : ''
+  ].filter(Boolean).join(' | ');
 
-  closeModal();
-  toast('RDV planifié : ' + titre);
-  ctGo('rdv');
+  if (isEdit) {
+    var item = (D.bl_items||[]).find(function(b){ return b.id === editId; });
+    if (!item) { toast('RDV introuvable','error'); return; }
+    Object.assign(item, { designation: titre, date: date, chantier_id: chId, commentaire: commentaire });
+    try {
+      await SB.from('bl_items').update({
+        designation: item.designation, date: item.date,
+        chantier_id: item.chantier_id, commentaire: item.commentaire
+      }).eq('id', editId).eq('user_id', USER.id);
+    } catch(e) { toast('Erreur mise à jour','error'); return; }
+    closeModal();
+    toast('RDV mis à jour !'); ctPageRdv();
+  } else {
+    var itemId = uid();
+    var newItem = {
+      id: itemId, user_id: USER.id, chantier_id: chId,
+      type: 'rdv', date: date, designation: titre,
+      commentaire: commentaire, statut: 'RDV', created_by: USER.email || USER.id
+    };
+    if (!D.bl_items) D.bl_items = [];
+    D.bl_items.unshift(newItem);
+    var saved = await insert('bl_items', {
+      id: newItem.id, chantier_id: newItem.chantier_id, type: newItem.type,
+      date: newItem.date, designation: newItem.designation,
+      commentaire: newItem.commentaire, statut: newItem.statut,
+      created_by: newItem.created_by
+    });
+    if (saved) D.bl_items[0] = saved;
+    closeModal();
+    toast('RDV créé !'); ctGo('terrain');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -1500,39 +1704,44 @@ function ctPageBL() {
   $('ct-content').innerHTML = html;
 }
 
-function ctBLCard(b, showActions=false) {
-  const typeLabel = {commande:'🛒 Commande', prelevement:'📦 Prélèvement', note:'📝 Note', rdv:'📅 RDV'}[b.type] || b.type;
-  const badgeClass = {commande:'ct-badge-cmd', prelevement:'ct-badge-prev', note:'ct-badge-note', rdv:'ct-badge-rdv'}[b.type] || '';
-  const isUrgent = b.urgent;
+function ctBLCard(b, showActions) {
+  if (showActions === undefined) showActions = true;
+  var icon  = {note:'📝', commande:'🛒', prelevement:'📦', rdv:'📅', doc:'📎'}[b.type] || '📄';
+  var color = {note:'var(--info)', commande:'var(--warning)', prelevement:'var(--success)', rdv:'var(--accent)', doc:'var(--text-muted)'}[b.type] || 'var(--text-muted)';
 
-  let card = '<div class="ct-card'+(isUrgent?' ct-urgence':'')+(b.statut==='Livré'?' ':' ')+'">'
-    + '<div class="ct-card-head">'
-      + '<div>'
-        + '<div class="ct-card-title">'+(b.designation||'—')+'</div>'
-        + (b.qte > 0 ? '<div class="ct-card-meta">'+b.qte+' '+(b.unite||'')+(b.fournisseur?' · '+b.fournisseur:'')+'</div>' : '')
-        + (b.commentaire ? '<div class="ct-card-meta" style="margin-top:3px;color:var(--text-muted)">'+b.commentaire+'</div>' : '')
-      + '</div>'
-      + '<div style="text-align:right;flex-shrink:0">'
-        + '<span class="ct-card-badge '+badgeClass+'">'+typeLabel+'</span>'
-        + (b.statut && b.statut !== 'Normal' && b.statut !== b.type ? '<br><span style="font-size:10px;color:var(--text-muted);margin-top:3px;display:block">'+b.statut+'</span>' : '')
-      + '</div>'
-    + '</div>';
+  var editFn = {
+    note:        'ctModalNote(\'' + b.id + '\')',
+    commande:    'ctModalCommander(\'' + b.id + '\')',
+    prelevement: 'ctModalPrelever(\'' + b.id + '\')',
+    rdv:         'ctModalRdv(\'' + b.id + '\')',
+    doc:         'ctModalAddDoc(\'' + b.id + '\')'
+  }[b.type] || '';
 
-  if (b.photo) {
-    card += '<img class="ct-card-photo" src="'+b.photo+'" onclick="ctViewPhoto(\''+b.id+'\')" alt="photo">';
-  }
-
-  if (showActions && b.type === 'commande') {
-    const isLivre = b.statut === 'Livré';
-    card += '<div style="display:flex;gap:6px;margin-top:10px">'
-      + '<button onclick="ctToggleLivre(\''+b.id+'\')" class="btn '+(isLivre?'btn-secondary':'btn-success')+' btn-sm" style="flex:1">'
-        + (isLivre ? '↩ Remettre en attente' : '✅ Marquer Livré')
-      + '</button>'
-      + '<button onclick="ctDeleteBLItem(\''+b.id+'\')" class="btn btn-ghost btn-sm">🗑️</button>'
-    + '</div>';
-  }
-
+  var card = '<div class="ct-card" style="border-left:3px solid ' + color + ';margin-bottom:10px">';
+  card += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">';
+  card += '<div style="flex:1;min-width:0">';
+  card += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+  card += '<span style="font-size:18px">' + icon + '</span>';
+  card += '<span style="font-weight:700;font-size:14px">' + (b.designation||'—') + '</span>';
+  if (b.urgent) card += '<span class="badge badge-red" style="font-size:10px">🔴 URGENT</span>';
   card += '</div>';
+  if (b.commentaire) card += '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">' + b.commentaire + '</div>';
+  if (b.qte) card += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">Qté: <strong>' + b.qte + ' ' + (b.unite||'u') + '</strong>' + (b.pu ? ' · PU: ' + eur(b.pu) : '') + '</div>';
+  if (b.photo) card += '<img src="' + b.photo + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px;margin-top:6px;cursor:pointer" onclick="ctViewPhotoUrl(\'' + b.photo + '\')" loading="lazy">';
+  card += '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">' + fdate(b.date||today()) + '</div>';
+  card += '</div>';
+
+  if (showActions) {
+    card += '<div style="display:flex;gap:4px;flex-shrink:0;align-items:flex-start">';
+    // Livré toggle (commandes seulement)
+    if (b.type === 'commande') {
+      card += '<button class="btn btn-ghost btn-sm" onclick="ctToggleLivre(\'' + b.id + '\')" title="' + (b.livre?'Marquer non livré':'Marquer livré') + '" style="font-size:16px">' + (b.livre?'✅':'⬜') + '</button>';
+    }
+    if (editFn) card += '<button class="btn btn-ghost btn-sm" onclick="' + editFn + '" title="Modifier">✏️</button>';
+    card += '<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="ctDeleteBLItemSafe(\'' + b.id + '\')" title="Supprimer">🗑️</button>';
+    card += '</div>';
+  }
+  card += '</div></div>';
   return card;
 }
 
@@ -1640,24 +1849,24 @@ function ctPrintBL() {
 // PAGE NOTES
 // ══════════════════════════════════════════════════════════════════
 function ctPageNotes() {
-  if (!D.bl_items) D.bl_items = [];
-  const notes = (D.bl_items||[])
-    .filter(b => b.chantier_id === CT.chantierId && b.type === 'note')
-    .sort((a,b) => new Date(b.date)-new Date(a.date));
+  var items = (D.bl_items||[]).filter(function(b){
+    return b.chantier_id === CT.chantierId && b.type === 'note';
+  });
+  items.sort(function(a,b){ return (b.urgent?1:0)-(a.urgent?1:0) || (b.date>a.date?1:-1); });
 
-  let html = ctChantierSelector()
+  var html = ctChantierSelector()
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-      + '<div style="font-size:16px;font-weight:800">Notes ('+notes.length+')</div>'
+      + '<div style="font-size:16px;font-weight:800">Notes (' + items.length + ')</div>'
       + '<button class="btn btn-primary btn-sm" onclick="ctModalNote()">+ Note</button>'
     + '</div>';
 
-  if (!notes.length) {
-    html += '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">Aucune note</div>'
-      + '<div class="empty-desc">Toucher "+ Note" pour ajouter</div></div>';
+  if (!items.length) {
+    html += '<div class="empty-state"><div class="empty-icon">📝</div>'
+      + '<div class="empty-title">Aucune note</div>'
+      + '<div class="empty-desc">Ajoutez observations, problèmes, réserves...</div></div>';
   } else {
-    html += notes.map(b => ctBLCard(b, false) + '').join('');
+    html += items.map(function(b){ return ctBLCard(b, true); }).join('');
   }
-
   $('ct-content').innerHTML = html;
 }
 
@@ -1665,58 +1874,34 @@ function ctPageNotes() {
 // PAGE RDV / RÉUNIONS
 // ══════════════════════════════════════════════════════════════════
 function ctPageRdv() {
-  if (!D.bl_items) D.bl_items = [];
-  const rdvs = (D.bl_items||[])
-    .filter(b => b.chantier_id === CT.chantierId && b.type === 'rdv')
-    .sort((a,b) => new Date(a.date)-new Date(b.date));
+  var items = (D.bl_items||[]).filter(function(b){
+    return b.chantier_id === CT.chantierId && b.type === 'rdv';
+  });
+  items.sort(function(a,b){ return a.date > b.date ? 1 : -1; });
+  var now = today();
+  var futurs = items.filter(function(b){ return b.date >= now; });
+  var passes = items.filter(function(b){ return b.date < now; });
 
-  const today_str = today();
-  const futurs  = rdvs.filter(r => r.date >= today_str);
-  const passes  = rdvs.filter(r => r.date < today_str);
-
-  let html = ctChantierSelector()
+  var html = ctChantierSelector()
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-      + '<div style="font-size:16px;font-weight:800">Réunions & RDV</div>'
+      + '<div style="font-size:16px;font-weight:800">RDV (' + items.length + ')</div>'
       + '<button class="btn btn-primary btn-sm" onclick="ctModalRdv()">+ RDV</button>'
     + '</div>';
 
-  if (!rdvs.length) {
-    html += '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Aucun RDV</div>'
-      + '<div class="empty-desc">Planifiez vos réunions de chantier</div></div>';
+  if (!items.length) {
+    html += '<div class="empty-state"><div class="empty-icon">📅</div>'
+      + '<div class="empty-title">Aucun RDV</div>'
+      + '<div class="empty-desc">Planifiez vos réunions, visites de chantier...</div></div>';
   } else {
     if (futurs.length) {
-      html += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px">À venir</div>';
-      html += futurs.map(r => {
-        const d = new Date(r.date);
-        return '<div class="ct-card" style="border-left:4px solid #7C3AED">'
-          + '<div class="ct-card-head">'
-            + '<div>'
-              + '<div class="ct-card-title">'+r.designation+'</div>'
-              + '<div class="ct-card-meta" style="margin-top:3px">'+r.commentaire+'</div>'
-            + '</div>'
-            + '<div style="text-align:right">'
-              + '<div class="rdv-day">'+d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})+'</div>'
-              + '<button onclick="ctAddToCalendar(\''+r.id+'\')" style="font-size:10px;color:#7C3AED;background:none;border:none;cursor:pointer;margin-top:4px;display:block;width:100%">+ Calendrier</button>'
-            + '</div>'
-          + '</div>'
-        + '</div>';
-      }).join('');
+      html += '<div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">À venir</div>';
+      html += futurs.map(function(b){ return ctBLCard(b, true); }).join('');
     }
     if (passes.length) {
-      html += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:14px 0 10px">Passés</div>';
-      html += passes.reverse().map(r => {
-        const d = new Date(r.date);
-        return '<div class="ct-card" style="opacity:0.7">'
-          + '<div class="ct-card-head">'
-            + '<div><div class="ct-card-title" style="color:var(--text-muted)">'+r.designation+'</div>'
-            + '<div class="ct-card-meta">'+r.commentaire+'</div></div>'
-            + '<div><div style="font-size:11px;color:var(--text-muted)">'+d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})+'</div></div>'
-          + '</div>'
-        + '</div>';
-      }).join('');
+      html += '<div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:16px 0 8px">Passés</div>';
+      html += passes.map(function(b){ return ctBLCard(b, true); }).join('');
     }
   }
-
   $('ct-content').innerHTML = html;
 }
 
@@ -1745,116 +1930,137 @@ function ctAddToCalendar(itemId) {
 // PAGE DOCS — Documents externes liés au chantier
 // ══════════════════════════════════════════════════════════════════
 function ctPageDocs() {
-  const ch = D.chantiers.find(c => c.id === CT.chantierId);
-  if (!D.ct_docs) D.ct_docs = [];
-  const docs = D.ct_docs.filter(d => d.chantier_id === CT.chantierId);
+  var docs = (D.bl_items||[]).filter(function(d){
+    return d.chantier_id === CT.chantierId && d.type === 'doc';
+  });
 
-  let html = ctChantierSelector()
+  var html = ctChantierSelector()
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-      + '<div style="font-size:16px;font-weight:800">Documents ('+docs.length+')</div>'
+      + '<div style="font-size:16px;font-weight:800">Documents (' + docs.length + ')</div>'
       + '<button class="btn btn-primary btn-sm" onclick="ctModalAddDoc()">+ Lien</button>'
     + '</div>';
 
   if (!docs.length) {
-    html += '<div class="empty-state"><div class="empty-icon">📎</div><div class="empty-title">Aucun document</div>'
+    html += '<div class="empty-state"><div class="empty-icon">📎</div>'
+      + '<div class="empty-title">Aucun document</div>'
       + '<div class="empty-desc">Ajoutez des liens vers plans, photos, CCTP, PPSPS...</div></div>';
   } else {
-    html += docs.map(d =>
-      '<div class="ct-card">'
-        + '<div class="ct-card-head">'
-          + '<div>'
-            + '<div class="ct-card-title">'+d.nom+'</div>'
-            + '<div class="ct-card-meta">'+( d.type||'Document')+(d.date?' · '+fdate(d.date):'')+'</div>'
+    var icons = {Plan:'🗺️',CCTP:'📋',PPSPS:'⛑️','PV de réunion':'📝',Photo:'📷',Contrat:'📄',Autre:'📎'};
+    html += docs.map(function(d) {
+      var icon = icons[d.statut] || icons[d.type_doc] || '📎';
+      var url  = '';
+      var notes = '';
+      if (d.commentaire) {
+        var um = d.commentaire.match(/^URL:(.+?)(\n|$)/);
+        if (um) url = um[1];
+        notes = d.commentaire.replace(/^URL:[^\n]*\n?/,'').trim();
+      }
+      return '<div class="ct-card" style="margin-bottom:10px">'
+        + '<div style="display:flex;align-items:flex-start;gap:10px">'
+          + '<div style="font-size:24px;flex-shrink:0">' + icon + '</div>'
+          + '<div style="flex:1;min-width:0">'
+            + '<div style="font-weight:700;font-size:14px">' + (d.designation||'—') + '</div>'
+            + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + (d.statut||'') + (d.date ? ' · ' + d.date : '') + '</div>'
+            + (url ? '<a href="' + url + '" target="_blank" style="font-size:12px;color:var(--accent);display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ' + url + '</a>' : '')
+            + (notes ? '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;font-style:italic">' + notes + '</div>' : '')
           + '</div>'
-          + '<div style="display:flex;gap:6px">'
-            + (d.url?'<a href="'+d.url+'" target="_blank" class="btn btn-secondary btn-sm">🔗 Ouvrir</a>':'')
-            + '<button onclick="ctDeleteDoc(\''+d.id+'\')" class="btn btn-ghost btn-sm">🗑️</button>'
+          + '<div style="display:flex;gap:4px;flex-shrink:0">'
+            + '<button class="btn btn-ghost btn-sm" onclick="ctModalAddDoc(\'' + d.id + '\')" title="Modifier">✏️</button>'
+            + '<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="ctDeleteDocSafe(\'' + d.id + '\')" title="Supprimer">🗑️</button>'
           + '</div>'
         + '</div>'
-        + (d.notes?'<div style="font-size:12px;color:var(--text-muted);margin-top:4px">'+d.notes+'</div>':'')
-      + '</div>'
-    ).join('');
+      + '</div>';
+    }).join('');
   }
-
-  // Aussi afficher les devis et factures liés depuis l'app principale
-  if (ch) {
-    const dvs = D.devis_docs.filter(d => d.chantier_id === ch.id);
-    const facs = D.factures.filter(f => f.chantier_id === ch.id);
-    if (dvs.length || facs.length) {
-      html += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:16px 0 10px">Documents BatiPilot</div>';
-      dvs.forEach(d => {
-        html += '<div class="ct-card">'
-          + '<div class="ct-card-head"><div><div class="ct-card-title">'+( d.numero||'Devis')+' — '+eur(d.total_ttc)+'</div>'
-          + '<div class="ct-card-meta">'+fdate(d.date)+' · <span class="ct-card-badge ct-badge-note">Devis</span></div></div>'
-          + '<button onclick="printDevis(\''+d.id+'\');switchMode(\'patron\')" class="btn btn-secondary btn-sm">🖨️</button>'
-          + '</div></div>';
-      });
-    }
-  }
-
   $('ct-content').innerHTML = html;
 }
 
-function ctModalAddDoc() {
-  const body = '<div class="form-group"><label>Nom du document *</label><input id="ct-doc-nom" placeholder="Ex: Plans architecte, PPSPS, CCTP..." style="font-size:15px"></div>'
+function ctModalAddDoc(editDocId) {
+  var existing = editDocId ? (D.bl_items||[]).find(function(d){ return d.id === editDocId && d.type === 'doc'; }) : null;
+  if (!existing && editDocId) {
+    // Chercher dans ct_docs
+    existing = (D.ct_docs||[]).find(function(d){ return d.id === editDocId; });
+  }
+  var isEdit = !!existing;
+  var ex = existing || {};
+
+  // Parser nom/type/date/url/notes depuis bl_item
+  var exNom   = ex.nom || ex.designation || '';
+  var exType  = ex.type_doc || ex.statut || 'Autre';
+  var exDate  = ex.date || today();
+  var exUrl   = ex.url || '';
+  // commentaire format: "URL:xxx\nnotes"
+  if (!exUrl && ex.commentaire) {
+    var cm = ex.commentaire;
+    var urlMatch = cm.match(/^URL:(.+?)(\n|$)/);
+    if (urlMatch) exUrl = urlMatch[1];
+  }
+  var exNotes = ex.notes || (ex.commentaire ? ex.commentaire.replace(/^URL:[^\n]*\n?/,'') : '');
+
+  var docTypes = ['Plan','CCTP','PPSPS','PV de réunion','Photo','Contrat','Autre'];
+
+  var body = '<div class="form-group"><label>Nom du document *</label>'
+    + '<input id="ct-doc-nom" placeholder="Ex: Plans architecte, PPSPS, CCTP..." style="font-size:15px" value="' + exNom.replace(/"/g,'&quot;') + '">'
+    + '</div>'
     + '<div class="form-row form-row-2">'
       + '<div class="form-group"><label>Type</label><select id="ct-doc-type" style="font-size:14px">'
-        + '<option>Plan</option><option>CCTP</option><option>PPSPS</option><option>PV de réunion</option><option>Photo</option><option>Contrat</option><option>Autre</option>'
+        + docTypes.map(function(t){ return '<option' + (t===exType?' selected':'') + '>' + t + '</option>'; }).join('')
       + '</select></div>'
-      + '<div class="form-group"><label>Date</label><input id="ct-doc-date" type="date" value="'+today()+'"></div>'
+      + '<div class="form-group"><label>Date</label><input id="ct-doc-date" type="date" value="' + exDate + '"></div>'
     + '</div>'
-    + '<div class="form-group"><label>Lien URL (Google Drive, Dropbox...)</label><input id="ct-doc-url" type="url" placeholder="https://..." style="font-size:14px"></div>'
-    + '<div class="form-group"><label>Notes</label><textarea id="ct-doc-notes" placeholder="..." style="min-height:50px"></textarea></div>';
+    + '<div class="form-group"><label>Lien URL (Google Drive, Dropbox...)</label>'
+    + '<input id="ct-doc-url" type="url" placeholder="https://..." style="font-size:14px" value="' + exUrl.replace(/"/g,'&quot;') + '">'
+    + '</div>'
+    + '<div class="form-group"><label>Notes</label>'
+    + '<textarea id="ct-doc-notes" placeholder="..." style="min-height:50px">' + exNotes + '</textarea>'
+    + '</div>';
 
-  modal('📎 Ajouter un document', body,
+  modal(isEdit ? '✏️ Modifier le document' : '📎 Ajouter un document', body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    + '<button class="btn btn-primary" onclick="ctSaveDoc()">✅ Ajouter</button>'
+    + (isEdit ? '<button class="btn btn-danger btn-sm" onclick="ctDeleteDocSafe(\'' + editDocId + '\')">🗑️</button>' : '')
+    + '<button class="btn btn-primary" onclick="ctSaveDoc(\'' + (editDocId||'') + '\')">✅ ' + (isEdit?'Enregistrer':'Ajouter') + '</button>'
   );
 }
 
-async function ctSaveNote() {
-  const note=($('ct-note')||{value:''}).value.trim();
-  if(!note){toast('Note vide','error');return;}
-  const cat=($('ct-note-cat')||{value:'Observation'}).value;
-  const item={
-    id:uid(),user_id:USER.id,chantier_id:CT.chantierId,
-    type:'note',date:today(),designation:'['+cat+'] '+note,
-    commentaire:cat,urgent:($('ct-urgent')||{}).checked||false,
-    photo:await uploadPhotoToStorage(CT.photoData, item.id)||null,statut:'Note',created_by:USER.email||USER.id
-  };
-  if(!D.bl_items)D.bl_items=[];
-  D.bl_items.unshift(item);
-  const saved=await insert('bl_items',{
-    id:item.id,chantier_id:item.chantier_id,type:item.type,date:item.date,
-    designation:item.designation,commentaire:item.commentaire,urgent:item.urgent,
-    photo:item.photo,statut:item.statut,created_by:item.created_by
-  });
-  if(saved)D.bl_items[0]=saved;
-  closeModal();CT.photoData=null;
-  toast('Note enregistrée'+(item.urgent?' 🔴':'')+'!');
-  ctGo('terrain');
-}
-async function ctSaveDoc() {
-  const nom = ($('ct-doc-nom')||{value:''}).value.trim();
-  if (!nom) { toast('Nom requis', 'error'); return; }
-  const doc = {
-    id: uid(), chantier_id: CT.chantierId,
-    nom, type: ($('ct-doc-type')||{value:''}).value,
-    date: ($('ct-doc-date')||{value:''}).value,
-    url: ($('ct-doc-url')||{value:''}).value.trim(),
-    notes: ($('ct-doc-notes')||{value:''}).value.trim(),
-  };
-  if (!D.ct_docs) D.ct_docs = [];
-  D.ct_docs.unshift(doc);
-  // Sauvegarder dans bl_items (type: 'doc')
-  await insert('bl_items', {
-    id: doc.id, chantier_id: doc.chantier_id, type: 'doc',
-    date: doc.date, designation: doc.nom, commentaire: (doc.url?'URL:'+doc.url:'') + (doc.notes?'\n'+doc.notes:''),
-    statut: doc.type, qte: 0, unite: '', urgent: false, created_by: USER.email || USER.id
-  });
-  closeModal();
-  toast('Document ajouté !');
-  ctPageDocs();
+async function ctSaveDoc(editDocId) {
+  var nom  = ($('ct-doc-nom')||{value:''}).value.trim();
+  if (!nom) { toast('Nom requis','error'); return; }
+  var type = ($('ct-doc-type')||{value:'Autre'}).value;
+  var date = ($('ct-doc-date')||{value:today()}).value;
+  var url  = ($('ct-doc-url')||{value:''}).value.trim();
+  var notes= ($('ct-doc-notes')||{value:''}).value.trim();
+  var commentaire = (url ? 'URL:' + url : '') + (notes ? '\n' + notes : '');
+  var isEdit = !!(editDocId && editDocId !== '');
+
+  if (isEdit) {
+    var item = (D.bl_items||[]).find(function(d){ return d.id === editDocId; });
+    if (!item) { toast('Document introuvable','error'); return; }
+    Object.assign(item, { designation: nom, statut: type, date: date, commentaire: commentaire });
+    try {
+      await SB.from('bl_items').update({
+        designation: nom, statut: type, date: date, commentaire: commentaire
+      }).eq('id', editDocId).eq('user_id', USER.id);
+    } catch(e) { toast('Erreur mise à jour','error'); return; }
+    closeModal(); toast('Document mis à jour !'); ctPageDocs();
+  } else {
+    var docId = uid();
+    var newItem = {
+      id: docId, user_id: USER.id, chantier_id: CT.chantierId,
+      type: 'doc', date: date, designation: nom, statut: type,
+      commentaire: commentaire, qte: 0, unite: '', urgent: false,
+      created_by: USER.email || USER.id
+    };
+    if (!D.bl_items) D.bl_items = [];
+    D.bl_items.unshift(newItem);
+    var saved = await insert('bl_items', {
+      id: newItem.id, chantier_id: newItem.chantier_id, type: newItem.type,
+      date: newItem.date, designation: newItem.designation, statut: newItem.statut,
+      commentaire: newItem.commentaire, qte: newItem.qte, unite: newItem.unite,
+      urgent: newItem.urgent, created_by: newItem.created_by
+    });
+    if (saved) D.bl_items[0] = saved;
+    closeModal(); toast('Document ajouté !'); ctPageDocs();
+  }
 }
 
 async function ctDeleteDoc(docId) {
@@ -2333,12 +2539,9 @@ async function loadAll(){
         assurance_decennale:sr.data.assurance_decennale||'',
         rcp:sr.data.rcp||'',
         qualibat:sr.data.qualibat||'',
-        email_comptable:sr.data.email_comptable||'',
-        historique_envois_comptable:sr.data.historique_envois_comptable||[],
       };
     }
     D.chantiers       = cr.data   || [];
-    D.justificatifs   = sr.data && sr.data.justificatifs ? sr.data.justificatifs : [];
     D.clients         = clr.data  || [];
     D.devis_docs      = dr.data   || [];
     D.factures        = fr.data   || [];
@@ -2670,7 +2873,7 @@ const PAGE_TITLES={dashboard:'Tableau de bord',chantiers:'Chantiers',devis:'Devi
 function openMobileSidebar(){
   const sb = $('sidebar');
   const ov = $('sidebar-overlay');
-  if (sb) sb.classList.add('mob-open');
+  if (sb) sb.classList.add('mobile-open');
   if (ov) {
     ov.classList.add('open');
     ov.onclick = closeMobileSidebar;
@@ -2681,7 +2884,7 @@ function openMobileSidebar(){
 function closeMobileSidebar(){
   const sb = $('sidebar');
   const ov = $('sidebar-overlay');
-  if (sb) sb.classList.remove('mob-open');
+  if (sb) sb.classList.remove('mobile-open');
   if (ov) ov.classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -2704,7 +2907,7 @@ function go(page){
   if (contentEl) contentEl.scrollTop = 0;
   window.scrollTo(0, 0);
 
-  const pages={dashboard:pgDashboardPro,chantiers:pgChantiers,devis:pgDevis,appro:pgAppro,stock:pgStock,clients:pgClients,planning:pgPlanning,finances:pgFinances,salaires:pgSalaires,facturation:pgFacturation,abonnement:pgAbonnement,settings:pgSettings,justificatifs:pgJustificatifs,conducteur:pgConducteur,rgpd:pgRGPD,legal:pgLegal,logs:pgActivityLog};
+  const pages={dashboard:pgDashboardPro,chantiers:pgChantiers,devis:pgDevis,appro:pgAppro,stock:pgStock,clients:pgClients,planning:pgPlanning,finances:pgFinances,salaires:pgSalaires,justificatifs:pgJustificatifs,facturation:pgFacturation,abonnement:pgAbonnement,settings:pgSettings,conducteur:pgConducteur,rgpd:pgRGPD,legal:pgLegal,logs:pgActivityLog};
   window._currentPage = page;
   if(pages[page])pages[page]();
 
@@ -2965,13 +3168,20 @@ async function delChantier(id){
       '<button class="btn btn-secondary" onclick="closeModal()">Compris</button>');
     return;
   }
-  const warnMats=mats.length>0?`\n⚠️ ${mats.length} matériau(x) lié(s) seront aussi supprimés.`:'';
-  // Suppression déléguée à delChantierSafe()
-  D.chantiers=D.chantiers.filter(c=>c.id!==id);
-  D.materiaux=D.materiaux.filter(m=>m.chantier_id!==id);
-  await del('chantiers',id);
-  toast('Chantier supprimé','error');
-  pgChantiers();
+  var warnMats = mats.length > 0 ? mats.length + ' matériau(x) lié(s) seront aussi supprimés.' : '';
+  confirmDelete({
+    title: '🗑️ Supprimer ce chantier ?',
+    label: ch.nom,
+    icon: '🏗️',
+    warning: warnMats || 'Cette action est irréversible.',
+    onConfirm: async function() {
+      D.chantiers = D.chantiers.filter(function(c){ return c.id !== id; });
+      D.materiaux = D.materiaux.filter(function(m){ return m.chantier_id !== id; });
+      await del('chantiers', id);
+      toast('Chantier supprimé','error');
+      pgChantiers();
+    }
+  });
 }
 
 // Docs chantier (devis + factures liés)
@@ -3608,8 +3818,8 @@ function detailClient(id){
     'modal-lg'
   );
 }
-function modalClient(id=null){const cl=id?D.clients.find(x=>x.id===id):null;const body=`<div class="form-row form-row-2"><div class="form-group"><label>Nom *</label><input id="cl-nom" value="${cl?.nom||''}"></div><div class="form-group"><label>Email</label><input id="cl-email" type="email" value="${cl?.email||''}"></div></div><div class="form-row form-row-2"><div class="form-group"><label>Téléphone</label><input id="cl-tel" type="tel" value="${cl?.tel||''}"></div><div class="form-group"><label>Adresse</label><input id="cl-adr" value="${cl?.adresse||''}" placeholder="N° et rue"></div></div><div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><div class="form-group"><label>Code postal</label><div style="position:relative"><input id="cl-cp" type="text" inputmode="numeric" maxlength="5" value="${cl?.cp||''}" placeholder="75000" oninput="cpAutoVille(this,'cl-ville')" style="width:100%"></div></div><div class="form-group"><label>Ville</label><div style="position:relative"><input id="cl-ville" type="text" value="${cl?.ville||''}" placeholder="Paris" autocomplete="off" style="width:100%"><div id="cl-ville-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #E5E7EB;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:100;max-height:180px;overflow-y:auto"></div></div></div></div><div class="form-group"><label>Notes</label><textarea id="cl-notes">${cl?.notes||''}</textarea></div>`;modal(id?'Modifier':'Nouveau client',body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveClient('${id||''}')">💾 Enregistrer</button>`);}
-async function saveClient(id){const nom=$('cl-nom').value.trim();if(!nom){toast('Nom obligatoire','error');return;}const data={id:id||uid(),nom,email:$('cl-email').value.trim(),tel:$('cl-tel').value.trim(),adresse:$('cl-adr').value.trim(),cp:($('cl-cp')||{value:''}).value.trim(),ville:($('cl-ville')||{value:''}).value.trim(),notes:$('cl-notes').value.trim()};closeModal();if(id){const idx=D.clients.findIndex(c=>c.id===id);if(idx>=0)D.clients[idx]=data;}else D.clients.push(data);await upsert('clients',data);toast(id?'Mis à jour !':'Client ajouté !');pgClients();}
+function modalClient(id=null){const cl=id?D.clients.find(x=>x.id===id):null;const body=`<div class="form-row form-row-2"><div class="form-group"><label>Nom *</label><input id="cl-nom" value="${cl?.nom||''}"></div><div class="form-group"><label>Email</label><input id="cl-email" type="email" value="${cl?.email||''}"></div></div><div class="form-row form-row-2"><div class="form-group"><label>Téléphone</label><input id="cl-tel" type="tel" value="${cl?.tel||''}"></div><div class="form-group"><label>Adresse</label><input id="cl-adr" value="${cl?.adresse||''}"></div></div><div class="form-group"><label>Notes</label><textarea id="cl-notes">${cl?.notes||''}</textarea></div>`;modal(id?'Modifier':'Nouveau client',body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveClient('${id||''}')">💾 Enregistrer</button>`);}
+async function saveClient(id){const nom=$('cl-nom').value.trim();if(!nom){toast('Nom obligatoire','error');return;}const data={id:id||uid(),nom,email:$('cl-email').value.trim(),tel:$('cl-tel').value.trim(),adresse:$('cl-adr').value.trim(),notes:$('cl-notes').value.trim()};closeModal();if(id){const idx=D.clients.findIndex(c=>c.id===id);if(idx>=0)D.clients[idx]=data;}else D.clients.push(data);await upsert('clients',data);toast(id?'Mis à jour !':'Client ajouté !');pgClients();}
 async function delClient(id){ delClientSafe(id); }
 
 // ── PLANNING CALENDRIER ───────────────────────────
@@ -4437,13 +4647,24 @@ async function saveEmployee(id) {
 }
 
 async function delEmployee(id) {
-  var hasE = (D.time_entries||[]).some(function(t){ return t.employee_id===id; });
-  if(hasE){ toast('Cet employé a des pointages — supprimez-les d\'abord','error'); return; }
-  if(!confirm('Supprimer cet employé ?')) return;
-  D.employees = (D.employees||[]).filter(function(e){ return e.id!==id; });
-  await del('employees', id);
-  toast('Supprimé','error');
-  pgSalaires();
+  var e = (D.employees||[]).find(function(x){ return x.id===id; });
+  var hasEntries = (D.time_entries||[]).some(function(t){ return t.employee_id===id; });
+  if (hasEntries) {
+    toast('Cet employé a des pointages — supprimez-les d\'abord', 'error');
+    return;
+  }
+  confirmDelete({
+    title: '🗑️ Supprimer cet employé ?',
+    label: e ? e.full_name : 'Employé',
+    icon: '👷',
+    warning: 'Cette action est irréversible.',
+    onConfirm: async function() {
+      D.employees = (D.employees||[]).filter(function(x){ return x.id !== id; });
+      await del('employees', id);
+      toast('Employé supprimé','error');
+      pgSalaires();
+    }
+  });
 }
 
 // ── Modal pointage ─────────────────────────────
@@ -4549,20 +4770,27 @@ async function savePointage() {
 }
 
 async function delPointage(id, chantierId) {
-  if(!confirm('Supprimer ce pointage ?')) return;
   var entry = (D.time_entries||[]).find(function(t){ return t.id===id; });
-  D.time_entries = (D.time_entries||[]).filter(function(t){ return t.id!==id; });
-  // Recalcul MO local
-  if(chantierId){
-    var ch=D.chantiers.find(function(c){ return c.id===chantierId; });
-    if(ch){
-      ch.cout_mo=(D.time_entries||[]).filter(function(t){ return t.chantier_id===chantierId; }).reduce(function(a,t){ return a+(+t.cout_total||0); },0);
-      ch.marge=(+ch.devis||0)-(+ch.cout_mat||0)-ch.cout_mo;
+  var emp   = entry ? (D.employees||[]).find(function(e){ return e.id===entry.employee_id; }) : null;
+  confirmDelete({
+    title: '🗑️ Supprimer ce pointage ?',
+    label: (emp ? emp.full_name : 'Employé') + (entry ? ' — ' + entry.hours + 'h' : ''),
+    icon: '⏱️',
+    onConfirm: async function() {
+      D.time_entries = (D.time_entries||[]).filter(function(t){ return t.id !== id; });
+      await del('time_entries', id);
+      // Recalcul MO local
+      if (chantierId) {
+        var ch = D.chantiers.find(function(c){ return c.id===chantierId; });
+        if (ch) {
+          var tes = (D.time_entries||[]).filter(function(t){ return t.chantier_id===chantierId; });
+          ch.heures_mo = tes.reduce(function(a,t){ return a + (+t.hours||0); }, 0);
+        }
+      }
+      toast('Pointage supprimé','error');
+      pgSalaires();
     }
-  }
-  await del('time_entries', id);
-  toast('Pointage supprimé','error');
-  if(D.page==='salaires') pgSalaires();
+  });
 }
 
 function detailMOChantier(cid) {
@@ -4667,7 +4895,7 @@ async function startApp(user) {
 
 // ── Initialisation au démarrage de la page ──────────────────────
 // IMPORTANT GitHub Pages : l'URL de recovery ressemble à
-//   https://bati-pilot.fr/app.html#access_token=XXX&type=recovery
+//   https://marco-web-cmd.github.io/gestion_chantier/#access_token=XXX&type=recovery
 // window.location.hash = "#access_token=XXX&type=recovery"
 // Le hash doit être analysé EN PREMIER car getSession() consomme
 // le token et retourne session?.user = true, ce qui lancerait l'app
@@ -5304,247 +5532,6 @@ async function updateDevisStatut(dvId, newStatut){
   dv.statut=newStatut;
   await SB.from('devis_docs').update({statut:newStatut}).eq('id',dvId).eq('user_id',USER.id);
   toast('Devis '+dv.numero+' → '+newStatut);
-}
-
-
-// ══════════════════════════════════════════════════════════════
-// PAGE JUSTIFICATIFS & COMPTABILITÉ
-// ══════════════════════════════════════════════════════════════
-function pgJustificatifs() {
-  var justs = D.justificatifs || [];
-  var s = D.settings;
-  var cats = ['Matériaux','Carburant','Repas','Outillage','Sous-traitance','Déplacement','Autre'];
-  var now = new Date();
-  var moisCourant = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-  var justs_mois = justs.filter(function(j){ return j.date && j.date.startsWith(moisCourant); });
-  var total_mois = justs_mois.reduce(function(a,j){ return a + (parseFloat(j.montant)||0); }, 0);
-
-  var listHTML = justs.length === 0
-    ? '<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">Aucun justificatif</div><div class="empty-sub">Prenez en photo vos tickets et factures fournisseurs</div></div>'
-    : justs.slice().reverse().map(function(j,i) {
-        var idx = justs.length - 1 - i;
-        var statusColor = j.envoye ? 'var(--success)' : 'var(--warning)';
-        var statusLabel = j.envoye ? '&#x2705; Envoyé' : '&#x23F3; À envoyer';
-        return '<div class="card mb-2" style="display:flex;align-items:center;gap:12px;padding:14px">'
-          + '<div style="font-size:28px;flex-shrink:0">🧾</div>'
-          + '<div style="flex:1;min-width:0">'
-          + '<div style="font-weight:600;color:var(--text)">' + (j.fournisseur||'Sans nom') + '</div>'
-          + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + (j.categorie||'Non catégorisé') + ' · ' + (j.date||'') + '</div>'
-          + (j.note ? '<div style="font-size:12px;color:var(--text-muted);font-style:italic">' + j.note + '</div>' : '')
-          + '</div>'
-          + '<div style="text-align:right;flex-shrink:0">'
-          + '<div style="font-weight:700;font-size:16px">' + eur(j.montant||0) + '</div>'
-          + '<div style="font-size:11px;color:' + statusColor + ';margin-top:2px">' + statusLabel + '</div>'
-          + '</div>'
-          + '<button class="btn btn-ghost btn-icon btn-sm" onclick="delJustif(' + idx + ')" style="color:var(--danger);flex-shrink:0">x</button>'
-          + '</div>';
-      }).join('');
-
-  var emailWarning = !s.email_comptable
-    ? '<div style="background:rgba(192,98,42,0.1);border:1px solid var(--accent);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--accent)">&#x26A0;&#xFE0F; Renseignez l\'email de votre comptable ci-dessous.</div>'
-    : '';
-
-  var histHTML = (s.historique_envois_comptable||[]).length === 0
-    ? '<div class="text-muted text-sm">Aucun envoi pour le moment.</div>'
-    : (s.historique_envois_comptable||[]).slice().reverse().slice(0,5).map(function(h){
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">'
-          + '<div><span style="font-weight:600">' + h.periode + '</span><br><span style="color:var(--text-muted)">' + h.nb + ' justificatif' + (h.nb>1?'s':'') + ' · ' + eur(h.total) + '</span></div>'
-          + '<div style="color:var(--success);font-size:12px">OK ' + h.date + '</div>'
-          + '</div>';
-      }).join('');
-
-  var catsOpts = cats.map(function(c){return '<option>'+c+'</option>';}).join('');
-
-  setContent('<div class="page-header"><div class="page-title">Justificatifs &amp; Comptabilité</div></div>'
-  + '<div class="grid-2" style="align-items:start;gap:20px">'
-
-  + '<div>'
-  + '<div class="card mb-4" style="background:linear-gradient(135deg,var(--navy),#2D3E8C);color:white;padding:20px">'
-  + '<div style="font-size:12px;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Total ce mois</div>'
-  + '<div style="font-family:var(--font-display);font-size:32px;font-weight:900">' + eur(total_mois) + '</div>'
-  + '<div style="font-size:13px;opacity:0.8;margin-top:4px">' + justs_mois.length + ' justificatif' + (justs_mois.length>1?'s':'') + ' · ' + moisCourant + '</div>'
-  + '</div>'
-
-  + '<div class="card mb-4">'
-  + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">Ajouter un justificatif</div>'
-  + '<div class="form-row form-row-2">'
-  + '<div class="form-group"><label>Fournisseur</label><input id="jf-fourn" placeholder="Ex: Leroy Merlin..."></div>'
-  + '<div class="form-group"><label>Montant TTC (€)</label><input id="jf-montant" type="number" step="0.01" min="0" placeholder="0.00"></div>'
-  + '</div>'
-  + '<div class="form-row form-row-2">'
-  + '<div class="form-group"><label>Date</label><input id="jf-date" type="date" value="' + now.toISOString().slice(0,10) + '"></div>'
-  + '<div class="form-group"><label>Catégorie</label><select id="jf-cat">' + catsOpts + '</select></div>'
-  + '</div>'
-  + '<div class="form-group"><label>Note (optionnel)</label><input id="jf-note" placeholder="Ex: Chantier Dupont, plomberie..."></div>'
-  + '<div class="form-group"><label>Photo du ticket (optionnel)</label>'
-  + '<input id="jf-photo" type="file" accept="image/*" capture="environment" style="padding:8px;font-size:13px">'
-  + '<div id="jf-ocr-result" style="display:none;margin-top:8px;padding:10px;background:rgba(45,62,140,0.08);border-radius:8px;font-size:13px"></div>'
-  + '</div>'
-  + '<div style="display:flex;gap:10px;flex-wrap:wrap">'
-  + '<button class="btn btn-primary" onclick="addJustif()">Enregistrer</button>'
-  + '<button class="btn btn-ghost btn-sm" onclick="ocrTicket()" id="btn-ocr">Lire par IA</button>'
-  + '</div></div>'
-
-  + '<div class="card">'
-  + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">'
-  + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700">Tous les justificatifs (' + justs.length + ')</div>'
-  + (justs.length > 0 ? '<button class="btn btn-ghost btn-sm" onclick="exportJustifCSV()">Export CSV</button>' : '')
-  + '</div>' + listHTML + '</div></div>'
-
-  + '<div>'
-  + '<div class="card mb-4">'
-  + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">Envoyer à mon comptable</div>'
-  + emailWarning
-  + '<div class="form-group"><label>Email du comptable</label>'
-  + '<div style="display:flex;gap:8px">'
-  + '<input id="jf-email-cpt" type="email" value="' + (s.email_comptable||'') + '" placeholder="comptable@cabinet.fr" style="flex:1">'
-  + '<button class="btn btn-ghost btn-sm" onclick="saveEmailComptable()" style="flex-shrink:0">Sauv.</button>'
-  + '</div>'
-  + '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">Modifiez puis cliquez Sauv. pour enregistrer</div>'
-  + '</div>'
-  + '<div class="form-row form-row-2" style="margin-bottom:12px">'
-  + '<div class="form-group"><label>Période</label><select id="jf-periode"><option value="mois">Ce mois (' + moisCourant + ')</option><option value="tout">Tous non envoyés</option></select></div>'
-  + '<div class="form-group"><label>Format</label><select id="jf-format"><option value="recapitulatif">Récapitulatif email</option><option value="csv">Export CSV</option></select></div>'
-  + '</div>'
-  + '<button class="btn btn-primary w-full" onclick="envoyerComptable()" ' + (!s.email_comptable?'disabled':'') + '>Envoyer le récapitulatif</button>'
-  + '<div id="jf-send-status" style="margin-top:10px;font-size:13px;text-align:center"></div>'
-  + '</div>'
-
-  + '<div class="card">'
-  + '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">Historique des envois</div>'
-  + histHTML
-  + '</div></div></div>');
-}
-
-function addJustif() {
-  var fourn   = $('jf-fourn')   ? $('jf-fourn').value.trim()        : '';
-  var montant = $('jf-montant') ? parseFloat($('jf-montant').value)  : 0;
-  var date    = $('jf-date')    ? $('jf-date').value                 : new Date().toISOString().slice(0,10);
-  var cat     = $('jf-cat')     ? $('jf-cat').value                  : 'Autre';
-  var note    = $('jf-note')    ? $('jf-note').value.trim()          : '';
-  if (!fourn)              { toast('Renseignez le fournisseur'); return; }
-  if (!montant || montant <= 0) { toast('Montant invalide');    return; }
-  if (!D.justificatifs) D.justificatifs = [];
-  D.justificatifs.push({ id:Date.now(), fournisseur:fourn, montant:montant, date:date, categorie:cat, note:note, envoye:false, created_at:new Date().toISOString() });
-  saveJustificatifs();
-  toast('Justificatif enregistré !');
-  pgJustificatifs();
-}
-
-function delJustif(idx) {
-  if (!confirm('Supprimer ce justificatif ?')) return;
-  D.justificatifs.splice(idx, 1);
-  saveJustificatifs();
-  pgJustificatifs();
-}
-
-async function saveJustificatifs() {
-  try {
-    await SB.from('settings').upsert({ user_id:USER.id, justificatifs:D.justificatifs||[] }, { onConflict:'user_id' });
-  } catch(e) { console.warn('saveJustificatifs:', e); }
-}
-
-async function saveEmailComptable() {
-  var email = $('jf-email-cpt') ? $('jf-email-cpt').value.trim() : '';
-  if (email && !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { toast('Email invalide'); return; }
-  D.settings.email_comptable = email;
-  await saveSetting();
-  toast('Email comptable enregistré !');
-  pgJustificatifs();
-}
-
-async function ocrTicket() {
-  var fileInput = $('jf-photo');
-  if (!fileInput || !fileInput.files || !fileInput.files[0]) { toast('Ajoutez une photo du ticket'); return; }
-  var btn = $('btn-ocr');
-  var result = $('jf-ocr-result');
-  if (btn) { btn.disabled = true; btn.textContent = 'Lecture...'; }
-  try {
-    var file = fileInput.files[0];
-    var b64 = await new Promise(function(resolve, reject) {
-      var reader = new FileReader();
-      reader.onload = function(e) { resolve(e.target.result.split(',')[1]); };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300,
-        messages:[{ role:'user', content:[
-          { type:'image', source:{ type:'base64', media_type:file.type, data:b64 } },
-          { type:'text', text:'Lis ce ticket ou facture. Extrais: fournisseur, montant_ttc (nombre), date (YYYY-MM-DD). Reponds UNIQUEMENT en JSON: {"fournisseur":"...","montant_ttc":0.00,"date":"YYYY-MM-DD"}' }
-        ]}]
-      })
-    });
-    var data = await resp.json();
-    var text = data.content && data.content[0] ? data.content[0].text : '';
-    var parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
-    if (parsed.fournisseur && $('jf-fourn')) $('jf-fourn').value = parsed.fournisseur;
-    if (parsed.montant_ttc && $('jf-montant')) $('jf-montant').value = parsed.montant_ttc;
-    if (parsed.date && $('jf-date')) $('jf-date').value = parsed.date;
-    if (result) { result.style.display='block'; result.innerHTML='IA a lu : ' + parsed.fournisseur + ' · ' + eur(parsed.montant_ttc) + ' · ' + parsed.date; }
-    toast('Ticket lu !');
-  } catch(e) { toast('Impossible de lire le ticket'); }
-  finally { if (btn) { btn.disabled=false; btn.textContent='Lire par IA'; } }
-}
-
-async function envoyerComptable() {
-  var email = D.settings.email_comptable;
-  if (!email) { toast('Email comptable non renseigné'); return; }
-  var periode = $('jf-periode') ? $('jf-periode').value : 'mois';
-  var now = new Date();
-  var moisCourant = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-  var justs = D.justificatifs || [];
-  var aEnvoyer = periode === 'mois'
-    ? justs.filter(function(j){ return j.date && j.date.startsWith(moisCourant); })
-    : justs.filter(function(j){ return !j.envoye; });
-  if (aEnvoyer.length === 0) { toast('Aucun justificatif à envoyer'); return; }
-  var statusEl = $('jf-send-status');
-  if (statusEl) statusEl.innerHTML = 'Envoi en cours...';
-  var total = aEnvoyer.reduce(function(a,j){ return a+(parseFloat(j.montant)||0); },0);
-  var lignes = aEnvoyer.map(function(j){ return (j.date||'') + ' | ' + (j.fournisseur||'?') + ' | ' + (j.categorie||'') + ' | ' + eur(j.montant||0) + (j.note?' | '+j.note:''); }).join('\n');  var company = D.settings.company || 'Mon entreprise';
-  var sujet = 'Justificatifs ' + company + ' - ' + (periode==='mois' ? moisCourant : 'Envoi groupe');
-  var corps = 'Bonjour,' + '\n\n'
-    + 'Voici le recapitulatif des justificatifs de ' + company + ' :' + '\n\n'
-    + 'Periode : ' + (periode==='mois' ? moisCourant : 'Non encore envoyes') + '\n'
-    + 'Nombre : ' + aEnvoyer.length + ' justificatif' + (aEnvoyer.length>1?'s':'') + '\n'
-    + 'Total TTC : ' + eur(total) + '\n\n'
-    + 'Detail :' + '\n' + lignes + '\n\n'
-    + 'Cordialement,' + '\n' + company;
-  try {
-    var r = await fetch('https://zewyecoxpmycqdziuqzc.supabase.co/functions/v1/send-email', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + (SB.supabaseKey||'')},
-      body:JSON.stringify({ to:email, subject:sujet, text:corps })
-    });
-    if (r.ok) {
-      var ids = aEnvoyer.map(function(j){ return j.id; });
-      D.justificatifs.forEach(function(j){ if (ids.indexOf(j.id)>-1) j.envoye=true; });
-      if (!D.settings.historique_envois_comptable) D.settings.historique_envois_comptable=[];
-      D.settings.historique_envois_comptable.push({ periode:periode==='mois'?moisCourant:'Groupe', nb:aEnvoyer.length, total:total, date:now.toLocaleDateString('fr-FR') });
-      await saveJustificatifs();
-      await saveSetting();
-      if (statusEl) statusEl.innerHTML = '<span style="color:var(--success)">Envoye a ' + email + ' !</span>';
-      toast('Recapitulatif envoye au comptable !');
-      pgJustificatifs();
-    } else { throw new Error('err'); }
-  } catch(e) {
-    if (statusEl) statusEl.innerHTML = '<span style="color:var(--danger)">Echec de l\'envoi.</span>';
-    toast('Erreur lors de l\'envoi');
-  }
-}
-
-function exportJustifCSV() {
-  var justs = D.justificatifs || [];
-  if (!justs.length) { toast('Aucun justificatif'); return; }
-  var rows = ['Date,Fournisseur,Categorie,Montant TTC,Note,Envoye'];
-  justs.forEach(function(j){ rows.push([j.date||'',j.fournisseur||'',j.categorie||'',j.montant||0,j.note||'',j.envoye?'Oui':'Non'].join(',')); });
-  var blob = new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a'); a.href=url; a.download='justificatifs_batipilot.csv'; a.click();
-  URL.revokeObjectURL(url);
-  toast('Export CSV telecharge !');
 }
 
 function pgFacturation() {
@@ -6184,17 +6171,36 @@ function ctDeleteBLItemSafe(itemId) {
   });
 }
 
+function ctDeleteNoteSafe(itemId, type) {
+  var item = (D.bl_items||[]).find(function(b){ return b.id === itemId; });
+  var labels = {note:'cette note',commande:'cette commande',prelevement:'ce prélèvement',rdv:'ce RDV',doc:'ce document'};
+  confirmDelete({
+    title: '🗑️ Supprimer ' + (labels[type]||'cet élément') + ' ?',
+    label: item ? (item.designation || type) : type,
+    icon: {note:'📝',commande:'🛒',prelevement:'📦',rdv:'📅',doc:'📎'}[type] || '📄',
+    onConfirm: async function() {
+      D.bl_items = (D.bl_items||[]).filter(function(b){ return b.id !== itemId; });
+      await del('bl_items', itemId);
+      closeModal();
+      toast('Supprimé','error');
+      // Retourner à la bonne page
+      var pageMap = {note:'notes',commande:'bl',prelevement:'bl',rdv:'rdv',doc:'docs'};
+      var page = pageMap[type] || 'terrain';
+      ctGo(page);
+    }
+  });
+}
+
 function ctDeleteDocSafe(docId) {
-  var doc = (D.ct_docs||[]).find(function(d){ return d.id === docId; });
+  var doc = (D.bl_items||[]).find(function(d){ return d.id === docId; });
   confirmDelete({
     title: '🗑️ Supprimer ce document ?',
-    label: doc ? (doc.titre || 'Document') : 'Document',
-    icon: '📄',
+    label: doc ? (doc.designation || 'Document') : 'Document',
+    icon: '📎',
     onConfirm: async function() {
-      D.ct_docs = (D.ct_docs||[]).filter(function(d){ return d.id !== docId; });
-      await del('ct_docs', docId);
-      toast('Document supprimé', 'error');
-      ctPageDocs();
+      D.bl_items = (D.bl_items||[]).filter(function(d){ return d.id !== docId; });
+      await del('bl_items', docId);
+      toast('Document supprimé','error'); ctPageDocs();
     }
   });
 }
@@ -7951,7 +7957,7 @@ function _dashQuickLink(page, ico, label, sub) {
   <div class="bps-header">
     <span class="bps-avatar">🏗️</span>
     <div>
-      <div class="bps-title">Bob — Assistant BatiPilot</div>
+      <div class="bps-title">Assistant BatiPilot</div>
       <div class="bps-sub">Répond en quelques secondes</div>
     </div>
     <button class="bps-close" onclick="bpsToggle()" aria-label="Fermer">×</button>
@@ -8029,7 +8035,7 @@ function bpsToggle() {
     icon.textContent = '×';
     if (badge) badge.style.display = 'none';
     _bpsBadgeSeen = true;
-    if (_bpsHistory.length === 0 && document.querySelectorAll('.bps-msg').length === 0) _bpsWelcome();
+    if (_bpsHistory.length === 0) _bpsWelcome();
     setTimeout(function(){ var inp = document.getElementById('bps-input'); if(inp) inp.focus(); }, 300);
   } else {
     panel.classList.remove('open');
@@ -8172,234 +8178,254 @@ setTimeout(function() {
   }
 }, 30000);
 
+// ══════════════════════════════════════════════════════════════════
+// JUSTIFICATIFS & COMPTABILITÉ
+// ══════════════════════════════════════════════════════════════════
+function pgJustificatifs() {
+  var justs = D.justificatifs || [];
+  var s = D.settings || {};
+  var cats = ['Matériaux','Carburant','Repas','Outillage','Sous-traitance','Déplacement','Autre'];
+  var now = new Date();
+  var moisCourant = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  var justs_mois = justs.filter(function(j){ return j.date && j.date.startsWith(moisCourant); });
+  var total_mois = justs_mois.reduce(function(a,j){ return a + (parseFloat(j.montant)||0); }, 0);
 
-// ── AUTO-VILLE PAR CODE POSTAL (geo.api.gouv.fr) ───────────────────────
-let _cpTimer = null;
-async function cpAutoVille(cpInput, villeId) {
-  const cp = cpInput.value.trim();
-  const villeInput = document.getElementById(villeId);
-  const suggestEl = document.getElementById(villeId + '-suggest');
-  if (cp.length < 5) { if (suggestEl) suggestEl.style.display='none'; return; }
-  clearTimeout(_cpTimer);
-  _cpTimer = setTimeout(async () => {
-    try {
-      const res = await fetch('https://geo.api.gouv.fr/communes?codePostal='+encodeURIComponent(cp)+'&fields=nom&limit=8');
-      if (!res.ok) return;
-      const villes = await res.json();
-      if (!villes || villes.length === 0) { if (suggestEl) suggestEl.style.display='none'; return; }
-      if (villes.length === 1) {
-        if (villeInput) villeInput.value = villes[0].nom;
-        if (suggestEl) suggestEl.style.display='none';
-        return;
-      }
-      if (suggestEl) {
-        suggestEl.innerHTML = '';
-        villes.forEach(function(v) {
-          var d = document.createElement('div');
-          d.style.cssText = 'padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #eee';
-          d.textContent = v.nom;
-          d.addEventListener('mouseenter', function(){ d.style.background='#EEF2FF'; });
-          d.addEventListener('mouseleave', function(){ d.style.background=''; });
-          d.addEventListener('click', function(){
-            if (villeInput) villeInput.value = v.nom;
-            suggestEl.style.display = 'none';
-          });
-          suggestEl.appendChild(d);
-        });
-        suggestEl.style.display = 'block';
-        setTimeout(function() {
-          document.addEventListener('click', function closeSuggest(e) {
-            if (suggestEl && !suggestEl.contains(e.target) && e.target !== cpInput) {
-              suggestEl.style.display='none';
-              document.removeEventListener('click', closeSuggest);
-            }
-          });
-        }, 100);
-      }
-    } catch(e) {}
-  }, 300);
+  var listHTML = justs.length === 0
+    ? '<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">Aucun justificatif</div><div class="empty-sub">Prenez en photo vos tickets et factures fournisseurs</div></div>'
+    : justs.slice().reverse().map(function(j, i) {
+        var idx = justs.length - 1 - i;
+        var statusColor = j.envoye ? 'var(--success)' : 'var(--warning)';
+        var statusLabel = j.envoye ? '&#x2705; Envoyé' : '&#x23F3; À envoyer';
+        return '<div class="card mb-2" style="display:flex;align-items:center;gap:12px;padding:14px">'
+          + '<div style="font-size:28px;flex-shrink:0">🧾</div>'
+          + '<div style="flex:1;min-width:0">'
+          + '<div style="font-weight:600;color:var(--text)">' + (j.fournisseur||'Sans nom') + '</div>'
+          + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + (j.categorie||'Non catégorisé') + ' · ' + (j.date||'') + '</div>'
+          + (j.note ? '<div style="font-size:12px;color:var(--text-muted);font-style:italic">' + j.note + '</div>' : '')
+          + '</div>'
+          + '<div style="text-align:right;flex-shrink:0">'
+          + '<div style="font-weight:700;color:var(--text)">' + eur(j.montant||0) + '</div>'
+          + '<div style="font-size:10px;color:' + statusColor + ';margin-top:2px">' + statusLabel + '</div>'
+          + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">'
+          + '<button class="btn btn-ghost btn-icon btn-sm" onclick="editJustif(' + idx + ')" title="Modifier">✏️</button>'
+          + '<button class="btn btn-ghost btn-icon btn-sm" onclick="delJustifConfirm(' + idx + ')" style="color:var(--danger)" title="Supprimer">🗑️</button>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+
+  var emailWarning = !s.email_comptable
+    ? '<div style="background:rgba(192,98,42,0.1);border:1px solid var(--accent);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px">'
+      + '⚠️ <strong>Email comptable non configuré</strong> — Ajoutez-le dans les Paramètres pour envoyer vos justificatifs.'
+      + '</div>'
+    : '';
+
+  var html = '<div class="page-header"><h2>🧾 Justificatifs</h2></div>'
+    + emailWarning
+    + '<div class="card mb-3" style="padding:16px">'
+    + '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;font-weight:600">Ce mois-ci: <strong>' + eur(total_mois) + '</strong> sur ' + justs_mois.length + ' justificatif(s)</div>'
+    + '<div class="form-row form-row-2" id="justif-form">'
+    + '<div class="form-group"><label>Fournisseur *</label><input id="jf-fourn" placeholder="Leroy Merlin, Point P..."></div>'
+    + '<div class="form-group"><label>Montant TTC (€) *</label><input id="jf-montant" type="number" min="0.01" step="0.01" placeholder="0.00"></div>'
+    + '</div>'
+    + '<div class="form-row form-row-2">'
+    + '<div class="form-group"><label>Date</label><input id="jf-date" type="date" value="' + today() + '"></div>'
+    + '<div class="form-group"><label>Catégorie</label><select id="jf-cat">' + cats.map(function(c){ return '<option>' + c + '</option>'; }).join('') + '</select></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Note</label><input id="jf-note" placeholder="Description..."></div>'
+    + '<div class="form-group"><label>Photo du ticket (OCR auto)</label>'
+    + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    + '<input type="file" id="jf-photo" accept="image/*" capture="environment" style="font-size:13px">'
+    + '<button class="btn btn-secondary btn-sm" id="btn-ocr" onclick="ocrTicket()">🤖 Lire le ticket</button>'
+    + '</div>'
+    + '<div id="jf-ocr-result" style="font-size:12px;color:var(--text-muted);margin-top:4px"></div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    + '<button class="btn btn-primary" id="btn-add-justif" onclick="addJustif()">+ Ajouter</button>'
+    + (s.email_comptable ? '<button class="btn btn-secondary" onclick="envoyerComptable()">📧 Envoyer au comptable</button>' : '')
+    + '<button class="btn btn-ghost" onclick="exportJustifCSV()">📊 Export CSV</button>'
+    + '</div>'
+    + '</div>'
+    + '<div id="justif-list">' + listHTML + '</div>';
+
+  setContent(html);
 }
 
+function addJustif() {
+  var fourn   = document.getElementById('jf-fourn')   ? document.getElementById('jf-fourn').value.trim()        : '';
+  var montant = document.getElementById('jf-montant') ? parseFloat(document.getElementById('jf-montant').value)  : 0;
+  var date    = document.getElementById('jf-date')    ? document.getElementById('jf-date').value                 : new Date().toISOString().slice(0,10);
+  var cat     = document.getElementById('jf-cat')     ? document.getElementById('jf-cat').value                  : 'Autre';
+  var note    = document.getElementById('jf-note')    ? document.getElementById('jf-note').value.trim()          : '';
+  if (!fourn)              { toast('Renseignez le fournisseur'); return; }
+  if (!montant || montant <= 0) { toast('Montant invalide');    return; }
+  if (!D.justificatifs) D.justificatifs = [];
+  D.justificatifs.push({ id:Date.now(), fournisseur:fourn, montant:montant, date:date, categorie:cat, note:note, envoye:false, created_at:new Date().toISOString() });
+  saveJustificatifs();
+  toast('Justificatif ajouté !');
+  // Reset form
+  ['jf-fourn','jf-montant','jf-note'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('jf-date').value = today();
+  pgJustificatifs();
+}
 
-async function modalDevisCreate(dvId) {
-  const dv = dvId ? D.devis_docs.find(x=>x.id===dvId) : null;
-  const ch_list = D.chantiers;
-  const cl_list = D.clients;
-
-  // Numéro auto
-  const existNums = D.devis_docs.map(d=>d.numero||'').filter(Boolean);
-  const maxN = existNums.reduce((a,n)=>{const m=n.match(/(\d+)$/);return m?Math.max(a,+m[1]):a;},0);
-  const autoNum = 'DEV-' + String(maxN+1).padStart(4,'0');
-
-  const lignes = dv?.lignes || [{desc:'',qte:1,u:'',pu:0,total:0}];
-
-  function ligneRow(l,i) {
-    return '<div class="dv-ligne" id="dvl-'+i+'">'
-      +'<input type="text" class="dvl-desc" placeholder="Désignation / prestation" value="'+esc(l.desc||'')+'">'
-      +'<input type="number" class="dvl-qte" min="0" step="any" placeholder="1" value="'+(l.qte||1)+'" style="text-align:right">'
-      +'<input type="text" class="dvl-u" placeholder="u, m², h…" value="'+esc(l.u||'')+'">'
-      +'<input type="number" class="dvl-pu" min="0" step="any" placeholder="0.00" value="'+(l.pu||0)+'" style="text-align:right">'
-      +'<button type="button" class="btn btn-ghost btn-icon btn-sm dvl-del" title="Supprimer" style="color:var(--danger);flex-shrink:0">×</button>'
-    +'</div>';
+function editJustif(idx) {
+  var j = D.justificatifs ? D.justificatifs[idx] : null;
+  if (!j) return;
+  // Pré-remplir le formulaire
+  ['jf-fourn','jf-montant','jf-date','jf-cat','jf-note'].forEach(function(id){});
+  var fourn = document.getElementById('jf-fourn');
+  var montant = document.getElementById('jf-montant');
+  var date = document.getElementById('jf-date');
+  var cat = document.getElementById('jf-cat');
+  var note = document.getElementById('jf-note');
+  if (fourn) fourn.value = j.fournisseur || '';
+  if (montant) montant.value = j.montant || '';
+  if (date) date.value = j.date || '';
+  if (cat) cat.value = j.categorie || 'Autre';
+  if (note) note.value = j.note || '';
+  var addBtn = document.getElementById('btn-add-justif');
+  if (addBtn) {
+    addBtn.textContent = '✅ Mettre à jour';
+    addBtn.onclick = function() { updateJustif(idx); };
   }
+  var form = document.getElementById('justif-form');
+  if (form) form.scrollIntoView({ behavior: 'smooth' });
+  toast('Formulaire pré-rempli — modifiez puis cliquez Mettre à jour');
+}
 
-  const chOpts = '<option value="">— Aucun chantier —</option>'
-    + ch_list.map(c=>'<option value="'+c.id+'"'+(dv?.chantier_id===c.id?' selected':'')+'>'+esc(c.nom)+'</option>').join('');
+function updateJustif(idx) {
+  var fourn   = document.getElementById('jf-fourn')   ? document.getElementById('jf-fourn').value.trim()        : '';
+  var montant = document.getElementById('jf-montant') ? parseFloat(document.getElementById('jf-montant').value)  : 0;
+  var date    = document.getElementById('jf-date')    ? document.getElementById('jf-date').value                 : new Date().toISOString().slice(0,10);
+  var cat     = document.getElementById('jf-cat')     ? document.getElementById('jf-cat').value                  : 'Autre';
+  var note    = document.getElementById('jf-note')    ? document.getElementById('jf-note').value.trim()          : '';
+  if (!fourn)                    { toast('Renseignez le fournisseur'); return; }
+  if (!montant || montant <= 0)  { toast('Montant invalide'); return; }
+  D.justificatifs[idx] = Object.assign(D.justificatifs[idx], {
+    fournisseur: fourn, montant: montant, date: date, categorie: cat, note: note
+  });
+  saveJustificatifs();
+  toast('Justificatif mis à jour !');
+  var addBtn = document.getElementById('btn-add-justif');
+  if (addBtn) { addBtn.textContent = '+ Ajouter'; addBtn.onclick = addJustif; }
+  pgJustificatifs();
+}
 
-  const body = ''
-    +'<div class="form-row">'
-      +'<div class="form-group"><label>N° Devis</label><input id="dv-num" value="'+esc(dv?.numero||autoNum)+'"></div>'
-      +'<div class="form-group"><label>Date</label><input id="dv-date" type="date" value="'+(dv?.date||new Date().toISOString().slice(0,10))+'"></div>'
-      +'<div class="form-group"><label>Validité (jours)</label><input id="dv-valid" type="number" min="1" value="'+(dv?.validite||30)+'"></div>'
-    +'</div>'
-    +'<div class="form-row">'
-      +'<div class="form-group"><label>Client</label><input id="dv-client" placeholder="Nom du client" value="'+esc(dv?.client||'')+'"></div>'
-      +'<div class="form-group"><label>Email client</label><input id="dv-client-email" type="email" placeholder="client@email.fr" value="'+esc(dv?.client_email||'')+'"></div>'
-    +'</div>'
-    +'<div class="form-group"><label>Adresse client</label><input id="dv-client-adr" placeholder="N° et rue" value="'+esc(dv?.client_adresse||'')+'"></div>'
-    +'<div class="form-row">'
-      +'<div class="form-group"><label>Code postal</label><input id="dv-cp" type="text" inputmode="numeric" maxlength="5" placeholder="33000" value="'+esc(dv?.client_cp||'')+'" oninput="cpAutoVille(this,\'dv-ville\')"></div>'
-      +'<div class="form-group" style="position:relative"><label>Ville</label><input id="dv-ville" placeholder="Bordeaux" value="'+esc(dv?.client_ville||'')+'" autocomplete="off"><div id="dv-ville-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);z-index:100;max-height:180px;overflow-y:auto"></div></div>'
-    +'</div>'
-    +'<div class="form-row">'
-      +'<div class="form-group"><label>Chantier associé</label><select id="dv-chantier">'+chOpts+'</select></div>'
-      +'<div class="form-group"><label>Réf. chantier</label><input id="dv-ref" placeholder="Ex: Rénovation Dupont" value="'+esc(dv?.ref_chantier||'')+'"></div>'
-    +'</div>'
-    +'<div class="form-group"><label>Objet / description courte</label><input id="dv-objet" placeholder="Ex: Travaux de rénovation salle de bain" value="'+esc(dv?.objet||'')+'"></div>'
-
-    // Lignes
-    +'<div style="margin:16px 0 8px">'
-      +'<div class="dv-lignes-header"><span>Désignation</span><span style="text-align:right">Qté</span><span>Unité</span><span style="text-align:right">P.U. HT</span><span></span></div>'
-      +'<div id="dv-lignes-wrap">'+lignes.map((l,i)=>ligneRow(l,i)).join('')+'</div>'
-      +'<button type="button" class="btn-add-ligne" id="dv-add-ligne">+ Ajouter une ligne</button>'
-    +'</div>'
-
-    // Totaux
-    +'<div class="dv-total-bloc">'
-      +'<div class="dv-total-row"><span>Total HT</span><span id="dv-show-ht" class="font-mono">0,00 €</span></div>'
-      +'<div class="dv-total-row"><label style="margin:0">TVA (%)</label><input id="dv-tva" type="number" min="0" max="100" step="0.1" value="'+(dv?.tva??D.settings.tva??20)+'" style="width:80px;text-align:right"></div>'
-      +'<div class="dv-total-row total-ttc"><span>TOTAL TTC</span><span id="dv-show-ttc" class="font-mono">0,00 €</span></div>'
-    +'</div>'
-
-    // Options
-    +'<div class="form-row" style="margin-top:16px">'
-      +'<div class="form-group"><label>Acompte (%)</label><input id="dv-acompte" type="number" min="0" max="100" value="'+(dv?.acompte||D.settings.devis_acompte||30)+'"></div>'
-      +'<div class="form-group"><label>Statut</label><select id="dv-statut"><option value="Brouillon"'+((!dv||dv.statut==='Brouillon')?' selected':'')+'>Brouillon</option><option value="Envoyé"'+(dv?.statut==='Envoyé'?' selected':'')+'>Envoyé</option><option value="Accepté"'+(dv?.statut==='Accepté'?' selected':'')+'>Accepté</option><option value="Refusé"'+(dv?.statut==='Refusé'?' selected':'')+'>Refusé</option></select></div>'
-    +'</div>'
-    +'<div class="form-group"><label>Conditions de paiement</label><input id="dv-cond" value="'+esc(dv?.conditions||D.settings.devis_conditions||'Paiement à 30 jours fin de mois.')+'"></div>'
-    +'<div class="form-group"><label>Notes internes</label><textarea id="dv-notes" rows="2">'+esc(dv?.notes||'')+'</textarea></div>';
-
-  const foot = '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    +'<button class="btn btn-accent" onclick="saveDevisDoc(\''+( dvId||'')+'\')">💾 Enregistrer le devis</button>';
-
-  modal(dvId?'Modifier le devis':'Nouveau devis', body, foot, true);
-
-  // Recalc à chaque modif
-  function recalc() {
-    const wrap = document.getElementById('dv-lignes-wrap');
-    if (!wrap) return;
-    let ht = 0;
-    wrap.querySelectorAll('.dv-ligne').forEach(function(row) {
-      const q = parseFloat(row.querySelector('.dvl-qte')?.value)||0;
-      const p = parseFloat(row.querySelector('.dvl-pu')?.value)||0;
-      const tot = q * p;
-      ht += tot;
-    });
-    const tva = parseFloat(document.getElementById('dv-tva')?.value)||0;
-    const ttc = ht * (1 + tva/100);
-    const htEl = document.getElementById('dv-show-ht');
-    const ttcEl = document.getElementById('dv-show-ttc');
-    if (htEl) htEl.textContent = ht.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
-    if (ttcEl) ttcEl.textContent = ttc.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
-  }
-
-  // Bouton ajouter ligne
-  setTimeout(function() {
-    const wrap = document.getElementById('dv-lignes-wrap');
-    const addBtn = document.getElementById('dv-add-ligne');
-    if (wrap) {
-      wrap.addEventListener('input', recalc);
-      wrap.addEventListener('click', function(e) {
-        if (e.target.classList.contains('dvl-del')) {
-          e.target.closest('.dv-ligne').remove();
-          recalc();
-        }
-      });
+function delJustifConfirm(idx) {
+  var j = D.justificatifs ? D.justificatifs[idx] : null;
+  confirmDelete({
+    title: '🗑️ Supprimer ce justificatif ?',
+    label: j ? (j.fournisseur + ' — ' + eur(j.montant||0)) : 'Justificatif',
+    icon: '🧾',
+    onConfirm: function() {
+      D.justificatifs.splice(idx, 1);
+      saveJustificatifs();
+      toast('Justificatif supprimé','error');
+      pgJustificatifs();
     }
-    if (addBtn) {
-      addBtn.addEventListener('click', function() {
-        const i = wrap ? wrap.children.length : 0;
-        const div = document.createElement('div');
-        div.innerHTML = ligneRow({desc:'',qte:1,u:'',pu:0,total:0}, i);
-        if (wrap) wrap.appendChild(div.firstChild);
-        recalc();
-      });
-    }
-    const tvaEl = document.getElementById('dv-tva');
-    if (tvaEl) tvaEl.addEventListener('input', recalc);
-    recalc();
-  }, 80);
+  });
 }
 
-function esc(s) { return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+async function saveJustificatifs() {
+  try {
+    await SB.from('settings').upsert({ user_id:USER.id, justificatifs:D.justificatifs||[] }, { onConflict:'user_id' });
+  } catch(e) { console.warn('saveJustificatifs:', e); }
+}
 
-async function saveDevisDoc(dvId) {
-  const wrap = document.getElementById('dv-lignes-wrap');
-  const lignes = [];
-  if (wrap) {
-    wrap.querySelectorAll('.dv-ligne').forEach(function(row) {
-      const desc = row.querySelector('.dvl-desc')?.value.trim()||'';
-      const qte  = parseFloat(row.querySelector('.dvl-qte')?.value)||1;
-      const u    = row.querySelector('.dvl-u')?.value.trim()||'';
-      const pu   = parseFloat(row.querySelector('.dvl-pu')?.value)||0;
-      if (desc || pu > 0) lignes.push({desc,qte,u,pu,total:qte*pu});
+function saveEmailComptable() {
+  var email = document.getElementById('email-comptable-input');
+  if (!email) return;
+  var v = email.value.trim();
+  if (!v) { toast('Email invalide','error'); return; }
+  if (!D.settings) D.settings = {};
+  D.settings.email_comptable = v;
+  saveSetting('email_comptable', v);
+  toast('Email comptable enregistré !');
+}
+
+async function envoyerComptable() {
+  var s = D.settings || {};
+  if (!s.email_comptable) { toast('Email comptable non configuré','error'); return; }
+  var justs = (D.justificatifs||[]).filter(function(j){ return !j.envoye; });
+  if (!justs.length) { toast('Aucun justificatif à envoyer'); return; }
+  try {
+    await fetch('https://zewyecoxpmycqdziuqzc.supabase.co/functions/v1/send-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + (SB._token||'')},
+      body: JSON.stringify({
+        to: s.email_comptable,
+        subject: 'Justificatifs BatiPilot — ' + new Date().toLocaleDateString('fr-FR'),
+        html: '<h2>Justificatifs</h2><table border="1" cellpadding="6" style="border-collapse:collapse">'
+          + '<tr><th>Date</th><th>Fournisseur</th><th>Catégorie</th><th>Montant</th><th>Note</th></tr>'
+          + justs.map(function(j){ return '<tr><td>' + j.date + '</td><td>' + j.fournisseur + '</td><td>' + j.categorie + '</td><td>' + eur(j.montant) + '</td><td>' + (j.note||'') + '</td></tr>'; }).join('')
+          + '</table>'
+      })
     });
-  }
-  const tva  = parseFloat(document.getElementById('dv-tva')?.value)||0;
-  const ht   = lignes.reduce((a,l)=>a+l.total,0);
-  const ttc  = ht*(1+tva/100);
-
-  const data = {
-    id:             dvId || uid(),
-    user_id:        USER.id,
-    numero:         (document.getElementById('dv-num')?.value||'').trim(),
-    date:           document.getElementById('dv-date')?.value||new Date().toISOString().slice(0,10),
-    validite:       parseInt(document.getElementById('dv-valid')?.value)||30,
-    client:         (document.getElementById('dv-client')?.value||'').trim(),
-    client_email:   (document.getElementById('dv-client-email')?.value||'').trim(),
-    client_adresse: (document.getElementById('dv-client-adr')?.value||'').trim(),
-    client_cp:      (document.getElementById('dv-cp')?.value||'').trim(),
-    client_ville:   (document.getElementById('dv-ville')?.value||'').trim(),
-    chantier_id:    document.getElementById('dv-chantier')?.value||null,
-    ref_chantier:   (document.getElementById('dv-ref')?.value||'').trim(),
-    objet:          (document.getElementById('dv-objet')?.value||'').trim(),
-    lignes:         lignes,
-    total_ht:       Math.round(ht*100)/100,
-    tva:            tva,
-    total_ttc:      Math.round(ttc*100)/100,
-    statut:         document.getElementById('dv-statut')?.value||'Brouillon',
-    acompte:        parseFloat(document.getElementById('dv-acompte')?.value)||30,
-    conditions:     (document.getElementById('dv-cond')?.value||'').trim(),
-    notes:          (document.getElementById('dv-notes')?.value||'').trim(),
-  };
-
-  if (!data.client) { toast('Nom du client requis','error'); return; }
-
-  showLoader('Enregistrement...');
-  let ok;
-  if (dvId) {
-    const r = await SB.from('devis_docs').update(data).eq('id',dvId).eq('user_id',USER.id);
-    ok = !r.error;
-    if (ok) { const i = D.devis_docs.findIndex(x=>x.id===dvId); if(i>-1) D.devis_docs[i]=data; }
-  } else {
-    const r = await SB.from('devis_docs').insert(data);
-    ok = !r.error;
-    if (ok) D.devis_docs.unshift(data);
-  }
-  hideLoader();
-  if (ok) { closeModal(); toast('Devis enregistré ✓'); pgDevis(); }
-  else toast('Erreur enregistrement','error');
+    D.justificatifs = (D.justificatifs||[]).map(function(j){ return Object.assign({}, j, {envoye:true}); });
+    saveJustificatifs();
+    toast('Envoyé à ' + s.email_comptable + ' !');
+    pgJustificatifs();
+  } catch(e) { toast('Erreur envoi email','error'); }
 }
+
+function exportJustifCSV() {
+  var justs = D.justificatifs || [];
+  if (!justs.length) { toast('Aucun justificatif à exporter'); return; }
+  var csv = 'Date,Fournisseur,Catégorie,Montant,Note,Envoyé\n';
+  justs.forEach(function(j){
+    csv += [j.date||'',j.fournisseur||'',j.categorie||'',j.montant||0,j.note||'',j.envoye?'Oui':'Non'].map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',') + '\n';
+  });
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'justificatifs_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+async function ocrTicket() {
+  var fileInput = document.getElementById('jf-photo');
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) { toast('Ajoutez une photo du ticket'); return; }
+  var btn = document.getElementById('btn-ocr');
+  var result = document.getElementById('jf-ocr-result');
+  if (btn) { btn.disabled = true; btn.textContent = 'Lecture...'; }
+  try {
+    var file = fileInput.files[0];
+    var b64 = await new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function(e) { resolve(e.target.result.split(',')[1]); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:300,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:b64}},
+          {type:'text',text:'Extrais de ce ticket: fournisseur (nom du magasin), montant total TTC en euros, date. Réponds UNIQUEMENT en JSON: {"fournisseur":"...","montant":XX.XX,"date":"YYYY-MM-DD"}'}
+        ]}]
+      })
+    });
+    var data = await resp.json();
+    var text = data.content && data.content[0] ? data.content[0].text : '';
+    var parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if (parsed.fournisseur) { var f = document.getElementById('jf-fourn'); if(f) f.value = parsed.fournisseur; }
+    if (parsed.montant)     { var m = document.getElementById('jf-montant'); if(m) m.value = parsed.montant; }
+    if (parsed.date)        { var d = document.getElementById('jf-date'); if(d) d.value = parsed.date; }
+    if (result) result.innerHTML = '<span style="color:var(--success)">✅ Données extraites automatiquement</span>';
+  } catch(e) {
+    if (result) result.innerHTML = '<span style="color:var(--danger)">❌ Lecture échouée — remplissez manuellement</span>';
+    console.warn('OCR error:', e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🤖 Lire le ticket'; }
+  }
+}
+
 </script>
 </body>
 </html>
