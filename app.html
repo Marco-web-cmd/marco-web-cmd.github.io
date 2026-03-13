@@ -536,6 +536,7 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
 /* Switcher de mode */
 #mode-switcher{display:none;}
 #mode-switcher.visible{display:flex;}
+@media (min-width:769px){#mode-switcher,#mode-switcher.visible{display:none!important;}}
 .mode-pill{display:flex;background:rgba(20,22,26,0.95);border-radius:50px;padding:3px;gap:2px;box-shadow:0 4px 24px rgba(0,0,0,0.40);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.10);}
 .mode-btn{padding:7px 18px;border-radius:40px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--font-body);color:rgba(255,255,255,0.42);background:transparent;transition:all 0.18s var(--ease-out);letter-spacing:0.2px;white-space:nowrap;}
 .mode-btn.active{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-dark) 100%);color:#fff;box-shadow:0 2px 12px rgba(192,98,42,0.50);}
@@ -2113,6 +2114,7 @@ const SB=supabase.createClient('https://zewyecoxpmycqdziuqzc.supabase.co','eyJhb
 let USER=null;
 const DM=[{label:'',unit:''},{label:'',unit:''},{label:'',unit:''}];
 let D={
+  team: { is_member:false, owner_id:null, members:[], member_count:0, role:'owner' },
   settings:{
     company:'',trade:'',phone:'',email:'',adresse:'',siret:'',logo:'',website:'',
     tva:20,tva_num:'',
@@ -2494,6 +2496,9 @@ async function loadAll(){
   showSkeletonLoader(4);
   loader('Chargement...');
 
+  // Owner ID effectif : si membre d'une equipe, utiliser l'owner_id
+  var OID = (D.team && D.team.owner_id) ? D.team.owner_id : USER.id;
+
   // Wrapper timeout universel
   function sq(q, ms){
     ms = ms || 12000;
@@ -2505,16 +2510,16 @@ async function loadAll(){
   // settings, chantiers, clients, devis, factures, stocks, conducteur
   try {
     const [sr,cr,clr,dr,fr,fclr,str,mr,cpr,docr] = await Promise.all([
-      sq(SB.from('settings').select('*').eq('user_id',USER.id).maybeSingle()),
-      sq(SB.from('chantiers').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
-      sq(SB.from('clients').select('*').eq('user_id',USER.id).order('nom')),
-      sq(SB.from('devis_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).range(0,99)),
-      sq(SB.from('factures').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).range(0,99)),
-      sq(SB.from('factures_client').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).range(0,99)),
-      sq(SB.from('stocks').select('*').eq('user_id',USER.id).order('libelle')),
-      sq(SB.from('materiaux').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
-      sq(SB.from('conducteur_pins').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
-      sq(SB.from('ct_docs').select('*').eq('user_id',USER.id).order('created_at',{ascending:false})),
+      sq(SB.from('settings').select('*').eq('user_id',OID).maybeSingle()),
+      sq(SB.from('chantiers').select('*').eq('user_id',OID).order('created_at',{ascending:false})),
+      sq(SB.from('clients').select('*').eq('user_id',OID).order('nom')),
+      sq(SB.from('devis_docs').select('*').eq('user_id',OID).order('created_at',{ascending:false}).range(0,99)),
+      sq(SB.from('factures').select('*').eq('user_id',OID).order('created_at',{ascending:false}).range(0,99)),
+      sq(SB.from('factures_client').select('*').eq('user_id',OID).order('created_at',{ascending:false}).range(0,99)),
+      sq(SB.from('stocks').select('*').eq('user_id',OID).order('libelle')),
+      sq(SB.from('materiaux').select('*').eq('user_id',OID).order('created_at',{ascending:false})),
+      sq(SB.from('conducteur_pins').select('*').eq('user_id',OID).order('created_at',{ascending:false})),
+      sq(SB.from('ct_docs').select('*').eq('user_id',OID).order('created_at',{ascending:false})),
     ]);
 
     // Hydrater D.settings
@@ -2565,6 +2570,8 @@ async function loadAll(){
     } else {
       D._loaded = true;
       launchApp();
+      // Si on est déjà sur le dashboard, forcer le re-render maintenant que les données sont prêtes
+      if (D.page === 'dashboard') { setTimeout(function(){ D._renderTs = 0; go('dashboard'); }, 50); }
     }
   } catch(e) {
     hideLoader();
@@ -2644,6 +2651,19 @@ function launchApp(){
   if (sw) sw.classList.add('visible');
   updateMobileNav('dashboard');
   go('dashboard');
+  // Bandeau "vous êtes membre de l'équipe X" si is_member
+  if (D.team && D.team.is_member && D.team.owner_company) {
+    var existingBanner = document.getElementById('team-member-banner');
+    if (!existingBanner) {
+      var banner = document.createElement('div');
+      banner.id = 'team-member-banner';
+      banner.style.cssText = 'background:#1C2B4A;color:white;text-align:center;font-size:12px;padding:6px 16px;position:relative;z-index:50';
+      banner.innerHTML = '👥 Vous accédez au compte de <strong>' + esc(D.team.owner_company) + '</strong> en tant que ' + (D.team.role||'membre')
+        + ' &nbsp;·&nbsp; <a href="#" onclick="event.preventDefault();showTeamLeaveConfirm()" style="color:rgba(255,255,255,0.7);text-decoration:underline">Quitter l\'équipe</a>';
+      var topbar = document.getElementById('topbar');
+      if (topbar && topbar.parentNode) topbar.parentNode.insertBefore(banner, topbar);
+    }
+  }
   // Bulle de présentation Bob — apparaît après 2s, disparaît après 8s
   setTimeout(function(){
     var bubble = document.getElementById('bob-bubble');
@@ -3165,6 +3185,8 @@ function modalChantier(id=null){
 async function saveChantier(id){
   const nom=$('m-nom').value.trim(),client=$('m-client').value.trim();
   if(!nom||!client){toast('Nom et client obligatoires','error');return;}
+  // Bloquer si plan gratuit et limite atteinte (seulement en création)
+  if(!id && !checkLimit('chantiers', D.chantiers.length)) return;
   const devis=+$('m-devis').value||0,mv=getMetricsValues();
   const avancement=+($('m-avancement')?.value||0);
   const reste_a_faire=$('m-raf')?.value||'';
@@ -3552,6 +3574,8 @@ async function ensureClient(nom,adresse,ville){
 }
 
 async function saveDevis(doClose=true){
+  // Bloquer si plan gratuit et limite devis atteinte
+  if(!checkLimit('devis', D.devis_docs ? D.devis_docs.length : (D.bl_items||[]).filter(x=>x.type==='devis').length)) return;
   const lines=(devisLines||[]).filter(l=>l&&(l.desc?.trim()||l.pu>0));
   const ht=lines.reduce((a,l)=>a+(+l.total||0),0);
   const tv=+($('dv-tva')?.value||D.settings.tva||20)/100;
@@ -3765,7 +3789,9 @@ function pgStock(){
   if(catF){const e=$('stock-cat');if(e)e.value=catF;}if(searchF){const e=$('stock-search');if(e)e.value=searchF;}
 }
 function modalStock(id=null){const s=id?D.stocks.find(x=>x.id===id):null;const body=`<div class="form-row form-row-2"><div class="form-group"><label>Référence</label><input id="st-ref" value="${s?.ref||''}"></div><div class="form-group"><label>Libellé *</label><input id="st-lib" value="${s?.libelle||''}"></div></div><div class="form-row form-row-3"><div class="form-group"><label>Catégorie</label><select id="st-cat">${catOpts(s?.categorie)}</select></div><div class="form-group"><label>Quantité</label><input id="st-qte" type="number" min="0" step="0.01" value="${s?.qte||0}"></div><div class="form-group"><label>Unité</label><input id="st-u" value="${s?.unite||''}"></div></div><div class="form-row form-row-3"><div class="form-group"><label>Prix achat HT</label><input id="st-pu" type="number" min="0" step="0.01" value="${s?.prix_achat||0}"></div><div class="form-group"><label>Seuil alerte</label><input id="st-seuil" type="number" min="0" value="${s?.seuil||0}"></div><div class="form-group"><label>Fournisseur</label><input id="st-fourn" value="${s?.fournisseur||''}"></div></div>`;modal(id?'Modifier':'Nouvel article',body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveStock('${id||''}')">💾 Enregistrer</button>`);}
-async function saveStock(id){const lib=$('st-lib').value.trim();if(!lib){toast('Libellé obligatoire','error');return;}const data={id:id||uid(),ref:$('st-ref').value.trim(),libelle:lib,categorie:$('st-cat').value,qte:+$('st-qte').value||0,unite:$('st-u').value.trim(),prix_achat:+$('st-pu').value||0,seuil:+$('st-seuil').value||0,fournisseur:$('st-fourn').value.trim()};closeModal();if(id){const idx=D.stocks.findIndex(s=>s.id===id);if(idx>=0)D.stocks[idx]=data;}else D.stocks.push(data);await upsert('stocks',data);toast(id?'Mis à jour !':'Article ajouté !');pgStock();}
+async function saveStock(id){const lib=$('st-lib').value.trim();if(!lib){toast('Libellé obligatoire','error');return;}
+  // Bloquer si plan gratuit et limite stock atteinte (création seulement)
+  if(!id && !checkLimit('stocks', D.stocks.length)) return;const data={id:id||uid(),ref:$('st-ref').value.trim(),libelle:lib,categorie:$('st-cat').value,qte:+$('st-qte').value||0,unite:$('st-u').value.trim(),prix_achat:+$('st-pu').value||0,seuil:+$('st-seuil').value||0,fournisseur:$('st-fourn').value.trim()};closeModal();if(id){const idx=D.stocks.findIndex(s=>s.id===id);if(idx>=0)D.stocks[idx]=data;}else D.stocks.push(data);await upsert('stocks',data);toast(id?'Mis à jour !':'Article ajouté !');pgStock();}
 function ajuster(id,typeForce=null){
   const s=D.stocks.find(x=>x.id===id);if(!s)return;
   const chOpts=D.chantiers.map(c=>`<option value="${c.nom}">${c.nom} — ${c.client||''}</option>`).join('');
@@ -3839,7 +3865,9 @@ function detailClient(id){
   );
 }
 function modalClient(id=null){const cl=id?D.clients.find(x=>x.id===id):null;const body=`<div class="form-row form-row-2"><div class="form-group"><label>Nom *</label><input id="cl-nom" value="${cl?.nom||''}"></div><div class="form-group"><label>Email</label><input id="cl-email" type="email" value="${cl?.email||''}"></div></div><div class="form-row form-row-2"><div class="form-group"><label>Téléphone</label><input id="cl-tel" type="tel" value="${cl?.tel||''}"></div><div class="form-group"><label>Adresse</label><input id="cl-adr" value="${cl?.adresse||''}"></div></div><div class="form-group"><label>Notes</label><textarea id="cl-notes">${cl?.notes||''}</textarea></div>`;modal(id?'Modifier':'Nouveau client',body,`<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveClient('${id||''}')">💾 Enregistrer</button>`);}
-async function saveClient(id){const nom=$('cl-nom').value.trim();if(!nom){toast('Nom obligatoire','error');return;}const data={id:id||uid(),nom,email:$('cl-email').value.trim(),tel:$('cl-tel').value.trim(),adresse:$('cl-adr').value.trim(),notes:$('cl-notes').value.trim()};closeModal();if(id){const idx=D.clients.findIndex(c=>c.id===id);if(idx>=0)D.clients[idx]=data;}else D.clients.push(data);await upsert('clients',data);toast(id?'Mis à jour !':'Client ajouté !');pgClients();}
+async function saveClient(id){const nom=$('cl-nom').value.trim();if(!nom){toast('Nom obligatoire','error');return;}
+  // Bloquer si plan gratuit et limite clients atteinte (création seulement)
+  if(!id && !checkLimit('clients', D.clients.length)) return;const data={id:id||uid(),nom,email:$('cl-email').value.trim(),tel:$('cl-tel').value.trim(),adresse:$('cl-adr').value.trim(),notes:$('cl-notes').value.trim()};closeModal();if(id){const idx=D.clients.findIndex(c=>c.id===id);if(idx>=0)D.clients[idx]=data;}else D.clients.push(data);await upsert('clients',data);toast(id?'Mis à jour !':'Client ajouté !');pgClients();}
 async function delClient(id){ delClientSafe(id); }
 
 // ── PLANNING CALENDRIER ───────────────────────────
@@ -3939,18 +3967,30 @@ function pgAbonnement(){
       </button>
     </div>
 
+    <div class="plan-card">
+      <div style="font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:4px">Pro</div>
+      <div class="plan-price">59 €</div>
+      <div class="plan-period">/ mois · sans engagement</div>
+      <ul style="text-align:left;margin:20px 0;font-size:14px;line-height:2.2;list-style:none;padding:0">
+        <li>✅ Tout le plan Solo</li>
+        <li>✅ Exports PDF & Excel avancés</li>
+        <li>✅ Rapports financiers détaillés</li>
+        <li>✅ Historique illimité</li>
+        <li>✅ Support prioritaire</li>
+        <li>✅ Accès anticipé nouvelles fonctions</li>
+      </ul>
+      <button class="btn btn-secondary w-full" style="padding:14px;font-size:15px" onclick="openStripe(\'pro\')">
+        Démarrer — Pro 59 €/mois
+      </button>
+    </div>
+
     <div class="plan-card featured">
       <div style="background:var(--accent);color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:8px">⭐ Recommandé</div>
       <div style="font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:4px">Team</div>
       <div class="plan-price">79 €</div>
       <div class="plan-period">/ mois · sans engagement</div>
       <ul style="text-align:left;margin:20px 0;font-size:14px;line-height:2.2;list-style:none;padding:0">
-        <li>✅ Jusqu'à 5 utilisateurs</li>
-        <li>✅ Tout le plan Solo</li>
-        <li>✅ Conducteur terrain dédié</li>
-        <li>✅ Partage chantiers en équipe</li>
-        <li>✅ Support prioritaire</li>
-        <li>✅ Onboarding téléphonique</li>
+        <li>✅ Tout le plan Solo</li>\n        <li>✅ Conducteur terrain dédié</li>\n        <li>✅ Gestion d\'équipes & sous-traitants</li>\n        <li>✅ Support prioritaire</li>\n        <li>✅ Onboarding téléphonique offert</li>\n        <li>✅ Personnalisation avancée</li>
       </ul>
       <button class="btn btn-primary w-full" style="padding:14px;font-size:15px" onclick="openStripe('team')">
         Démarrer — Team 79 €/mois
@@ -3996,7 +4036,55 @@ function pgConducteur(){
 }
 function pgSettings(){
   const s=D.settings;
-  const tH=s.teams.map((t,i)=>`<span class="team-tag">${t} <button onclick="rmTeam(${i})">×</button></span>`).join('')||'<span class="text-muted text-sm">Aucune équipe</span>';
+  // Génération de la section membres Team
+  const isPlanTeam = (s.plan === 'team');
+  var teamMembersHtml = '';
+  if (!isPlanTeam) {
+    teamMembersHtml = '<div style="background:var(--bg);border-radius:var(--radius-md);padding:16px;text-align:center">'
+      + '<div style="font-size:32px;margin-bottom:8px">👥</div>'
+      + '<div style="font-weight:700;margin-bottom:6px">Fonctionnalité Plan Team</div>'
+      + '<div style="color:var(--text-muted);font-size:13px;margin-bottom:14px">Invitez jusqu\'à 4 collaborateurs sur votre compte.</div>'
+      + '<button class="btn btn-primary btn-sm" onclick="openStripe(\'team\')">Passer au Plan Team — 79€/mois</button>'
+      + '</div>';
+  } else if (D.team.is_member) {
+    // Vue membre : afficher qui est le owner
+    teamMembersHtml = '<div style="background:var(--bg);border-radius:var(--radius-md);padding:14px;margin-bottom:12px">'
+      + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Vous êtes membre de l\'équipe</div>'
+      + '<div style="font-weight:700">' + esc(D.team.owner_company||'—') + '</div>'
+      + '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">Votre rôle : ' + (D.team.role||'member') + '</div>'
+      + '</div>';
+  } else {
+    // Vue owner : liste des membres + inviter
+    var membersList = (D.team.members||[]).map(function(m){
+      var statusBadge = m.status === 'active'
+        ? '<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">Actif</span>'
+        : '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">En attente</span>';
+      var roleLabel = m.role === 'admin' ? '👑 Admin' : m.role === 'viewer' ? '👁️ Lecteur' : '🔧 Membre';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
+        + '<div style="flex:1">'
+        + '<div style="font-weight:600;font-size:13px">' + esc(m.email) + '</div>'
+        + '<div style="font-size:11px;color:var(--text-muted);margin-top:2px">' + roleLabel + '</div>'
+        + '</div>'
+        + statusBadge
+        + '<button onclick="removeTeamMember(\''+m.id+'\')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px 8px" title="Retirer">×</button>'
+        + '</div>';
+    }).join('');
+    var memberCount = (D.team.members||[]).filter(function(m){ return m.status==='active'; }).length;
+    var canInvite = (D.team.members||[]).length < 4; // max 4 membres + 1 owner = 5 total
+    teamMembersHtml = '<div style="margin-bottom:12px;font-size:13px;color:var(--text-muted)">'
+      + memberCount + ' membre(s) actif(s) sur 4 maximum</div>'
+      + (membersList || '<div style="color:var(--text-muted);font-size:13px;padding:8px 0">Aucun membre pour l\'instant</div>')
+      + (canInvite
+        ? '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'
+          + '<input id="team-invite-email" type="email" placeholder="Email du collaborateur" style="flex:1;min-width:200px">'
+          + '<select id="team-invite-role" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px">'
+          + '<option value="member">🔧 Membre</option><option value="admin">👑 Admin</option><option value="viewer">👁️ Lecteur</option>'
+          + '</select>'
+          + '<button class="btn btn-primary btn-sm" onclick="inviteTeamMember()">Inviter</button>'
+          + '</div>'
+        : '<div style="color:var(--text-muted);font-size:13px;margin-top:10px">⚠️ Limite de 4 membres atteinte</div>'
+      );
+  }
   const cH=s.categories.map((c,i)=>`<span class="cat-tag">${c} <button onclick="rmCat(${i})">×</button></span>`).join('')||'<span class="text-muted text-sm">Aucune catégorie</span>';
   // Métriques : toujours afficher au moins 3 slots
   const metrics=(s.metrics&&s.metrics.length>0)?s.metrics:[{label:'',unit:''},{label:'',unit:''},{label:'',unit:''}];
@@ -4050,13 +4138,9 @@ function pgSettings(){
       <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🎨 Couleur thème</div>
       <div class="flex gap-3" style="flex-wrap:wrap">${aColors.map(ac=>`<div title="${ac.l}" class="color-chip ${s.accent_color===ac.c?'selected':''}" style="background:${ac.c}" onclick="setAccent('${ac.c}',this)"></div>`).join('')}</div>
     </div>
-    <div class="card"><div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:12px">🔐 Compte</div><div class="text-muted text-sm mb-4">Connecté : <strong>${USER?.email||'—'}</strong></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="go('abonnement')">💳 Abonnement</button><button class="btn btn-danger btn-sm" onclick="doLogout()">⎋ Déconnecter</button></div></div>
-  </div>
-  <div>
-    <div class="card mb-4">
-      <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">👷 Équipes</div>
-      <div class="flex gap-2 mb-4"><input id="s-team" placeholder="Nom de l'équipe ou collaborateur" onkeydown="if(event.key==='Enter')addTeam()"><button class="btn btn-secondary" onclick="addTeam()" style="white-space:nowrap">+ Ajouter</button></div>
-      <div id="teams-list">${tH}</div>
+    <div class="card mb-4" id="team-settings-card">
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">👷 Membres de l'équipe</div>
+      <div id="team-member-section">${teamMembersHtml}</div>
     </div>
     <div class="card">
       <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🧱 Catégories matériaux</div>
@@ -4104,7 +4188,96 @@ async function saveDevisSettings(){
 }
 async function saveMetrics(){if(!D.settings.metrics||D.settings.metrics.length<3){D.settings.metrics=Array.from({length:3},(_,i)=>D.settings.metrics?.[i]||{label:'',unit:''});}await saveSetting();toast('Métriques sauvegardées !');}
 async function addTeam(){const v=$('s-team').value.trim();if(!v||D.settings.teams.includes(v)){toast('Déjà existant','error');return;}D.settings.teams.push(v);await saveSetting();$('s-team').value='';$('teams-list').innerHTML=D.settings.teams.map((t,i)=>`<span class="team-tag">${t} <button onclick="rmTeam(${i})">×</button></span>`).join('');}
-async function rmTeam(i){D.settings.teams.splice(i,1);await saveSetting();$('teams-list').innerHTML=D.settings.teams.map((t,j)=>`<span class="team-tag">${t} <button onclick="rmTeam(${j})">×</button></span>`).join('')||'<span class="text-muted text-sm">Aucune équipe</span>';}
+async // ── PLAN TEAM — Gestion des membres ─────────────────────────────────
+
+async function inviteTeamMember() {
+  var emailEl = document.getElementById('team-invite-email');
+  var roleEl  = document.getElementById('team-invite-role');
+  if (!emailEl) return;
+  var email = emailEl.value.trim().toLowerCase();
+  var role  = roleEl ? roleEl.value : 'member';
+  if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+    toast('Email invalide', 'error'); return;
+  }
+  if (email === USER.email) {
+    toast('Vous ne pouvez pas vous inviter vous-même', 'error'); return;
+  }
+  var current = (D.team.members||[]).filter(function(m){ return m.status!=='rejected'; });
+  if (current.length >= 4) {
+    toast('Limite de 4 membres atteinte (Plan Team = 5 utilisateurs max)', 'error'); return;
+  }
+  // Vérifier doublon
+  if (current.some(function(m){ return m.email===email; })) {
+    toast('Cet email est déjà invité', 'error'); return;
+  }
+  showSync();
+  try {
+    // Insérer dans team_members
+    var { error } = await SB.from('team_members').insert({
+      owner_id:     USER.id,
+      member_email: email,
+      role:         role,
+      status:       'pending'
+    });
+    if (error) throw error;
+
+    // Envoyer l'email d'invitation via Edge Function send-email
+    var ownerCompany = D.settings.company || 'votre équipe';
+    var acceptUrl    = 'https://bati-pilot.fr/app.html?team_invite=' + encodeURIComponent(USER.id);
+    var { data: sess } = await SB.auth.getSession();
+    var token = sess?.session?.access_token || '';
+    await fetch('https://zewyecoxpmycqdziuqzc.supabase.co/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        to:      email,
+        subject: 'Invitation à rejoindre ' + ownerCompany + ' sur BatiPilot',
+        html:    '<div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px">'
+          + '<img src="https://bati-pilot.fr/logo.png" alt="BatiPilot" style="height:40px;margin-bottom:24px"><br>'
+          + '<h2 style="font-size:22px;margin-bottom:12px">Vous êtes invité à rejoindre <strong>' + ownerCompany + '</strong></h2>'
+          + '<p style="color:#555;line-height:1.6;margin-bottom:24px">'
+          + ownerCompany + ' vous invite à collaborer sur BatiPilot en tant que <strong>' + role + '</strong>.<br>'
+          + 'Créez votre compte BatiPilot (gratuit) puis cliquez sur le bouton ci-dessous pour rejoindre l\'équipe.</p>'
+          + '<a href="' + acceptUrl + '" style="display:inline-block;background:#C0622A;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Rejoindre l\'équipe →</a>'
+          + '<p style="color:#999;font-size:12px;margin-top:32px">Si vous n\'attendiez pas cet email, ignorez-le simplement.</p>'
+          + '</div>'
+      })
+    }).catch(function(){});
+
+    // Recharger D.team
+    var { data: ti } = await SB.rpc('get_my_team_info');
+    if (ti) { D.team.members = ti.members || []; D.team.member_count = ti.member_count || 0; }
+    toast('Invitation envoyée à ' + email);
+    hideSync();
+    pgSettings();
+  } catch(e) {
+    hideSync();
+    toast('Erreur : ' + (e.message||e), 'error');
+  }
+}
+
+async function removeTeamMember(memberId) {
+  if (!confirm('Retirer ce membre de l\'équipe ?')) return;
+  showSync();
+  try {
+    var { error } = await SB.from('team_members').delete().eq('id', memberId).eq('owner_id', USER.id);
+    if (error) throw error;
+    D.team.members = D.team.members.filter(function(m){ return m.id !== memberId; });
+    D.team.member_count = D.team.members.filter(function(m){ return m.status==='active'; }).length;
+    hideSync();
+    toast('Membre retiré');
+    pgSettings();
+  } catch(e) {
+    hideSync();
+    toast('Erreur : ' + (e.message||e), 'error');
+  }
+}
+
+// Ancienne addTeam conservée pour compatibilité (settings.teams = liste équipes chantier)
+function addTeam(){var v=$('s-team')&&$('s-team').value.trim();if(!v)return;if(!D.settings.teams)D.settings.teams=[];if(D.settings.teams.includes(v)){toast('Déjà existant','error');return;}D.settings.teams.push(v);saveSetting();if($('s-team'))$('s-team').value='';if($('teams-list'))$('teams-list').innerHTML=D.settings.teams.map(function(t,i){return'<span class="team-tag">'+t+' <button onclick="rmTeam('+i+')">×</button></span>';}).join('');}
+function rmTeam(i){if(!D.settings.teams)return;D.settings.teams.splice(i,1);saveSetting();if($('teams-list'))$('teams-list').innerHTML=D.settings.teams.map(function(t,j){return'<span class="team-tag">'+t+' <button onclick="rmTeam('+j+')">×</button></span>';}).join('');}
+
+
 async function addCat(){const v=$('s-cat').value.trim();if(!v||D.settings.categories.includes(v)){toast('Déjà existant','error');return;}D.settings.categories.push(v);await saveSetting();$('s-cat').value='';$('cats-list').innerHTML=D.settings.categories.map((c,i)=>`<span class="cat-tag">${c} <button onclick="rmCat(${i})">×</button></span>`).join('');}
 async function rmCat(i){D.settings.categories.splice(i,1);await saveSetting();$('cats-list').innerHTML=D.settings.categories.map((c,j)=>`<span class="cat-tag">${c} <button onclick="rmCat(${j})">×</button></span>`).join('')||'<span class="text-muted text-sm">Aucune catégorie</span>';}
 async function setAccent(color,el){D.settings.accent_color=color;await saveSetting();applyAccent();document.querySelectorAll('.color-chip').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');toast('Couleur appliquée !');}
@@ -4891,6 +5064,23 @@ async function startApp(user) {
   $('onboarding').style.display  = 'none';
   loader('Chargement de vos données...');
 
+  // ── Détecter si l'utilisateur est membre d'une équipe Team ──────
+  try {
+    const { data: teamInfo, error: teamErr } = await SB.rpc('get_my_team_info');
+    if (!teamErr && teamInfo) {
+      D.team.is_member    = teamInfo.is_member    || false;
+      D.team.owner_id     = teamInfo.owner_id     || USER.id;
+      D.team.members      = teamInfo.members      || [];
+      D.team.member_count = teamInfo.member_count || 0;
+      D.team.owner_company= teamInfo.owner_company|| '';
+      D.team.role         = D.team.is_member ? 'member' : 'owner';
+    } else {
+      D.team.owner_id = USER.id;
+    }
+  } catch(e) {
+    D.team.owner_id = USER.id; // fallback silencieux
+  }
+
   // Timeout global de sécurité : si tout plante, on montre l'écran de login
   const bootTimeout = setTimeout(function() {
     if (_appLoaded && document.getElementById('loader').style.display !== 'none') {
@@ -4922,6 +5112,18 @@ async function startApp(user) {
 // au lieu d'afficher le formulaire de nouveau mot de passe.
 (async () => {
   try {
+    // 0. Détecter une invitation Team dans l'URL (?team_invite=OWNER_ID)
+    var _teamInviteOwnerId = null;
+    (function(){
+      var params = new URLSearchParams(window.location.search);
+      var ti = params.get('team_invite');
+      if (ti && /^[0-9a-f-]{36}$/.test(ti)) {
+        _teamInviteOwnerId = ti;
+        // Nettoyer l'URL
+        try { window.history.replaceState(null,'',window.location.pathname+'#'); } catch(e){}
+      }
+    })();
+
     // 1. Analyser le hash AVANT tout appel Supabase
     const rawHash = window.location.hash || '';
     const hashParams = {};
@@ -4972,6 +5174,13 @@ async function startApp(user) {
     _bootDone = true;
 
     if (session?.user) {
+      // Si invitation Team en attente, l'accepter AVANT de charger l'app
+      if (_teamInviteOwnerId) {
+        try {
+          await SB.rpc('accept_team_invitation', { p_owner_id: _teamInviteOwnerId });
+        } catch(e) { /* silencieux */ }
+        _teamInviteOwnerId = null;
+      }
       await startApp(session.user);
     } else {
       showAuthScreen();
@@ -5023,6 +5232,7 @@ function installPWA() {
 const PLAN_LIMITS = {
   gratuit: { chantiers: 3, devis: 5, clients: 10, stocks: 20, team: false },
   solo:    { chantiers: 999, devis: 999, clients: 999, stocks: 999, team: false },
+  pro:     { chantiers: 999, devis: 999, clients: 999, stocks: 999, team: false },
   team:    { chantiers: 999, devis: 999, clients: 999, stocks: 999, team: true },
 };
 
@@ -5267,8 +5477,9 @@ SB.auth.onAuthStateChange(async (event, session) => {
 
 // ⚠️ Remplacer ces URLs par vos vrais Payment Links Stripe
 const STRIPE_LINKS = {
-  solo: 'https://buy.stripe.com/REMPLACER_LIEN_SOLO',
-  team: 'https://buy.stripe.com/REMPLACER_LIEN_TEAM',
+  solo: 'https://buy.stripe.com/4gM6oH0UH4Qmg0bgqnbAs00',
+  pro:  'https://buy.stripe.com/eVqbJ146T6Yu6pB2zxbAs01',
+  team: 'https://buy.stripe.com/3cI9AT32PaaG15h6PNbAs02',
 };
 
 
@@ -7683,28 +7894,7 @@ function pgDashboardPro() {
     setContent('<div class="empty-state"><div class="empty-icon" style="font-size:48px">⏳</div><div class="empty-title">Chargement...</div></div>');
     return;
   }
-  if (!ch.length) {
-    setContent(
-      '<div class="page-enter" style="max-width:560px;margin:0 auto;padding:40px 20px">'
-      + '<div style="text-align:center;margin-bottom:48px;padding:40px 20px;background:var(--bg-card);border-radius:24px;border:1px solid var(--border);box-shadow:var(--shadow-sm)">'
-        + '<div class="empty-icon" style="font-size:64px;margin-bottom:20px;display:block">🏗️</div>'
-        + '<h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;letter-spacing:-0.8px;margin-bottom:10px;color:var(--text)">Bienvenue sur BatiPilot</h1>'
-        + '<p style="color:var(--text-muted);font-size:15px;line-height:1.65;margin-bottom:28px">Votre espace de pilotage BTP.<br>Créez votre premier chantier pour démarrer.</p>'
-        + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'
-          + '<button class="btn btn-primary" data-go="chantiers" style="gap:8px;padding:11px 24px;font-size:14px">🚧 Nouveau chantier</button>'
-          + '<button class="btn btn-secondary" onclick="startWithDemo()" style="gap:8px;padding:11px 24px;font-size:14px">🎬 Voir une démo</button>'
-        + '</div>'
-      + '</div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-        + _dashQuickLink('chantiers','🚧','Chantiers','Gérer les projets')
-        + _dashQuickLink('devis','📋','Devis','Créer des propositions')
-        + _dashQuickLink('clients','👥','Clients','Carnet de contacts')
-        + _dashQuickLink('settings','⚙️','Paramètres','Logo & équipes')
-      + '</div>'
-      + '</div>'
-    );
-    return;
-  }
+  // (welcome screen supprimé — KPIs affichés même si 0 chantier)
 
   // ── KPIs ─────────────────────────────────────────────────────────
   var enCours  = ch.filter(function(c){ return c.etat==='En cours'; }).length;
@@ -7785,8 +7975,20 @@ function pgDashboardPro() {
       +'</div>'
     : '';
 
+  // Bandeau de démarrage si aucun chantier
+  var bandeauDemarrage = !ch.length
+    ? '<div style="background:linear-gradient(135deg,var(--accent),#e07a3a);border-radius:var(--radius-md);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
+      + '<div style="flex:1"><div style="font-weight:800;font-size:14px;color:white;margin-bottom:2px">🏗️ Bienvenue sur BatiPilot !</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.85)">Créez votre premier chantier pour commencer le pilotage.</div></div>'
+      + '<div style="display:flex;gap:8px;flex-shrink:0">'
+      + '<button class="btn btn-sm" onclick="modalChantier()" style="background:white;color:var(--accent);font-weight:700;border:none">+ Nouveau chantier</button>'
+      + '<button class="btn btn-sm" onclick="startWithDemo()" style="background:rgba(255,255,255,0.18);color:white;border:1px solid rgba(255,255,255,0.3)">Voir la démo</button>'
+      + '</div></div>'
+    : '';
+
   setContent(
     '<div class="page-enter">'
+    + bandeauDemarrage
     + bandeauAlert
     // KPI row
     + '<div class="kpi-grid" style="margin-bottom:24px">'
@@ -8469,6 +8671,42 @@ async function ocrTicket() {
     if (btn) { btn.disabled = false; btn.textContent = '🤖 Lire le ticket'; }
   }
 }
+
+
+// ── Quitter une équipe (pour un membre) ─────────────────────────────
+async function showTeamLeaveConfirm() {
+  var html = '<div style="text-align:center;padding:8px 0">'
+    + '<div style="font-size:40px;margin-bottom:12px">👋</div>'
+    + '<p style="font-weight:600;margin-bottom:8px">Quitter l\'équipe ?</p>'
+    + '<p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;line-height:1.6">Vous n\'aurez plus accès aux données de cette équipe.<br>Vous pourrez créer votre propre compte à tout moment.</p>'
+    + '<div style="display:grid;gap:10px">'
+    + '<button class="btn" style="background:var(--danger,#dc2626);color:white" onclick="confirmLeaveTeam()">Quitter l\'équipe</button>'
+    + '<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>'
+    + '</div></div>';
+  modal('Quitter l\'équipe', html, '');
+}
+
+async function confirmLeaveTeam() {
+  closeModal();
+  showSync();
+  try {
+    var { error } = await SB.from('team_members')
+      .update({ status: 'rejected' })
+      .eq('member_user_id', USER.id);
+    if (error) throw error;
+    hideSync();
+    toast('Vous avez quitté l\'équipe');
+    // Recharger l'app avec son propre compte
+    D.team = { is_member:false, owner_id:USER.id, members:[], member_count:0, role:'owner' };
+    var banner = document.getElementById('team-member-banner');
+    if (banner) banner.remove();
+    await loadAll();
+  } catch(e) {
+    hideSync();
+    toast('Erreur : ' + (e.message||e), 'error');
+  }
+}
+
 
 </script>
 </body>
