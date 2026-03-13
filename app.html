@@ -4188,7 +4188,8 @@ async function saveDevisSettings(){
 }
 async function saveMetrics(){if(!D.settings.metrics||D.settings.metrics.length<3){D.settings.metrics=Array.from({length:3},(_,i)=>D.settings.metrics?.[i]||{label:'',unit:''});}await saveSetting();toast('Métriques sauvegardées !');}
 async function addTeam(){const v=$('s-team').value.trim();if(!v||D.settings.teams.includes(v)){toast('Déjà existant','error');return;}D.settings.teams.push(v);await saveSetting();$('s-team').value='';$('teams-list').innerHTML=D.settings.teams.map((t,i)=>`<span class="team-tag">${t} <button onclick="rmTeam(${i})">×</button></span>`).join('');}
-async // ── PLAN TEAM — Gestion des membres ─────────────────────────────────
+
+// ── PLAN TEAM — Gestion des membres ─────────────────────────────────
 
 async function inviteTeamMember() {
   var emailEl = document.getElementById('team-invite-email');
