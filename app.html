@@ -8290,388 +8290,7 @@ function _dashQuickLink(page, ico, label, sub) {
 }
 
 
-</script>
 
-
-
-<!-- MODE SWITCHER -->
-<div id="mode-switcher">
-  <div class="mode-pill">
-    <button class="mode-btn active" id="mode-patron" onclick="switchMode('patron')">👷 Bureau</button>
-    <button class="mode-btn" id="mode-conducteur" onclick="switchMode('conducteur')">🦺 Terrain</button>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════════════
-     AGENT IA SUPPORT — BatiPilot
-     Bouton flottant "?" → chat IA contextuel alimenté par Claude API
-     Répond en < 5s sur les questions d'utilisation et de BTP
-     ══════════════════════════════════════════════════════════════════ -->
-
-<style>
-/* ── Bouton flottant support ── */
-#bp-support-btn{
-  position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:16px;
-  width:44px;height:44px;border-radius:50%;
-  background:var(--accent);
-  color:white;font-size:22px;border:none;cursor:pointer;
-  box-shadow:0 4px 14px rgba(192,98,42,0.35);
-  display:flex;align-items:center;justify-content:center;
-  z-index:2000;transition:transform 0.2s,box-shadow 0.2s;
-  touch-action:manipulation;
-}
-#bp-support-btn:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(28,43,74,0.55);}
-#bp-support-btn.open{background:var(--danger);}
-@media(min-width:769px){
-  #bp-support-btn{bottom:24px;right:24px;}
-}
-
-/* ── Panel chat ── */
-#bp-support-panel{
-  position:fixed;bottom:calc(124px + env(safe-area-inset-bottom,0px));right:16px;
-  width:min(360px, calc(100vw - 32px));
-  background:var(--bg-card);border:1px solid var(--border);
-  border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.25);
-  z-index:1999;display:none;flex-direction:column;
-  overflow:hidden;max-height:min(520px,60vh);
-  transform:translateY(12px) scale(0.97);opacity:0;
-  transition:transform 0.25s var(--ease-spring,cubic-bezier(0.34,1.56,0.64,1)),opacity 0.2s;
-}
-#bp-support-panel.open{display:flex;transform:translateY(0) scale(1);opacity:1;}
-@media(min-width:769px){
-  #bp-support-panel{bottom:84px;right:24px;}
-}
-
-/* ── Header ── */
-.bps-header{
-  background:linear-gradient(135deg,#1C2B4A,#2D3E8C);
-  color:white;padding:14px 16px;
-  display:flex;align-items:center;gap:10px;flex-shrink:0;
-}
-.bps-avatar{font-size:22px;}
-.bps-title{font-weight:700;font-size:14px;}
-.bps-sub{font-size:11px;opacity:0.8;}
-.bps-close{margin-left:auto;background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:0;opacity:0.8;line-height:1;}
-.bps-close:hover{opacity:1;}
-
-/* ── Messages ── */
-.bps-messages{
-  flex:1;overflow-y:auto;padding:14px 12px;
-  display:flex;flex-direction:column;gap:10px;
-  -webkit-overflow-scrolling:touch;
-}
-.bps-msg{max-width:88%;font-size:13.5px;line-height:1.55;padding:10px 13px;border-radius:14px;word-wrap:break-word;}
-.bps-msg.bot{background:var(--bg-input);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;}
-.bps-msg.user{background:var(--accent);color:white;align-self:flex-end;border-bottom-right-radius:4px;}
-.bps-msg.typing{opacity:0.6;}
-.bps-typing-dots{display:inline-flex;gap:4px;align-items:center;height:16px;}
-.bps-typing-dots span{width:6px;height:6px;background:var(--text-muted);border-radius:50%;animation:bpsTyping 1.2s infinite;}
-.bps-typing-dots span:nth-child(2){animation-delay:0.2s;}
-.bps-typing-dots span:nth-child(3){animation-delay:0.4s;}
-@keyframes bpsTyping{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-
-/* ── Suggestions rapides ── */
-.bps-suggestions{padding:0 12px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
-.bps-sug{background:var(--bg-input);border:1px solid var(--border);border-radius:20px;
-  padding:5px 11px;font-size:12px;color:var(--text-muted);cursor:pointer;
-  transition:all 0.15s;white-space:nowrap;font-family:var(--font-body);}
-.bps-sug:hover{border-color:var(--accent);color:var(--accent);background:rgba(192,98,42,0.06);}
-
-/* ── Input zone ── */
-.bps-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg-card);}
-.bps-input-row input{
-  flex:1;background:var(--bg-input);border:1.5px solid var(--border);
-  border-radius:20px;padding:8px 14px;font-size:14px;color:var(--text);
-  font-family:var(--font-body);outline:none;
-}
-.bps-input-row input:focus{border-color:var(--accent);}
-.bps-send{
-  width:36px;height:36px;border-radius:50%;border:none;
-  background:var(--accent);color:white;font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:transform 0.15s,background 0.15s;
-}
-.bps-send:hover{transform:scale(1.1);}
-.bps-send:disabled{opacity:0.4;cursor:default;transform:none;}
-
-/* ── Badge "Nouveau" ── */
-#bp-support-badge{
-  position:absolute;top:-4px;right:-4px;
-  background:var(--danger);color:white;font-size:10px;font-weight:700;
-  border-radius:10px;padding:1px 6px;
-  animation:pulse 2s infinite;pointer-events:none;
-}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
-@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-</style>
-
-<!-- Bulle de présentation Bob -->
-<div id="bob-bubble" style="
-  position:fixed;bottom:calc(120px + env(safe-area-inset-bottom,0px));right:16px;
-  background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:10px 14px;
-  font-size:13px;color:var(--text);max-width:200px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:1999;
-  opacity:0;transform:translateY(8px);transition:opacity 0.4s,transform 0.4s;
-  pointer-events:none;line-height:1.4;white-space:nowrap">
-  👷 <strong>Bob</strong> — Besoin d'aide ?<br>
-  <span style="font-size:11px;color:var(--text-muted)">Votre assistant IA BatiPilot</span>
-  <div style="position:absolute;bottom:-7px;right:18px;width:14px;height:14px;background:var(--bg-card);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)"></div>
-</div>
-
-<!-- Bouton flottant -->
-<button id="bp-support-btn" onclick="bpsToggle()" title="Aide & Support IA" aria-label="Support">
-  <span id="bp-support-icon">👷</span>
-</button>
-
-<!-- Panel chat -->
-<div id="bp-support-panel" role="dialog" aria-label="Support BatiPilot">
-  <div class="bps-header">
-    <span class="bps-avatar">👷</span>
-    <div>
-      <div class="bps-title">Bob — Assistant IA</div>
-      <div class="bps-sub">Je réponds en quelques secondes</div>
-    </div>
-    <button class="bps-close" onclick="bpsToggle()" aria-label="Fermer">×</button>
-  </div>
-  <div class="bps-messages" id="bps-messages"></div>
-  <div class="bps-suggestions" id="bps-suggestions">
-    <button class="bps-sug" onclick="bpsSend('Comment créer un devis ?')">📄 Créer un devis</button>
-    <button class="bps-sug" onclick="bpsSend('Comment envoyer une facture d\'acompte ?')">💰 Facture acompte</button>
-    <button class="bps-sug" onclick="bpsSend('Comment ajouter un chantier ?')">🚧 Ajouter chantier</button>
-    <button class="bps-sug" onclick="bpsSend('Comment fonctionne le mode hors-ligne ?')">📶 Mode hors-ligne</button>
-    <button class="bps-sug" onclick="bpsTutoriel('devis')">🎓 Tutoriel devis</button>
-    <button class="bps-sug" onclick="bpsTutoriel('chantier')">🎓 Tutoriel chantier</button>
-  </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:10px 14px;display:flex;gap:6px;flex-wrap:wrap">
-    <a href="https://cal.com/batipilot/support" target="_blank" rel="noopener"
-       style="flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 8px;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
-      📅 Prendre RDV
-    </a>
-    <a href="/cdn-cgi/l/email-protection#493a3c3939263b3d092b283d2064392025263d672f3b763a3c2b232c2a3d740d2c2428272d2c69283a3a203a3d28272a2c690b283d20192025263d" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
-      ✉️ Email support
-    </a>
-    <button onclick="bpsPartageEcran()" title="Partage d'écran avec le support"
-       style="flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);border-radius:8px;padding:8px 8px;color:rgba(150,200,255,0.95);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">
-      🖥️ Partage écran
-    </button>
-  </div>
-  <div class="bps-input-row">
-    <input id="bps-input" type="text" placeholder="Posez votre question…" maxlength="500"
-           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();bpsSendFromInput();}">
-    <button class="bps-send" id="bps-send-btn" onclick="bpsSendFromInput()" title="Envoyer">➤</button>
-  </div>
-</div>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ══════════════════════════════════════════════════════════════════
-   AGENT IA SUPPORT — Logic
-   Utilise l'API Anthropic /v1/messages via fetch (clé publique safe)
-   Contexte injecté : métier, page courante, plan, nb chantiers
-   ══════════════════════════════════════════════════════════════════ */
-
-var _bpsOpen      = false;
-var _bpsLoading   = false;
-var _bpsHistory   = []; // conversation multi-tour
-var _bpsBadgeSeen = false;
-
-// ── Config ─────────────────────────────────────────────────────────────
-// ⚠️  Remplacez par votre clé Anthropic (créez une clé restreinte
-//    sur console.anthropic.com → ne jamais mettre une clé Admin ici)
-var BPS_API_KEY = 'REMPLACER_CLE_ANTHROPIC';
-
-// Système prompt : personnalité + connaissances BatiPilot
-function _bpsSystemPrompt() {
-  var s    = (typeof D !== 'undefined' && D.settings) ? D.settings : {};
-  var page = window._currentPage || 'dashboard';
-  var plan = s.plan || 'gratuit';
-  var nCh  = (typeof D !== 'undefined' && D.chantiers) ? D.chantiers.length : 0;
-  var trade = s.trade || 'BTP';
-  var lines = [
-    "Tu es l'assistant de support de BatiPilot, un logiciel SaaS de gestion de chantiers BTP.",
-    "Tu réponds en français, de façon concise (max 4 phrases par réponse).",
-    "Tu es direct, utile, chaleureux. N'utilise jamais de listes à puces sauf si vraiment nécessaire.",
-    "Contexte utilisateur : métier=" + trade + ", plan=" + plan + ", " + nCh + " chantiers, page=" + page + ".",
-    "",
-    "Fonctionnalités clés de BatiPilot :",
-    "- Chantiers : créer/modifier, suivi budget, marge en temps réel",
-    "- Devis : génération PDF, envoi email, mentions légales BTP auto",
-    "- Factures : création, suivi paiement, mentions LME obligatoires",
-    "- Stock & Appro : gestion matériaux, alertes stock, BL fournisseurs imprimables",
-    "- Mode terrain (conducteur) : notes, photos, chrono, planning",
-    "- Mode hors-ligne : tout fonctionne en mode avion, sync à la reconnexion",
-    "- Données : export complet JSON/CSV en 1 clic depuis Mes données > RGPD",
-    "- Abonnement : 30j gratuits, puis Solo 39 EUR/mois ou Team 79 EUR/mois",
-    "",
-    "Si la question dépasse tes connaissances, oriente vers contact@batipilot.fr.",
-    "Ne réponds JAMAIS à des questions hors du contexte BatiPilot ou BTP.",
-  ];
-  return lines.join("\n");
-}
-
-// ── Toggle panel ──────────────────────────────────────────────────────
-function bpsToggle() {
-  _bpsOpen = !_bpsOpen;
-  var panel = document.getElementById('bp-support-panel');
-  var btn   = document.getElementById('bp-support-btn');
-  var icon  = document.getElementById('bp-support-icon');
-  var badge = document.getElementById('bp-support-badge');
-  if (_bpsOpen) {
-    panel.classList.add('open');
-    btn.classList.add('open');
-    icon.textContent = '×';
-    // Masquer la bulle de présentation
-    var bubble = document.getElementById('bob-bubble');
-    if (bubble) { bubble.style.opacity = '0'; bubble.style.pointerEvents = 'none'; }
-    if (badge) badge.style.display = 'none';
-    _bpsBadgeSeen = true;
-    if (_bpsHistory.length === 0) _bpsWelcome();
-    setTimeout(function(){ var inp = document.getElementById('bps-input'); if(inp) inp.focus(); }, 300);
-  } else {
-    panel.classList.remove('open');
-    btn.classList.remove('open');
-    icon.textContent = '👷';
-  }
-}
-
-// ── Message de bienvenue contextuel ──────────────────────────────────
-function _bpsWelcome() {
-  var s    = (typeof D !== 'undefined' && D.settings) ? D.settings : {};
-  var nCh  = (typeof D !== 'undefined' && D.chantiers) ? D.chantiers.length : 0;
-  var name = s.company ? s.company.split(' ')[0] : null;
-  var msg  = nCh === 0
-    ? 'Salut' + (name ? ' ' + name : '') + ' ! 👷 Je suis Bob, votre assistant IA. Commencez par créer votre premier chantier — ça prend 30 secondes !'
-    : 'Bonjour' + (name ? ' ' + name + ' !' : ' !') + ' 👷 Je suis Bob. Comment puis-je vous aider ?';
-  _bpsAddMsg(msg, 'bot');
-}
-
-
-// ── Ajouter un message dans le chat ──────────────────────────────────
-function _bpsAddMsg(text, role) {
-  var container = document.getElementById('bps-messages');
-  if (!container) return;
-  var div = document.createElement('div');
-  div.className = 'bps-msg ' + role;
-  div.textContent = text;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return div;
-}
-
-// ── Indicateur de frappe ──────────────────────────────────────────────
-function _bpsShowTyping() {
-  var container = document.getElementById('bps-messages');
-  if (!container) return null;
-  var div = document.createElement('div');
-  div.className = 'bps-msg bot typing';
-  div.id = 'bps-typing';
-  div.innerHTML = '<span class="bps-typing-dots"><span></span><span></span><span></span></span>';
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return div;
-}
-
-// ── Envoyer depuis l'input ────────────────────────────────────────────
-function bpsSendFromInput() {
-  var inp = document.getElementById('bps-input');
-  if (!inp) return;
-  var msg = inp.value.trim();
-  if (!msg) return;
-  inp.value = '';
-  bpsSend(msg);
-}
-
-// ── Envoyer un message (suggestions ou input) ─────────────────────────
-async function bpsSend(userMsg) {
-  if (_bpsLoading || !userMsg.trim()) return;
-  _bpsLoading = true;
-
-  // Masquer les suggestions après la 1ère interaction
-  var sugs = document.getElementById('bps-suggestions');
-  if (sugs) sugs.style.display = 'none';
-
-  // Afficher le message utilisateur
-  _bpsAddMsg(userMsg, 'user');
-  _bpsHistory.push({ role: 'user', content: userMsg });
-
-  // Désactiver le bouton envoi
-  var sendBtn = document.getElementById('bps-send-btn');
-  if (sendBtn) sendBtn.disabled = true;
-
-  // Indicateur de frappe
-  var typingEl = _bpsShowTyping();
-
-  try {
-    if (BPS_API_KEY.includes('REMPLACER')) {
-      // Mode démo sans clé API : réponses statiques pour montrer l'UX
-      await new Promise(function(r){ setTimeout(r, 900); });
-      if (typingEl) typingEl.remove();
-      var demoAnswers = {
-        'devis':   'Pour créer un devis, allez dans Devis → "+ Nouveau devis". Renseignez le client, les lignes de travaux et cliquez sur "Générer PDF". Il inclut automatiquement vos mentions légales BTP. 📄',
-        'chantier': 'Dans Chantiers, cliquez sur "+ Nouveau chantier". Renseignez le nom, le client et le budget estimé. Vous pourrez ensuite ajouter des matériaux et suivre la marge en temps réel. 🚧',
-        'hors-ligne': 'BatiPilot fonctionne intégralement en mode avion ! Les actions (ajout, modif, suppression) sont stockées localement et synchronisées automatiquement à la reconnexion. 📶',
-        'export':   'Allez dans Paramètres → Mes données → "Export complet JSON". Toutes vos données (chantiers, clients, devis, factures…) sont téléchargées en un clic. Vous en êtes propriétaire. ⬇️',
-        'facture':  'Les factures se créent depuis un chantier ou directement dans Finances. Elles intègrent les mentions LME obligatoires (pénalités de retard, indemnité 40€). ✅',
-      };
-      var answer = 'Je suis en mode démonstration (clé API non configurée). Configurez BPS_API_KEY dans le code pour des réponses IA. Contactez contact@batipilot.fr pour toute question urgente.';
-      for (var key in demoAnswers) {
-        if (userMsg.toLowerCase().includes(key)) { answer = demoAnswers[key]; break; }
-      }
-      _bpsAddMsg(answer, 'bot');
-      _bpsHistory.push({ role: 'assistant', content: answer });
-    } else {
-      // Appel réel à l'API Anthropic
-      var response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type':         'application/json',
-          'x-api-key':            BPS_API_KEY,
-          'anthropic-version':    '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model:      'claude-haiku-4-5-20251001', // Haiku : ultra-rapide + économique pour le support
-          max_tokens: 300,                          // Court = réponses directes et rapides
-          system:     _bpsSystemPrompt(),
-          messages:   _bpsHistory.slice(-6),        // Garder les 6 derniers messages (3 tours)
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('API ' + response.status);
-      }
-
-      var data    = await response.json();
-      var answer  = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : "Je n'ai pas pu obtenir de réponse. Contactez contact@batipilot.fr.";
-      if (typingEl) typingEl.remove();
-      _bpsAddMsg(answer, 'bot');
-      _bpsHistory.push({ role: 'assistant', content: answer });
-    }
-  } catch(err) {
-    if (typingEl) typingEl.remove();
-    var errMsg = 'Désolé, une erreur est survenue. Contactez-nous à contact@batipilot.fr ou réessayez.';
-    _bpsAddMsg(errMsg, 'bot');
-    _bpsHistory.push({ role: 'assistant', content: errMsg });
-  }
-
-  _bpsLoading = false;
-  if (sendBtn) sendBtn.disabled = false;
-  // Remettre le focus sur l'input
-  var inp = document.getElementById('bps-input');
-  if (inp && _bpsOpen) inp.focus();
-}
-
-// ── Afficher le badge "?" après 30s si l'utilisateur n'a pas ouvert le chat ──
-setTimeout(function() {
-  if (!_bpsBadgeSeen && !_bpsOpen) {
-    var badge = document.getElementById('bp-support-badge');
-    if (badge) { badge.style.display = 'block'; badge.textContent = '?'; }
-  }
-}, 30000);
-
-// ══════════════════════════════════════════════════════════════════
-// JUSTIFICATIFS & COMPTABILITÉ
-// ══════════════════════════════════════════════════════════════════
 function pgJustificatifs() {
   var justs = D.justificatifs || [];
   var s = D.settings || {};
@@ -8950,6 +8569,389 @@ async function confirmLeaveTeam() {
 // MOTEUR TUTORIELS INTERACTIFS — BatiPilot
 // Guide pas-à-pas dans l'interface réelle (highlight + bulle)
 // ═══════════════════════════════════════════════════════════════════
+
+</script>
+
+
+
+<!-- MODE SWITCHER -->
+<div id="mode-switcher">
+  <div class="mode-pill">
+    <button class="mode-btn active" id="mode-patron" onclick="switchMode('patron')">👷 Bureau</button>
+    <button class="mode-btn" id="mode-conducteur" onclick="switchMode('conducteur')">🦺 Terrain</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+     AGENT IA SUPPORT — BatiPilot
+     Bouton flottant "?" → chat IA contextuel alimenté par Claude API
+     Répond en < 5s sur les questions d'utilisation et de BTP
+     ══════════════════════════════════════════════════════════════════ -->
+
+<style>
+/* ── Bouton flottant support ── */
+#bp-support-btn{
+  position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:16px;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--accent);
+  color:white;font-size:22px;border:none;cursor:pointer;
+  box-shadow:0 4px 14px rgba(192,98,42,0.35);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2000;transition:transform 0.2s,box-shadow 0.2s;
+  touch-action:manipulation;
+}
+#bp-support-btn:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(28,43,74,0.55);}
+#bp-support-btn.open{background:var(--danger);}
+@media(min-width:769px){
+  #bp-support-btn{bottom:24px;right:24px;}
+}
+
+/* ── Panel chat ── */
+#bp-support-panel{
+  position:fixed;bottom:calc(124px + env(safe-area-inset-bottom,0px));right:16px;
+  width:min(360px, calc(100vw - 32px));
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.25);
+  z-index:1999;display:none;flex-direction:column;
+  overflow:hidden;max-height:min(520px,60vh);
+  transform:translateY(12px) scale(0.97);opacity:0;
+  transition:transform 0.25s var(--ease-spring,cubic-bezier(0.34,1.56,0.64,1)),opacity 0.2s;
+}
+#bp-support-panel.open{display:flex;transform:translateY(0) scale(1);opacity:1;}
+@media(min-width:769px){
+  #bp-support-panel{bottom:84px;right:24px;}
+}
+
+/* ── Header ── */
+.bps-header{
+  background:linear-gradient(135deg,#1C2B4A,#2D3E8C);
+  color:white;padding:14px 16px;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.bps-avatar{font-size:22px;}
+.bps-title{font-weight:700;font-size:14px;}
+.bps-sub{font-size:11px;opacity:0.8;}
+.bps-close{margin-left:auto;background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:0;opacity:0.8;line-height:1;}
+.bps-close:hover{opacity:1;}
+
+/* ── Messages ── */
+.bps-messages{
+  flex:1;overflow-y:auto;padding:14px 12px;
+  display:flex;flex-direction:column;gap:10px;
+  -webkit-overflow-scrolling:touch;
+}
+.bps-msg{max-width:88%;font-size:13.5px;line-height:1.55;padding:10px 13px;border-radius:14px;word-wrap:break-word;}
+.bps-msg.bot{background:var(--bg-input);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;}
+.bps-msg.user{background:var(--accent);color:white;align-self:flex-end;border-bottom-right-radius:4px;}
+.bps-msg.typing{opacity:0.6;}
+.bps-typing-dots{display:inline-flex;gap:4px;align-items:center;height:16px;}
+.bps-typing-dots span{width:6px;height:6px;background:var(--text-muted);border-radius:50%;animation:bpsTyping 1.2s infinite;}
+.bps-typing-dots span:nth-child(2){animation-delay:0.2s;}
+.bps-typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes bpsTyping{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* ── Suggestions rapides ── */
+.bps-suggestions{padding:0 12px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
+.bps-sug{background:var(--bg-input);border:1px solid var(--border);border-radius:20px;
+  padding:5px 11px;font-size:12px;color:var(--text-muted);cursor:pointer;
+  transition:all 0.15s;white-space:nowrap;font-family:var(--font-body);}
+.bps-sug:hover{border-color:var(--accent);color:var(--accent);background:rgba(192,98,42,0.06);}
+
+/* ── Input zone ── */
+.bps-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg-card);}
+.bps-input-row input{
+  flex:1;background:var(--bg-input);border:1.5px solid var(--border);
+  border-radius:20px;padding:8px 14px;font-size:14px;color:var(--text);
+  font-family:var(--font-body);outline:none;
+}
+.bps-input-row input:focus{border-color:var(--accent);}
+.bps-send{
+  width:36px;height:36px;border-radius:50%;border:none;
+  background:var(--accent);color:white;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:transform 0.15s,background 0.15s;
+}
+.bps-send:hover{transform:scale(1.1);}
+.bps-send:disabled{opacity:0.4;cursor:default;transform:none;}
+
+/* ── Badge "Nouveau" ── */
+#bp-support-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:var(--danger);color:white;font-size:10px;font-weight:700;
+  border-radius:10px;padding:1px 6px;
+  animation:pulse 2s infinite;pointer-events:none;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+</style>
+
+<!-- Bulle de présentation Bob -->
+<div id="bob-bubble" style="
+  position:fixed;bottom:calc(120px + env(safe-area-inset-bottom,0px));right:16px;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:10px 14px;
+  font-size:13px;color:var(--text);max-width:200px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:1999;
+  opacity:0;transform:translateY(8px);transition:opacity 0.4s,transform 0.4s;
+  pointer-events:none;line-height:1.4;white-space:nowrap">
+  👷 <strong>Bob</strong> — Besoin d'aide ?<br>
+  <span style="font-size:11px;color:var(--text-muted)">Votre assistant IA BatiPilot</span>
+  <div style="position:absolute;bottom:-7px;right:18px;width:14px;height:14px;background:var(--bg-card);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)"></div>
+</div>
+
+<!-- Bouton flottant -->
+<button id="bp-support-btn" onclick="bpsToggle()" title="Aide & Support IA" aria-label="Support">
+  <span id="bp-support-icon">👷</span>
+</button>
+
+<!-- Panel chat -->
+<div id="bp-support-panel" role="dialog" aria-label="Support BatiPilot">
+  <div class="bps-header">
+    <span class="bps-avatar">👷</span>
+    <div>
+      <div class="bps-title">Bob — Assistant IA</div>
+      <div class="bps-sub">Je réponds en quelques secondes</div>
+    </div>
+    <button class="bps-close" onclick="bpsToggle()" aria-label="Fermer">×</button>
+  </div>
+  <div class="bps-messages" id="bps-messages"></div>
+  <div class="bps-suggestions" id="bps-suggestions">
+    <button class="bps-sug" onclick="bpsSend('Comment créer un devis ?')">📄 Créer un devis</button>
+    <button class="bps-sug" onclick="bpsSend('Comment envoyer une facture d\'acompte ?')">💰 Facture acompte</button>
+    <button class="bps-sug" onclick="bpsSend('Comment ajouter un chantier ?')">🚧 Ajouter chantier</button>
+    <button class="bps-sug" onclick="bpsSend('Comment fonctionne le mode hors-ligne ?')">📶 Mode hors-ligne</button>
+    <button class="bps-sug" onclick="bpsTutoriel('devis')">🎓 Tutoriel devis</button>
+    <button class="bps-sug" onclick="bpsTutoriel('chantier')">🎓 Tutoriel chantier</button>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:10px 14px;display:flex;gap:6px;flex-wrap:wrap">
+    <a href="https://cal.com/batipilot/support" target="_blank" rel="noopener"
+       style="flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 8px;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
+      📅 Prendre RDV
+    </a>
+    <a href="/cdn-cgi/l/email-protection#493a3c3939263b3d092b283d2064392025263d672f3b763a3c2b232c2a3d740d2c2428272d2c69283a3a203a3d28272a2c690b283d20192025263d" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
+      ✉️ Email support
+    </a>
+    <button onclick="bpsPartageEcran()" title="Partage d'écran avec le support"
+       style="flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);border-radius:8px;padding:8px 8px;color:rgba(150,200,255,0.95);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">
+      🖥️ Partage écran
+    </button>
+  </div>
+  <div class="bps-input-row">
+    <input id="bps-input" type="text" placeholder="Posez votre question…" maxlength="500"
+           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();bpsSendFromInput();}">
+    <button class="bps-send" id="bps-send-btn" onclick="bpsSendFromInput()" title="Envoyer">➤</button>
+  </div>
+</div>
+
+<script data-cfasync="false">
+/* ══════════════════════════════════════════════════════════════════
+   AGENT IA SUPPORT — Logic
+   Utilise l'API Anthropic /v1/messages via fetch (clé publique safe)
+   Contexte injecté : métier, page courante, plan, nb chantiers
+   ══════════════════════════════════════════════════════════════════ */
+
+var _bpsOpen      = false;
+var _bpsLoading   = false;
+var _bpsHistory   = []; // conversation multi-tour
+var _bpsBadgeSeen = false;
+
+// ── Config ─────────────────────────────────────────────────────────────
+// ⚠️  Remplacez par votre clé Anthropic (créez une clé restreinte
+//    sur console.anthropic.com → ne jamais mettre une clé Admin ici)
+var BPS_API_KEY = 'REMPLACER_CLE_ANTHROPIC';
+
+// Système prompt : personnalité + connaissances BatiPilot
+function _bpsSystemPrompt() {
+  var s    = (typeof D !== 'undefined' && D.settings) ? D.settings : {};
+  var page = window._currentPage || 'dashboard';
+  var plan = s.plan || 'gratuit';
+  var nCh  = (typeof D !== 'undefined' && D.chantiers) ? D.chantiers.length : 0;
+  var trade = s.trade || 'BTP';
+  var lines = [
+    "Tu es l'assistant de support de BatiPilot, un logiciel SaaS de gestion de chantiers BTP.",
+    "Tu réponds en français, de façon concise (max 4 phrases par réponse).",
+    "Tu es direct, utile, chaleureux. N'utilise jamais de listes à puces sauf si vraiment nécessaire.",
+    "Contexte utilisateur : métier=" + trade + ", plan=" + plan + ", " + nCh + " chantiers, page=" + page + ".",
+    "",
+    "Fonctionnalités clés de BatiPilot :",
+    "- Chantiers : créer/modifier, suivi budget, marge en temps réel",
+    "- Devis : génération PDF, envoi email, mentions légales BTP auto",
+    "- Factures : création, suivi paiement, mentions LME obligatoires",
+    "- Stock & Appro : gestion matériaux, alertes stock, BL fournisseurs imprimables",
+    "- Mode terrain (conducteur) : notes, photos, chrono, planning",
+    "- Mode hors-ligne : tout fonctionne en mode avion, sync à la reconnexion",
+    "- Données : export complet JSON/CSV en 1 clic depuis Mes données > RGPD",
+    "- Abonnement : 30j gratuits, puis Solo 39 EUR/mois ou Team 79 EUR/mois",
+    "",
+    "Si la question dépasse tes connaissances, oriente vers contact@batipilot.fr.",
+    "Ne réponds JAMAIS à des questions hors du contexte BatiPilot ou BTP.",
+  ];
+  return lines.join("\n");
+}
+
+// ── Toggle panel ──────────────────────────────────────────────────────
+function bpsToggle() {
+  _bpsOpen = !_bpsOpen;
+  var panel = document.getElementById('bp-support-panel');
+  var btn   = document.getElementById('bp-support-btn');
+  var icon  = document.getElementById('bp-support-icon');
+  var badge = document.getElementById('bp-support-badge');
+  if (_bpsOpen) {
+    panel.classList.add('open');
+    btn.classList.add('open');
+    icon.textContent = '×';
+    // Masquer la bulle de présentation
+    var bubble = document.getElementById('bob-bubble');
+    if (bubble) { bubble.style.opacity = '0'; bubble.style.pointerEvents = 'none'; }
+    if (badge) badge.style.display = 'none';
+    _bpsBadgeSeen = true;
+    if (_bpsHistory.length === 0) _bpsWelcome();
+    setTimeout(function(){ var inp = document.getElementById('bps-input'); if(inp) inp.focus(); }, 300);
+  } else {
+    panel.classList.remove('open');
+    btn.classList.remove('open');
+    icon.textContent = '👷';
+  }
+}
+
+// ── Message de bienvenue contextuel ──────────────────────────────────
+function _bpsWelcome() {
+  var s    = (typeof D !== 'undefined' && D.settings) ? D.settings : {};
+  var nCh  = (typeof D !== 'undefined' && D.chantiers) ? D.chantiers.length : 0;
+  var name = s.company ? s.company.split(' ')[0] : null;
+  var msg  = nCh === 0
+    ? 'Salut' + (name ? ' ' + name : '') + ' ! 👷 Je suis Bob, votre assistant IA. Commencez par créer votre premier chantier — ça prend 30 secondes !'
+    : 'Bonjour' + (name ? ' ' + name + ' !' : ' !') + ' 👷 Je suis Bob. Comment puis-je vous aider ?';
+  _bpsAddMsg(msg, 'bot');
+}
+
+
+// ── Ajouter un message dans le chat ──────────────────────────────────
+function _bpsAddMsg(text, role) {
+  var container = document.getElementById('bps-messages');
+  if (!container) return;
+  var div = document.createElement('div');
+  div.className = 'bps-msg ' + role;
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+// ── Indicateur de frappe ──────────────────────────────────────────────
+function _bpsShowTyping() {
+  var container = document.getElementById('bps-messages');
+  if (!container) return null;
+  var div = document.createElement('div');
+  div.className = 'bps-msg bot typing';
+  div.id = 'bps-typing';
+  div.innerHTML = '<span class="bps-typing-dots"><span></span><span></span><span></span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+// ── Envoyer depuis l'input ────────────────────────────────────────────
+function bpsSendFromInput() {
+  var inp = document.getElementById('bps-input');
+  if (!inp) return;
+  var msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  bpsSend(msg);
+}
+
+// ── Envoyer un message (suggestions ou input) ─────────────────────────
+async function bpsSend(userMsg) {
+  if (_bpsLoading || !userMsg.trim()) return;
+  _bpsLoading = true;
+
+  // Masquer les suggestions après la 1ère interaction
+  var sugs = document.getElementById('bps-suggestions');
+  if (sugs) sugs.style.display = 'none';
+
+  // Afficher le message utilisateur
+  _bpsAddMsg(userMsg, 'user');
+  _bpsHistory.push({ role: 'user', content: userMsg });
+
+  // Désactiver le bouton envoi
+  var sendBtn = document.getElementById('bps-send-btn');
+  if (sendBtn) sendBtn.disabled = true;
+
+  // Indicateur de frappe
+  var typingEl = _bpsShowTyping();
+
+  try {
+    if (BPS_API_KEY.includes('REMPLACER')) {
+      // Mode démo sans clé API : réponses statiques pour montrer l'UX
+      await new Promise(function(r){ setTimeout(r, 900); });
+      if (typingEl) typingEl.remove();
+      var demoAnswers = {
+        'devis':   'Pour créer un devis, allez dans Devis → "+ Nouveau devis". Renseignez le client, les lignes de travaux et cliquez sur "Générer PDF". Il inclut automatiquement vos mentions légales BTP. 📄',
+        'chantier': 'Dans Chantiers, cliquez sur "+ Nouveau chantier". Renseignez le nom, le client et le budget estimé. Vous pourrez ensuite ajouter des matériaux et suivre la marge en temps réel. 🚧',
+        'hors-ligne': 'BatiPilot fonctionne intégralement en mode avion ! Les actions (ajout, modif, suppression) sont stockées localement et synchronisées automatiquement à la reconnexion. 📶',
+        'export':   'Allez dans Paramètres → Mes données → "Export complet JSON". Toutes vos données (chantiers, clients, devis, factures…) sont téléchargées en un clic. Vous en êtes propriétaire. ⬇️',
+        'facture':  'Les factures se créent depuis un chantier ou directement dans Finances. Elles intègrent les mentions LME obligatoires (pénalités de retard, indemnité 40€). ✅',
+      };
+      var answer = 'Je suis en mode démonstration (clé API non configurée). Configurez BPS_API_KEY dans le code pour des réponses IA. Contactez contact@batipilot.fr pour toute question urgente.';
+      for (var key in demoAnswers) {
+        if (userMsg.toLowerCase().includes(key)) { answer = demoAnswers[key]; break; }
+      }
+      _bpsAddMsg(answer, 'bot');
+      _bpsHistory.push({ role: 'assistant', content: answer });
+    } else {
+      // Appel réel à l'API Anthropic
+      var response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':         'application/json',
+          'x-api-key':            BPS_API_KEY,
+          'anthropic-version':    '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model:      'claude-haiku-4-5-20251001', // Haiku : ultra-rapide + économique pour le support
+          max_tokens: 300,                          // Court = réponses directes et rapides
+          system:     _bpsSystemPrompt(),
+          messages:   _bpsHistory.slice(-6),        // Garder les 6 derniers messages (3 tours)
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API ' + response.status);
+      }
+
+      var data    = await response.json();
+      var answer  = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : "Je n'ai pas pu obtenir de réponse. Contactez contact@batipilot.fr.";
+      if (typingEl) typingEl.remove();
+      _bpsAddMsg(answer, 'bot');
+      _bpsHistory.push({ role: 'assistant', content: answer });
+    }
+  } catch(err) {
+    if (typingEl) typingEl.remove();
+    var errMsg = 'Désolé, une erreur est survenue. Contactez-nous à contact@batipilot.fr ou réessayez.';
+    _bpsAddMsg(errMsg, 'bot');
+    _bpsHistory.push({ role: 'assistant', content: errMsg });
+  }
+
+  _bpsLoading = false;
+  if (sendBtn) sendBtn.disabled = false;
+  // Remettre le focus sur l'input
+  var inp = document.getElementById('bps-input');
+  if (inp && _bpsOpen) inp.focus();
+}
+
+// ── Afficher le badge "?" après 30s si l'utilisateur n'a pas ouvert le chat ──
+setTimeout(function() {
+  if (!_bpsBadgeSeen && !_bpsOpen) {
+    var badge = document.getElementById('bp-support-badge');
+    if (badge) { badge.style.display = 'block'; badge.textContent = '?'; }
+  }
+}, 30000);
+
+// ══════════════════════════════════════════════════════════════════
+// JUSTIFICATIFS & COMPTABILITÉ
+// ══════════════════════════════════════════════════════════════════
 
 var _tutoActive   = false;
 var _tutoStep     = 0;
