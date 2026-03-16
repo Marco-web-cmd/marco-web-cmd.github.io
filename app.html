@@ -5670,7 +5670,7 @@ function openPortailStripe() {
       '<div class="alert alert-warning"><span>ℹ️</span>'
       + '<div>Le portail de facturation sera disponible prochainement.<br><br>'
       + 'Pour modifier ou résilier votre abonnement, contactez-nous :<br>'
-      + '<a href="mailto:support@batipilot.fr" style="color:var(--accent);font-weight:600">support@batipilot.fr</a>'
+      + '<a href="mailto:support [at] batipilot.fr" style="color:var(--accent);font-weight:600">support [at] batipilot.fr</a>'
       + '</div></div>',
       '<button class="btn btn-primary" onclick="closeModal()">Fermer</button>'
     );
@@ -7805,9 +7805,9 @@ function pgLegal() {
           <strong>Éditeur :</strong> [Nom de votre société] — [Forme juridique] — Capital [X] € — SIRET [000 000 000 00000]<br>
           <strong>Siège social :</strong> [Adresse complète]<br>
           <strong>Directeur de publication :</strong> [Prénom Nom]<br>
-          <strong>Contact :</strong> contact@batipilot.fr<br><br>
+          <strong>Contact :</strong> contact [at] batipilot.fr<br><br>
           <strong>Hébergement :</strong> Supabase Inc. / AWS EU-Central-1 (Francfort, Allemagne) — conforme RGPD<br>
-          <strong>DPO / RGPD :</strong> dpo@batipilot.fr<br><br>
+          <strong>DPO / RGPD :</strong> dpo [at] batipilot.fr<br><br>
           <strong>Propriété intellectuelle :</strong> L'ensemble du contenu de BatiPilot (logo, interface, code) est protégé par le droit de la propriété intellectuelle français. Toute reproduction est interdite sans autorisation préalable.<br><br>
           <strong>Cookies :</strong> BatiPilot utilise uniquement des cookies strictement nécessaires au fonctionnement (session d'authentification). Aucun cookie publicitaire, aucun tracker tiers.
         </div>
@@ -7838,7 +7838,7 @@ function pgLegal() {
       <div class="card" style="margin-bottom:20px">
         <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🔒 Politique de confidentialité (RGPD)</div>
         <div style="font-size:13px;color:var(--text-muted);line-height:2.1">
-          <strong>Responsable du traitement :</strong> [Nom société] — contact@batipilot.fr<br><br>
+          <strong>Responsable du traitement :</strong> [Nom société] — contact [at] batipilot.fr<br><br>
           <strong>Données collectées :</strong><br>
           • Données de compte : adresse email, mot de passe (haché) — base légale : exécution du contrat<br>
           • Données métier saisies par l'utilisateur (chantiers, clients, devis, factures) — base légale : exécution du contrat<br>
@@ -7848,15 +7848,15 @@ function pgLegal() {
           <strong>Sous-traitants :</strong><br>
           • Supabase Inc. (base de données, authentification) — AWS EU-Central-1, Francfort — Accord DPA en vigueur<br>
           • Stripe Inc. (paiement) — Transfert USA encadré par clauses contractuelles types (SCC)<br><br>
-          <strong>Vos droits (art. 15 à 21 RGPD) :</strong> Accès, rectification, effacement, portabilité, opposition, limitation. Exercer vos droits via « Mes données » dans l'application ou par email à dpo@batipilot.fr. Délai de réponse : 30 jours. Vous pouvez également adresser une réclamation à la CNIL (www.cnil.fr).
+          <strong>Vos droits (art. 15 à 21 RGPD) :</strong> Accès, rectification, effacement, portabilité, opposition, limitation. Exercer vos droits via « Mes données » dans l'application ou par email à dpo [at] batipilot.fr. Délai de réponse : 30 jours. Vous pouvez également adresser une réclamation à la CNIL (www.cnil.fr).
         </div>
       </div>
 
       <div class="card">
         <div style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:12px">📬 Contact & Support</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <a href="mailto:contact@batipilot.fr" class="btn btn-secondary">✉️ contact@batipilot.fr</a>
-          <a href="mailto:dpo@batipilot.fr" class="btn btn-secondary">🔒 dpo@batipilot.fr (DPO)</a>
+          <a href="mailto:contact [at] batipilot.fr" class="btn btn-secondary">✉️ contact [at] batipilot.fr</a>
+          <a href="mailto:dpo [at] batipilot.fr" class="btn btn-secondary">🔒 dpo [at] batipilot.fr (DPO)</a>
         </div>
         <button class="btn btn-ghost w-full" style="margin-top:10px" onclick="go('rgpd')">→ Gérer mes données personnelles</button>
       </div>
@@ -8783,7 +8783,7 @@ function _bpsSystemPrompt() {
     "- Données : export complet JSON/CSV en 1 clic depuis Mes données > RGPD",
     "- Abonnement : 30j gratuits, puis Solo 39 EUR/mois ou Team 79 EUR/mois",
     "",
-    "Si la question dépasse tes connaissances, oriente vers contact@batipilot.fr.",
+    "Si la question dépasse tes connaissances, oriente vers contact [at] batipilot.fr.",
     "Ne réponds JAMAIS à des questions hors du contexte BatiPilot ou BTP.",
   ];
   return lines.join("\n");
@@ -8893,7 +8893,7 @@ async function bpsSend(userMsg) {
         'export':   'Allez dans Paramètres → Mes données → "Export complet JSON". Toutes vos données (chantiers, clients, devis, factures…) sont téléchargées en un clic. Vous en êtes propriétaire. ⬇️',
         'facture':  'Les factures se créent depuis un chantier ou directement dans Finances. Elles intègrent les mentions LME obligatoires (pénalités de retard, indemnité 40€). ✅',
       };
-      var answer = 'Je suis en mode démonstration (clé API non configurée). Configurez BPS_API_KEY dans le code pour des réponses IA. Contactez contact@batipilot.fr pour toute question urgente.';
+      var answer = 'Je suis en mode démonstration (clé API non configurée). Configurez BPS_API_KEY dans le code pour des réponses IA. Contactez contact [at] batipilot.fr pour toute question urgente.';
       for (var key in demoAnswers) {
         if (userMsg.toLowerCase().includes(key)) { answer = demoAnswers[key]; break; }
       }
@@ -8922,14 +8922,14 @@ async function bpsSend(userMsg) {
       }
 
       var data    = await response.json();
-      var answer  = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : "Je n'ai pas pu obtenir de réponse. Contactez contact@batipilot.fr.";
+      var answer  = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : "Je n'ai pas pu obtenir de réponse. Contactez contact [at] batipilot.fr.";
       if (typingEl) typingEl.remove();
       _bpsAddMsg(answer, 'bot');
       _bpsHistory.push({ role: 'assistant', content: answer });
     }
   } catch(err) {
     if (typingEl) typingEl.remove();
-    var errMsg = 'Désolé, une erreur est survenue. Contactez-nous à contact@batipilot.fr ou réessayez.';
+    var errMsg = 'Désolé, une erreur est survenue. Contactez-nous à contact [at] batipilot.fr ou réessayez.';
     _bpsAddMsg(errMsg, 'bot');
     _bpsHistory.push({ role: 'assistant', content: errMsg });
   }
@@ -9225,7 +9225,7 @@ function bpsPartageEcran() {
     + '</a>'
     + '<div style="font-size:11px;color:var(--text-muted);text-align:center">'
       + 'Ou contactez-nous : '
-      + '<a href="mailto:support@bati-pilot.fr" style="color:var(--accent)">support@bati-pilot.fr</a>'
+      + '<a href="mailto:support [at] bati-pilot.fr" style="color:var(--accent)">support [at] bati-pilot.fr</a>'
     + '</div>';
 
   modal('🖥️ Assistance à distance', html,
