@@ -6054,7 +6054,7 @@ function modalFactureClientCreate(chantierId, devisId, opts) {
     + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'
     + ['Acompte','Situation','Solde','Facture libre'].map(function(t){
         var active = t === defaultType;
-        return '<button type="button" onclick="fcSetType(this,'' + t + '')" class="btn ' + (active ? 'btn-primary' : 'btn-secondary') + ' btn-sm fc-type-btn" data-type="' + t + '" style="flex:1;min-width:80px">'
+        return '<button type="button" onclick="fcSetType(this,\'' + t + '\')" class="btn ' + (active ? 'btn-primary' : 'btn-secondary') + ' btn-sm fc-type-btn" data-type="' + t + '" style="flex:1;min-width:80px">'
           + (t==='Acompte'?'💰 ':t==='Situation'?'📊 ':t==='Solde'?'✅ ':'🧾 ') + t + '</button>';
       }).join('')
     + '</div></div>';
