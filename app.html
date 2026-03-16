@@ -32,12 +32,12 @@ html{font-size:15px;color-scheme:light;}body{font-family:var(--font-body);backgr
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .loader-text{color:rgba(255,255,255,0.4);font-size:13px;margin-top:14px;}
-#auth-screen{position:fixed;inset:0;background:var(--bg-sidebar);display:none;align-items:center;justify-content:center;z-index:2000;overflow-y:auto;padding:20px;}
+#auth-screen{position:fixed;inset:0;background:var(--bg-sidebar);display:none;align-items:flex-start;justify-content:center;z-index:2000;overflow-y:auto;padding:20px 20px 40px;}
 .auth-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:32px 24px;width:92%;max-width:440px;box-shadow:var(--shadow-lg);animation:fadeIn 0.4s ease;overflow-y:auto;max-height:95vh;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .auth-logo{font-family:var(--font-display);font-size:32px;font-weight:900;text-align:center;margin-bottom:4px;}.auth-logo span{color:var(--accent);}
-.auth-sub{font-size:12px;color:var(--text-muted);text-align:center;letter-spacing:1px;text-transform:uppercase;margin-bottom:36px;}
-.auth-tabs{display:flex;gap:2px;background:var(--bg-input);padding:4px;border-radius:var(--radius-sm);margin-bottom:28px;}
+.auth-sub{font-size:12px;color:var(--text-muted);text-align:center;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
+.auth-tabs{display:flex;gap:2px;background:var(--bg-input);padding:4px;border-radius:var(--radius-sm);margin-bottom:16px;}
 .auth-tab{flex:1;padding:8px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-muted);border:none;background:transparent;font-family:var(--font-body);transition:var(--transition);}
 .auth-tab.active{background:var(--bg-card);color:var(--text);box-shadow:var(--shadow-sm);}
 .auth-msg{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:14px;display:none;}
@@ -854,27 +854,27 @@ body.ct-mode
     <div class="sidebar-logo" id="sidebar-logo-wrap"><div class="logo-mark"><img id="sidebar-logo-img" src="/logo.png" alt="BatiPilot" style="max-height:44px;max-width:130px;object-fit:contain;display:block;filter:brightness(0) invert(1)"><div id="sidebar-logo-text" class="logo-icon-text" style="display:none"><div class="logo-icon">🏗️</div>BatiPilot</div></div><div class="logo-sub" id="sidebar-logo-sub">Gestion de chantiers</div></div>
     <div class="company-tag" id="sidebar-company">—</div>
     <nav class="sidebar-nav">
-      <div class="nav-label">Vue d'ensemble</div>
+      <div class="nav-label">Essentiel</div>
       <div class="nav-item" onclick="go('dashboard')"><span class="nav-ico">📊</span>Tableau de bord</div>
-      <div class="nav-label">Gestion</div>
       <div class="nav-item" onclick="go('chantiers')"><span class="nav-ico">🚧</span>Chantiers</div>
       <div class="nav-item" onclick="go('devis')"><span class="nav-ico">📋</span>Devis</div>
+      <div class="nav-item" onclick="go('clients')"><span class="nav-ico">👥</span>Clients</div>
+      <div class="nav-label">Finances</div>
+      <div class="nav-item" onclick="go('facturation')"><span class="nav-ico">🧾</span>Facturation</div>
+      <div class="nav-item" onclick="go('finances')"><span class="nav-ico">💰</span>Finances</div>
+      <div class="nav-item" onclick="go('justificatifs')"><span class="nav-ico">🗂️</span>Justificatifs</div>
+      <div class="nav-label">Terrain</div>
+      <div class="nav-item" onclick="go('planning')"><span class="nav-ico">📅</span>Planning</div>
+      <div class="nav-item" onclick="go('conducteur')"><span class="nav-ico">👷</span>Conducteur</div>
+      <div class="nav-item" onclick="go('salaires')"><span class="nav-ico">💶</span>Masse Salariale</div>
       <div class="nav-item" onclick="go('appro')"><span class="nav-ico">🛒</span>Approvisionnement</div>
       <div class="nav-item" onclick="go('stock')"><span class="nav-ico">📦</span>Stock Dépôt</div>
-      <div class="nav-item" onclick="go('clients')"><span class="nav-ico">👥</span>Clients</div>
-      <div class="nav-label">Pilotage</div>
-      <div class="nav-item" onclick="go('planning')"><span class="nav-ico">📅</span>Planning</div>
-      <div class="nav-item" onclick="go('finances')"><span class="nav-ico">💰</span>Finances</div>
-      <div class="nav-item" onclick="go('facturation')"><span class="nav-ico">🧾</span>Facturation</div>
       <div class="nav-label">Compte</div>
-      <div class="nav-item" onclick="go('salaires')"><span class="nav-ico">💶</span>Masse Salariale</div>
-      <div class="nav-item" onclick="go('justificatifs')"><span class="nav-ico">🧾</span>Justificatifs</div>
-      <div class="nav-item" onclick="go('conducteur')"><span class="nav-ico">👷</span>Conducteur</div>
+      <div class="nav-item" onclick="go('settings')"><span class="nav-ico">⚙️</span>Paramètres</div>
       <div class="nav-item" onclick="go('abonnement')"><span class="nav-ico">💳</span>Abonnement</div>
       <div class="nav-item" onclick="go('rgpd')"><span class="nav-ico">🔒</span>Mes données</div>
       <div class="nav-item" onclick="go('legal')"><span class="nav-ico">📄</span>CGV & Légal</div>
       <div class="nav-item" onclick="go('logs')"><span class="nav-ico">📋</span>Journal</div>
-      <div class="nav-item" onclick="go('settings')"><span class="nav-ico">⚙️</span>Paramètres</div>
     </nav>
     <div id="sidebar-plan-badge" style="display:none"></div>
     <div class="sidebar-foot"><button class="btn btn-ghost btn-sm w-full" onclick="doLogout()" style="color:rgba(255,255,255,0.35);justify-content:center">⎋ Déconnexion</button></div>
@@ -975,28 +975,104 @@ function modalEnvoiDevis(dvId){
   const cl=D.clients.find(c=>c.nom===dv.client);
   const clientEmail=(cl&&cl.email)||'';
   const dateVal=new Date(new Date(dv.date).setDate(new Date(dv.date).getDate()+(+dv.validite||30))).toLocaleDateString('fr-FR');
-  const acompte=s.devis_acompte??30;
+  const acompte=+dv.acompte||+s.devis_acompte||30;
   const acompteAmt=eur((+dv.total_ttc||0)*(acompte/100));
-  const aStr=acompte>0?' - acompte '+acompte+'% soit '+acompteAmt:'';
-  const msgLines=['Bonjour '+(dv.client||'')+',','','Devis n° '+(dv.numero||'')+' — '+(s.company||''),'Montant TTC : '+eur(dv.total_ttc)+(dv.ref_chantier?' | Ref : '+dv.ref_chantier:''),'Valable jusqu\u2019au '+dateVal+(aStr?' | '+aStr:''),'',' - Retourner signe avec mention "Bon pour accord"','','Bien cordialement,',s.company||'',s.phone||'',s.email||''];
-  const defaultBody=msgLines.join('\n');
+
+  const defaultSubject='Veuillez trouver ci-joint votre devis n\u00b0\u00a0'+(dv.numero||'')+' \u2014 '+(s.company||'BatiPilot');
+  const defaultMsg='Bonjour '+(dv.client||'')+',\n\n'
+    +'Veuillez trouver ci-joint votre devis n\u00b0\u00a0'+(dv.numero||'')+' pour un montant de '+eur(dv.total_ttc)+' TTC.\n'
+    +(dv.ref_chantier?'R\u00e9f\u00e9rence chantier\u00a0: '+dv.ref_chantier+'\n':'')
+    +'Ce devis est valable jusqu\'au '+dateVal+'.'
+    +(acompte>0?'\nUn acompte de '+acompte+'% soit '+acompteAmt+' est demand\u00e9 \u00e0 la commande.':'')
+    +'\n\nPour l\'accepter, veuillez nous retourner ce devis sign\u00e9 avec la mention "Bon pour accord".\n\n'
+    +'Restant \u00e0 votre disposition pour tout renseignement,\n'
+    +'Bien cordialement,\n\n'
+    +(s.company||'')+(s.phone?'\n\u260e '+s.phone:'')+(s.email?'\n\u2709 '+s.email:'');
+
+  const emailWarning=!clientEmail
+    ?'<div style="font-size:11px;color:var(--warning);margin-top:4px">\u26a0\ufe0f Aucun email enregistr\u00e9 pour ce client \u2014 saisissez-le manuellement.</div>'
+    :'';
+
   const bodyHtml=''
-    +'<div class="alert alert-info mb-4">BatiPilot pre-remplit un email depuis votre messagerie. Joignez le devis en PDF : Apercu &rarr; Imprimer &rarr; Enregistrer en PDF.</div>'
-    +'<div class="form-group"><label>Email du destinataire</label><input id="env-email" value="'+clientEmail+'" placeholder="client@exemple.fr" type="email">'+(cl&&!cl.email?'<div style="font-size:11px;color:var(--warning);margin-top:4px">Aucun email pour ce client - saisir manuellement.</div>':'')+'</div>'
-    +'<div class="form-group"><label>Objet</label><input id="env-subject" value="Devis n° '+(dv.numero||'')+' - '+(s.company||'')+'"></div>'
-    +'<div class="form-group"><label>Corps du message</label><textarea id="env-body" style="min-height:180px;font-size:12.5px;line-height:1.7">'+defaultBody+'</textarea></div>'
-    +'<div class="alert alert-warning">Rappel : joignez le devis en PDF &mdash; <strong>Apercu &rarr; Imprimer &rarr; Enregistrer en PDF</strong></div>';
-  modal('Envoyer le devis par email',bodyHtml,'<button class="btn btn-secondary" onclick="closeModal()">Annuler</button><button class="btn btn-secondary" onclick="previewDevis(\"'+dvId+'\")">Apercu PDF</button><button class="btn btn-primary" onclick="openMailto()">Envoyer</button>');
+    +'<div style="background:var(--success-soft);border:1px solid var(--success);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;display:flex;gap:10px;align-items:flex-start">'
+      +'<span style="font-size:18px">\u2705</span>'
+      +'<div>Le devis est <strong>envoy\u00e9 directement depuis BatiPilot</strong> \u2014 votre client le re\u00e7oit avec le devis complet int\u00e9gr\u00e9.</div>'
+    +'</div>'
+    +'<div class="form-group"><label>Email du destinataire</label>'
+      +'<input id="env-email" value="'+clientEmail+'" placeholder="client@exemple.fr" type="email">'+emailWarning
+    +'</div>'
+    +'<div class="form-group"><label>Objet</label>'
+      +'<input id="env-subject" value="'+defaultSubject.replace(/"/g,'&quot;')+'"></div>'
+    +'<div class="form-group"><label>Message</label>'
+      +'<textarea id="env-body" style="min-height:200px;font-size:12.5px;line-height:1.7">'+defaultMsg+'</textarea>'
+    +'</div>';
+
+  window._envDvId=dvId;
+  modal('\ud83d\udce7 Envoyer le devis',bodyHtml,
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    +'<button class="btn btn-secondary" onclick="previewDevis(\''+dvId+'\')">\ud83d\udc41 Aper\u00e7u</button>'
+    +'<button class="btn btn-primary" id="btn-send-devis" onclick="envoyerDevisEmail()">\ud83d\udce8 Envoyer</button>',
+    true);
+}
+
+async function envoyerDevisEmail(){
+  const email=($('env-email')||{value:''}).value.trim();
+  const subject=($('env-subject')||{value:''}).value.trim();
+  const msgTxt=($('env-body')||{value:''}).value.trim();
+  if(!email){toast('Email destinataire manquant','error');return;}
+  if(!subject){toast('Objet manquant','error');return;}
+
+  const dvId=window._envDvId;
+  const dv=D.devis_docs.find(x=>x.id===dvId);
+  const s=D.settings||{};
+  const devisHtml=(buildDevisHTML(dvId)||'').replace(/<(!DOCTYPE|html|head|\/html)[^>]*>/gi,'').replace(/<link[^>]*>/gi,'').replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'');
+
+  const msgHtml='<div style="font-family:Arial,sans-serif;font-size:14px;color:#333;max-width:680px;margin:0 auto">'
+    +'<div style="background:'+(s.devis_couleur||'#2D3E8C')+';padding:20px 28px;border-radius:8px 8px 0 0">'
+      +'<div style="color:#fff;font-size:20px;font-weight:800">'+(s.company||'BatiPilot')+'</div>'
+      +(s.phone||s.email?'<div style="color:rgba(255,255,255,0.75);font-size:12px;margin-top:4px">'+(s.phone?'\u260e '+s.phone+'  ':'')+(s.email?'\u2709 '+s.email:'')+'</div>':'')
+    +'</div>'
+    +'<div style="border:1px solid #E5E7EB;border-top:none;padding:28px;border-radius:0 0 8px 8px">'
+      +'<p style="white-space:pre-line;line-height:1.7;margin-bottom:24px">'+msgTxt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>'
+      +'<hr style="border:none;border-top:1px solid #E5E7EB;margin:20px 0">'
+      +'<p style="font-size:12px;color:#888;text-align:center">Le devis d\u00e9taill\u00e9 figure ci-dessous \u2014 Envoy\u00e9 via <strong>BatiPilot</strong></p>'
+    +'</div>'
+    +'<div style="margin-top:32px">'+devisHtml+'</div>'
+  +'</div>';
+
+  const btn=document.getElementById('btn-send-devis');
+  if(btn){btn.disabled=true;btn.textContent='Envoi en cours...';}
+
+  try{
+    const { data: _sess } = await SB.auth.getSession();
+    const token=_sess?.session?.access_token||'';
+    const res=await fetch('https://zewyecoxpmycqdziuqzc.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({to:email,subject:subject,html:msgHtml})
+    });
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||'HTTP '+res.status);}
+    if(dv&&dv.statut==='Brouillon'){
+      await SB.from('devis_docs').update({statut:'Envoy\u00e9'}).eq('id',dvId).eq('user_id',USER.id);
+      dv.statut='Envoy\u00e9';
+      if(typeof pgDevis==='function')pgDevis();
+    }
+    closeModal();
+    toast('\u2705 Devis envoy\u00e9 \u00e0 '+email+' !');
+  }catch(err){
+    console.warn('send-email failed, fallback mailto',err);
+    if(btn){btn.disabled=false;btn.textContent='\ud83d\udce8 Envoyer';}
+    toast('Erreur envoi : '+err.message+'. Ouverture messagerie...','error');
+    setTimeout(function(){
+      const fb=encodeURIComponent(msgTxt);
+      const fs=encodeURIComponent(subject);
+      window.open('mailto:'+encodeURIComponent(email)+'?subject='+fs+'&body='+fb,'_self');
+    },1500);
+  }
 }
 
 function openMailto(){
-  const email=($('env-email')||{value:''}).value.trim();
-  const subject=encodeURIComponent(($('env-subject')||{value:''}).value);
-  const body=encodeURIComponent(($('env-body')||{value:''}).value);
-  if(!email){toast('Email manquant','error');return;}
-  window.location.href='mailto:'+encodeURIComponent(email)+'?subject='+subject+'&body='+body;
-  toast('Email ouvert dans votre messagerie');
-  closeModal();
+  envoyerDevisEmail();
 }
 
 function previewDevis(dvId){
@@ -3354,8 +3430,9 @@ function pgDevis(){
     var chBtn=d.chantier_id?'':'<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" data-dv-create="'+d.id+'" title="Créer chantier">+🚧</button>';
     var printBtn='<button class="btn btn-ghost btn-icon btn-sm" data-dv-print="'+d.id+'" title="Imprimer">🖨️</button>'
     +'<button class="btn btn-ghost btn-icon btn-sm" data-dv-email="'+d.id+'" title="Email">📧</button>';
+    var acompteBtn=(d.statut==='Accepté')?'<button class="btn btn-secondary btn-sm" data-dv-acompte="'+d.id+'" title="Cr\u00e9er facture acompte" style="font-size:11px;padding:3px 8px;white-space:nowrap">🧾 Acompte</button>':'';
     var delBtn='<button class="btn btn-ghost btn-icon btn-sm" data-dv-del="'+d.id+'" title="Supprimer">🗑️</button>';
-    return'<tr><td><strong>'+(d.numero||'—')+'</strong></td><td>'+refH+'</td><td>'+clientH+'</td><td class="td-muted">'+fdate(d.date)+'</td><td class="td-mono">'+eur(d.total_ht)+'</td><td class="td-mono" style="font-weight:700">'+eur(d.total_ttc)+'</td><td>'+etatDevisB(d.statut,d.id)+'</td><td style="white-space:nowrap">'+printBtn+chBtn+delBtn+'</td></tr>';
+    return'<tr><td><strong>'+(d.numero||'—')+'</strong></td><td>'+refH+'</td><td>'+clientH+'</td><td class="td-muted">'+fdate(d.date)+'</td><td class="td-mono">'+eur(d.total_ht)+'</td><td class="td-mono" style="font-weight:700">'+eur(d.total_ttc)+'</td><td>'+etatDevisB(d.statut,d.id)+'</td><td style="white-space:nowrap">'+printBtn+acompteBtn+chBtn+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Aucun devis</div></div></td></tr>';
   setContent('<div class="page-header"><div class="page-title">Devis ('+dvs.length+')</div></div>'
     +'<div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">'
@@ -3376,6 +3453,7 @@ function pgDevis(){
     var el=e.target;
     if(el.dataset.dvPrint)printDevis(el.dataset.dvPrint);
     else if(el.dataset.dvEmail)modalEnvoiDevis(el.dataset.dvEmail);
+    else if(el.dataset.dvAcompte)factureAcompteDepuisDevis(el.dataset.dvAcompte);
     else if(el.dataset.dvCreate)createChantierFromDevis(el.dataset.dvCreate);
     else if(el.dataset.dvDel){
       const _dvDel=D.devis_docs.find(function(x){return x.id===el.dataset.dvDel;});
@@ -4119,6 +4197,7 @@ function pgSettings(){
         <div class="form-group"><label>Conditions de paiement par défaut</label><input id="s-conditions" value="${s.devis_conditions||'Paiement à 30 jours fin de mois.'}" placeholder="Ex: Paiement à 30 jours"></div>
       </div>
       <div class="form-group"><label>Mentions légales devis (bas de page)</label><textarea id="s-mentions" style="min-height:70px">${s.devis_mentions||'Devis valable 30 jours à compter de sa date d&#39;émission.'}</textarea></div>
+      <div class="form-group"><label>📧 Email de votre comptable <span style="font-weight:400;color:var(--text-muted);font-size:11px">(pour l'envoi des justificatifs)</span></label><input id="email-comptable-input" type="email" value="${s.email_comptable||''}" placeholder="comptable@cabinet.fr"></div>
       <button class="btn btn-primary w-full" onclick="saveDevisSettings()">💾 Enregistrer</button>
     </div>
     <div class="card mb-4">
@@ -4184,6 +4263,7 @@ async function saveDevisSettings(){
   D.settings.devis_acompte=+($('s-acompte')?$('s-acompte').value:30)||30;
   D.settings.devis_conditions=($('s-conditions')?$('s-conditions').value.trim():'');
   D.settings.devis_mentions=($('s-mentions')?$('s-mentions').value.trim():'');
+  D.settings.email_comptable=($('email-comptable-input')?$('email-comptable-input').value.trim():'');
   await saveSetting();
   toast('Paramètres devis sauvegardés !');
 }
@@ -5936,19 +6016,22 @@ function pgFacturation() {
 }
 
 // ── CRÉER / MODIFIER FACTURE CLIENT ─────────────────────────────────
-function modalFactureClientCreate(chantierId, devisId) {
+function modalFactureClientCreate(chantierId, devisId, opts) {
   var ch = chantierId ? D.chantiers.find(function(c){ return c.id === chantierId; }) : null;
   var dv = devisId ? D.devis_docs.find(function(d){ return d.id === devisId; }) : null;
+  opts = opts || {};
 
   // Pré-remplir depuis le devis si disponible
   var defaultClient = dv ? (dv.client||'') : (ch ? (ch.client||'') : '');
   var defaultChId   = dv ? (dv.chantier_id||chantierId||'') : (chantierId||'');
   var defaultLignes = dv ? (dv.lignes||[]) : [];
-  var defaultHT     = dv ? (+dv.total_ht||0) : 0;
+  // Si opts.type=Acompte, utiliser les montants pré-calculés
+  var defaultHT     = opts.ht  != null ? opts.ht  : (dv ? (+dv.total_ht||0)  : 0);
+  var defaultTTC    = opts.ttc != null ? opts.ttc : (dv ? (+dv.total_ttc||0) : 0);
   var defaultTVA    = dv ? (+dv.total_tva||0) : 0;
-  var defaultTTC    = dv ? (+dv.total_ttc||0) : 0;
   var defaultNum    = genNumeroFacture();
   var defaultTvaPct = D.settings.tva||20;
+  var defaultType   = opts.type || 'Facture libre';
 
   // Calcul date d'échéance (30j par défaut)
   var today30 = new Date(); today30.setDate(today30.getDate() + 30);
@@ -5960,7 +6043,23 @@ function modalFactureClientCreate(chantierId, devisId) {
 
   var dvRef = dv ? '<div class="alert alert-info mb-4"><span>📋</span><div>Facture créée depuis le devis <strong>' + dv.numero + '</strong> (' + eur(dv.total_ttc) + ')</div></div>' : '';
 
-  var body = dvRef
+  // Bandeau spécial acompte
+  var acompteInfo = (opts.type === 'Acompte' && dv)
+    ? '<div class="alert" style="background:var(--success-soft);border-left:3px solid var(--success);margin-bottom:16px;display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">💡</span><div><strong>Facture acompte — ' + (opts.pct||30) + '% du devis ' + (dv.numero||'') + '</strong><br><span style="font-size:12px;color:var(--text-muted)">Montant pré-calculé automatiquement. Modifiez si besoin.</span></div></div>'
+    : '';
+
+  // Sélecteur type de facture
+  var typeSelector = '<div class="form-group" style="margin-bottom:16px">'
+    + '<label style="font-weight:700">Type de facture</label>'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'
+    + ['Acompte','Situation','Solde','Facture libre'].map(function(t){
+        var active = t === defaultType;
+        return '<button type="button" onclick="fcSetType(this,'' + t + '')" class="btn ' + (active ? 'btn-primary' : 'btn-secondary') + ' btn-sm fc-type-btn" data-type="' + t + '" style="flex:1;min-width:80px">'
+          + (t==='Acompte'?'💰 ':t==='Situation'?'📊 ':t==='Solde'?'✅ ':'🧾 ') + t + '</button>';
+      }).join('')
+    + '</div></div>';
+
+  var body = acompteInfo + typeSelector + dvRef
     + '<div class="form-row form-row-2">'
       + '<div class="form-group"><label>N° Facture</label><input id="fc-num" value="' + defaultNum + '"></div>'
       + '<div class="form-group"><label>Date</label><input id="fc-date" type="date" value="' + today() + '"></div>'
@@ -5970,7 +6069,7 @@ function modalFactureClientCreate(chantierId, devisId) {
       + '<div class="form-group"><label>Échéance paiement</label><input id="fc-echeance" type="date" value="' + echeanceDefault + '"></div>'
     + '</div>'
     + '<div class="form-group"><label>Chantier lié</label><select id="fc-ch"><option value="">— Aucun —</option>' + chOpts + '</select></div>'
-    + '<div class="form-group"><label>Objet / Prestation</label><input id="fc-objet" placeholder="Ex: Travaux de plomberie lot 2" value="' + (dv ? (dv.objet||dv.ref_chantier||'') : '') + '"></div>'
+    + '<div class="form-group"><label>Objet / Prestation</label><input id="fc-objet" placeholder="Ex: Travaux de plomberie lot 2" value="' + (dv ? ((defaultType==='Acompte'?'Acompte '+(opts.pct||30)+'% \u2014 ':defaultType==='Situation'?'Situation travaux \u2014 ':defaultType==='Solde'?'Solde \u2014 ':'')+(dv.objet||dv.ref_chantier||'')) : '') + '"></div>'
     + '<hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">'
     + '<div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Montants</div>'
     + '<div class="form-row form-row-3">'
@@ -5986,16 +6085,42 @@ function modalFactureClientCreate(chantierId, devisId) {
     + '<div class="form-group"><label>Notes internes</label><textarea id="fc-notes" rows="2" placeholder="Conditions de paiement, notes..."></textarea></div>'
     + (devisId ? '<input type="hidden" id="fc-devis-id" value="' + devisId + '">' : '');
 
-  // Stocker les lignes du devis pour le PDF
+  // Stocker les lignes du devis et le type pour le PDF
   window._fcLignes = defaultLignes;
+  window._fcType   = defaultType;
 
-  modal('🧾 Nouvelle facture', body,
+  var titreModal = defaultType === 'Acompte' ? '💰 Facture acompte'
+                 : defaultType === 'Situation' ? '📊 Situation de travaux'
+                 : defaultType === 'Solde' ? '✅ Facture de solde'
+                 : '🧾 Nouvelle facture';
+
+  modal(titreModal, body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
     + '<button class="btn btn-primary" onclick="saveFactureClient()">💾 Créer la facture</button>',
     true);
 
   // Déclencher le calcul initial
   setTimeout(fcRecalc, 50);
+}
+
+function fcSetType(btn, type) {
+  // Mettre à jour les boutons actifs
+  var btns = document.querySelectorAll('.fc-type-btn');
+  btns.forEach(function(b){ b.className = b.className.replace('btn-primary','btn-secondary'); });
+  btn.className = btn.className.replace('btn-secondary','btn-primary');
+  window._fcType = type;
+  // Mettre à jour placeholder et préfixe de l'objet
+  var objEl = document.getElementById('fc-objet');
+  if (objEl) {
+    var prefixes = ['Acompte ','Situation travaux — ','Solde — '];
+    var ph = {Acompte:'Acompte sur travaux', Situation:'Situation de travaux n°1', Solde:'Solde des travaux', 'Facture libre':'Prestation de services'}[type]||'';
+    objEl.placeholder = ph;
+    // Remplacer un préfixe existant par le nouveau
+    var val = objEl.value;
+    prefixes.forEach(function(p){ if(val.startsWith(p)) val = val.slice(p.length); });
+    var newPrefix = {Acompte:'Acompte — ', Situation:'Situation travaux — ', Solde:'Solde — ', 'Facture libre':''}[type]||'';
+    if (val) objEl.value = newPrefix + val;
+  }
 }
 
 function fcRecalc() {
@@ -6041,6 +6166,7 @@ async function saveFactureClient() {
     total_tva:    +(ht * pct/100).toFixed(2),
     total_ttc:    +ttc.toFixed(2),
     acompte:      acp,
+    type_facture: window._fcType || 'Facture libre',
     statut:       'Brouillon',
     notes:        ($('fc-notes')||{value:''}).value,
     devis_id:     ($('fc-devis-id')||{value:''}).value || null,
@@ -6369,6 +6495,16 @@ function printFactureClient(fcId) {
 }
 
 // ── DEPUIS UN DEVIS ACCEPTÉ ───────────────────────────────────────────
+function factureAcompteDepuisDevis(dvId) {
+  var dv = D.devis_docs.find(function(d){ return d.id === dvId; });
+  if (!dv) return;
+  var pct = +dv.acompte || +D.settings.devis_acompte || 30;
+  var montantAcompte = ((+dv.total_ttc||0) * pct / 100);
+  var montantHT = ((+dv.total_ht||0) * pct / 100);
+  // Ouvrir le modal facture avec type=Acompte et montants pré-calculés
+  modalFactureClientCreate(dv.chantier_id, dvId, { type:'Acompte', pct:pct, ttc:montantAcompte, ht:montantHT });
+}
+
 function factureDepuisDevis(dvId) {
   var dv = D.devis_docs.find(function(d){ return d.id === dvId; });
   if (!dv) return;
@@ -8301,9 +8437,24 @@ function _dashQuickLink(page, ico, label, sub) {
   <div class="bps-messages" id="bps-messages"></div>
   <div class="bps-suggestions" id="bps-suggestions">
     <button class="bps-sug" onclick="bpsSend('Comment créer un devis ?')">📄 Créer un devis</button>
-    <button class="bps-sug" onclick="bpsSend('Comment fonctionne le mode hors-ligne ?')">📶 Mode hors-ligne</button>
-    <button class="bps-sug" onclick="bpsSend('Comment exporter mes données ?')">⬇️ Exporter mes données</button>
+    <button class="bps-sug" onclick="bpsSend('Comment envoyer une facture d\'acompte ?')">💰 Facture acompte</button>
     <button class="bps-sug" onclick="bpsSend('Comment ajouter un chantier ?')">🚧 Ajouter chantier</button>
+    <button class="bps-sug" onclick="bpsSend('Comment fonctionne le mode hors-ligne ?')">📶 Mode hors-ligne</button>
+    <button class="bps-sug" onclick="bpsTutoriel('devis')">🎓 Tutoriel devis</button>
+    <button class="bps-sug" onclick="bpsTutoriel('chantier')">🎓 Tutoriel chantier</button>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:10px 14px;display:flex;gap:6px;flex-wrap:wrap">
+    <a href="https://cal.com/batipilot/support" target="_blank" rel="noopener"
+       style="flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 8px;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
+      📅 Prendre RDV
+    </a>
+    <a href="/cdn-cgi/l/email-protection#493a3c3939263b3d092b283d2064392025263d672f3b763a3c2b232c2a3d740d2c2428272d2c69283a3a203a3d28272a2c690b283d20192025263d" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
+      ✉️ Email support
+    </a>
+    <button onclick="bpsPartageEcran()" title="Partage d'écran avec le support"
+       style="flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);border-radius:8px;padding:8px 8px;color:rgba(150,200,255,0.95);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">
+      🖥️ Partage écran
+    </button>
   </div>
   <div class="bps-input-row">
     <input id="bps-input" type="text" placeholder="Posez votre question…" maxlength="500"
@@ -8312,7 +8463,7 @@ function _dashQuickLink(page, ico, label, sub) {
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ══════════════════════════════════════════════════════════════════
    AGENT IA SUPPORT — Logic
    Utilise l'API Anthropic /v1/messages via fetch (clé publique safe)
@@ -8692,9 +8843,11 @@ async function envoyerComptable() {
   var justs = (D.justificatifs||[]).filter(function(j){ return !j.envoye; });
   if (!justs.length) { toast('Aucun justificatif à envoyer'); return; }
   try {
+    var { data: _sessC } = await SB.auth.getSession();
+    var _tokenC = _sessC?.session?.access_token || '';
     await fetch('https://zewyecoxpmycqdziuqzc.supabase.co/functions/v1/send-email', {
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + (SB._token||'')},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + _tokenC},
       body: JSON.stringify({
         to: s.email_comptable,
         subject: 'Justificatifs BatiPilot — ' + new Date().toLocaleDateString('fr-FR'),
@@ -8792,16 +8945,288 @@ async function confirmLeaveTeam() {
     toast('Vous avez quitté l\'équipe');
     // Recharger l'app avec son propre compte
     D.team = { is_member:false, owner_id:USER.id, members:[], member_count:0, role:'owner' };
-    var banner = document.getElementById('team-member-banner');
-    if (banner) banner.remove();
-    await loadAll();
-  } catch(e) {
-    hideSync();
-    toast('Erreur : ' + (e.message||e), 'error');
+    var banner = document.getElementById('team-memb
+// ═══════════════════════════════════════════════════════════════════
+// MOTEUR TUTORIELS INTERACTIFS — BatiPilot
+// Guide pas-à-pas dans l'interface réelle (highlight + bulle)
+// ═══════════════════════════════════════════════════════════════════
+
+var _tutoActive   = false;
+var _tutoStep     = 0;
+var _tutoSteps    = [];
+var _tutoOverlay  = null;
+var _tutoBubble   = null;
+var _tutoHighlight = null;
+
+// ── Définition des tutoriels ────────────────────────────────────────
+var TUTORIELS = {
+
+  devis: {
+    titre: 'Créer et envoyer un devis',
+    steps: [
+      { nav: 'devis',   selector: null,
+        titre: '📋 Module Devis',
+        texte: 'Bienvenue dans le module Devis. Ici vous créez, gérez et envoyez tous vos devis clients. Cliquez Suivant pour continuer.' },
+      { nav: 'devis',   selector: '#t-pri',
+        titre: '➕ Créer un devis',
+        texte: 'Ce bouton "+ Nouveau devis" ouvre le formulaire de création. Cliquez dessus quand vous êtes prêt à créer un devis réel.' },
+      { nav: 'devis',   selector: null,
+        titre: '📝 Remplir le devis',
+        texte: 'Dans le formulaire : renseignez le client, la référence chantier, puis ajoutez vos lignes de travaux (désignation, quantité, prix unitaire). Le total TTC se calcule automatiquement.' },
+      { nav: 'devis',   selector: null,
+        titre: '🖨️ Imprimer ou envoyer',
+        texte: 'Une fois sauvegardé, chaque devis a 2 boutons d'action : 🖨️ pour générer le PDF, et 📧 pour l'envoyer directement par email à votre client avec un message professionnel pré-rédigé.' },
+      { nav: 'devis',   selector: null,
+        titre: '✅ Changer le statut',
+        texte: 'Cliquez sur le badge de statut (Brouillon / Envoyé / Accepté) pour le faire évoluer. Quand un devis est Accepté, un bouton "🧾 Acompte" apparaît pour créer la facture d'acompte en 1 clic.' },
+    ]
+  },
+
+  chantier: {
+    titre: 'Créer et suivre un chantier',
+    steps: [
+      { nav: 'chantiers', selector: null,
+        titre: '🚧 Module Chantiers',
+        texte: 'C'est le cœur de BatiPilot. Chaque chantier centralise : suivi budget, matériaux, photos, équipe et planning. Cliquez Suivant.' },
+      { nav: 'chantiers', selector: '#t-pri',
+        titre: '➕ Nouveau chantier',
+        texte: 'Cliquez "+ Nouveau chantier" pour créer votre premier chantier. Renseignez le nom, le client, les dates et le budget prévu.' },
+      { nav: 'chantiers', selector: null,
+        titre: '📊 Suivi en temps réel',
+        texte: 'Dans chaque fiche chantier vous voyez : la marge en temps réel, le % d'avancement budget, et les alertes si vous dépassez le budget matériaux.' },
+      { nav: 'chantiers', selector: null,
+        titre: '📷 Photos & Documents',
+        texte: 'Depuis la fiche chantier, onglet Documents : ajoutez des photos de chantier, des devis liés et des factures fournisseurs. Tout est regroupé au même endroit.' },
+      { nav: 'conducteur', selector: null,
+        titre: '👷 Mode terrain',
+        texte: 'Le mode Conducteur est conçu pour être utilisé sur le chantier avec les mains sales : grandes cartes, notes rapides, photos, chrono. Parfait sur mobile.' },
+    ]
+  },
+
+  facturation: {
+    titre: 'Facturer un client',
+    steps: [
+      { nav: 'facturation', selector: null,
+        titre: '🧾 Module Facturation',
+        texte: 'Ici vous créez et suivez toutes vos factures clients : acomptes, situations de travaux, soldes et factures libres.' },
+      { nav: 'devis', selector: null,
+        titre: '💰 Depuis un devis accepté',
+        texte: 'Le moyen le plus rapide : allez dans vos Devis, trouvez un devis Accepté et cliquez "🧾 Acompte". La facture est pré-remplie avec le bon montant automatiquement.' },
+      { nav: 'facturation', selector: '#t-pri',
+        titre: '➕ Ou créer directement',
+        texte: 'Vous pouvez aussi créer une facture libre depuis ce bouton. Choisissez le type (Acompte / Situation / Solde / Libre), le client et le montant.' },
+      { nav: 'facturation', selector: null,
+        titre: '💶 Enregistrer un règlement',
+        texte: 'Une fois la facture envoyée et payée, cliquez 💶 pour enregistrer le paiement. La facture passe automatiquement en statut "Payée" et le montant s'ajoute à vos encaissements.' },
+    ]
+  }
+};
+
+// ── Lancer un tutoriel ──────────────────────────────────────────────
+function bpsTutoriel(nom) {
+  var tuto = TUTORIELS[nom];
+  if (!tuto) return;
+  _tutoSteps  = tuto.steps;
+  _tutoStep   = 0;
+  _tutoActive = true;
+  bpsToggle(); // Fermer le panel Bob
+  _tutoCreerUI();
+  _tutoAfficherStep();
+}
+
+// ── Créer l'UI tutoriel (overlay + bulle) ──────────────────────────
+function _tutoCreerUI() {
+  // Supprimer UI existante si présente
+  _tutoDetruireUI();
+
+  // Overlay semi-transparent
+  _tutoOverlay = document.createElement('div');
+  _tutoOverlay.id = 'tuto-overlay';
+  _tutoOverlay.style.cssText = [
+    'position:fixed','inset:0','z-index:8000',
+    'pointer-events:none',
+    'background:rgba(0,0,0,0.45)',
+    'transition:opacity 0.3s'
+  ].join(';');
+  document.body.appendChild(_tutoOverlay);
+
+  // Bulle d'instruction
+  _tutoBubble = document.createElement('div');
+  _tutoBubble.id = 'tuto-bubble';
+  _tutoBubble.style.cssText = [
+    'position:fixed','z-index:8100',
+    'background:#1C2B4A','color:white',
+    'border-radius:14px','padding:18px 20px',
+    'width:min(320px,calc(100vw - 32px))',
+    'box-shadow:0 8px 32px rgba(0,0,0,0.4)',
+    'font-family:var(--font-body,system-ui)',
+    'pointer-events:all',
+    'animation:tutoFadeIn 0.25s ease'
+  ].join(';');
+
+  // Ajouter keyframes si pas encore présent
+  if (!document.getElementById('tuto-styles')) {
+    var st = document.createElement('style');
+    st.id = 'tuto-styles';
+    st.textContent = [
+      '@keyframes tutoFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}',
+      '#tuto-highlight{position:fixed;z-index:8050;border-radius:8px;',
+      'box-shadow:0 0 0 4px #F59E0B,0 0 0 9999px rgba(0,0,0,0.45);',
+      'pointer-events:none;transition:all 0.3s ease;}'
+    ].join('');
+    document.head.appendChild(st);
+  }
+
+  document.body.appendChild(_tutoBubble);
+}
+
+// ── Afficher l'étape courante ───────────────────────────────────────
+function _tutoAfficherStep() {
+  if (!_tutoActive || _tutoStep >= _tutoSteps.length) { _tutoTerminer(); return; }
+  var step = _tutoSteps[_tutoStep];
+  var total = _tutoSteps.length;
+
+  // Naviguer vers la bonne page si besoin
+  if (step.nav && typeof go === 'function') {
+    try { go(step.nav); } catch(e) {}
+  }
+
+  // Supprimer ancien highlight
+  var oldHL = document.getElementById('tuto-highlight');
+  if (oldHL) oldHL.remove();
+
+  // Highlight de l'élément cible
+  if (step.selector) {
+    setTimeout(function() {
+      var el = document.querySelector(step.selector);
+      if (el) {
+        var r = el.getBoundingClientRect();
+        var hl = document.createElement('div');
+        hl.id = 'tuto-highlight';
+        hl.style.cssText = [
+          'top:'+(r.top-4)+'px',
+          'left:'+(r.left-4)+'px',
+          'width:'+(r.width+8)+'px',
+          'height:'+(r.height+8)+'px'
+        ].join(';');
+        document.body.appendChild(hl);
+      }
+      _tutoPositionnerBulle(step.selector);
+    }, 350);
+  } else {
+    _tutoPositionnerBulle(null);
+  }
+
+  // Contenu de la bulle
+  var isPremier = _tutoStep === 0;
+  var isDernier = _tutoStep === total - 1;
+  var progressPct = Math.round((_tutoStep / (total-1)) * 100);
+
+  _tutoBubble.innerHTML = [
+    // Barre de progression
+    '<div style="height:3px;background:rgba(255,255,255,0.15);border-radius:3px;margin-bottom:14px;overflow:hidden">',
+      '<div style="height:100%;background:#F59E0B;width:'+progressPct+'%;border-radius:3px;transition:width 0.3s"></div>',
+    '</div>',
+    // Étape counter
+    '<div style="font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">',
+      'Étape '+(_tutoStep+1)+' / '+total,
+    '</div>',
+    // Titre
+    '<div style="font-weight:700;font-size:15px;margin-bottom:8px">'+step.titre+'</div>',
+    // Texte
+    '<div style="font-size:13px;line-height:1.6;color:rgba(255,255,255,0.8);margin-bottom:16px">'+step.texte+'</div>',
+    // Boutons
+    '<div style="display:flex;gap:8px;justify-content:space-between;align-items:center">',
+      '<button onclick="_tutoQuitter()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.5);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit">✕ Quitter</button>',
+      '<div style="display:flex;gap:8px">',
+        (!isPremier ? '<button onclick="_tutoPrecedent()" style="background:rgba(255,255,255,0.12);border:none;color:white;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit">← Préc.</button>' : ''),
+        isDernier
+          ? '<button onclick="_tutoTerminer()" style="background:#F59E0B;border:none;color:white;padding:7px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;font-family:inherit">✅ Terminer</button>'
+          : '<button onclick="_tutoSuivant()" style="background:#F59E0B;border:none;color:white;padding:7px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;font-family:inherit">Suivant →</button>',
+      '</div>',
+    '</div>'
+  ].join('');
+}
+
+// ── Positionner la bulle intelligemment ────────────────────────────
+function _tutoPositionnerBulle(selector) {
+  if (!_tutoBubble) return;
+  // Par défaut : bas-droite sur desktop, bas-centre sur mobile
+  var isMobile = window.innerWidth < 600;
+  if (isMobile) {
+    _tutoBubble.style.bottom = '100px';
+    _tutoBubble.style.left   = '16px';
+    _tutoBubble.style.right  = '16px';
+    _tutoBubble.style.top    = 'auto';
+    _tutoBubble.style.width  = 'auto';
+  } else {
+    _tutoBubble.style.bottom = '100px';
+    _tutoBubble.style.right  = '24px';
+    _tutoBubble.style.left   = 'auto';
+    _tutoBubble.style.top    = 'auto';
+    _tutoBubble.style.width  = '320px';
   }
 }
 
+function _tutoSuivant()   { _tutoStep++; _tutoAfficherStep(); }
+function _tutoPrecedent()  { if(_tutoStep > 0) _tutoStep--; _tutoAfficherStep(); }
+function _tutoQuitter()    { _tutoTerminer(); toast('Tutoriel quitté'); }
 
-</script>
-</body>
-</html>
+function _tutoTerminer() {
+  _tutoActive = false;
+  _tutoDetruireUI();
+  toast('✅ Tutoriel terminé !');
+}
+
+function _tutoDetruireUI() {
+  ['tuto-overlay','tuto-bubble','tuto-highlight'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.remove();
+  });
+  _tutoBubble  = null;
+  _tutoOverlay = null;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PARTAGE D'ÉCRAN SUPPORT — Whereby intégré
+// ═══════════════════════════════════════════════════════════════════
+
+function bpsPartageEcran() {
+  var html = ''
+    + '<div style="text-align:center;padding:8px 0 20px">'
+      + '<div style="font-size:48px;margin-bottom:12px">🖥️</div>'
+      + '<div style="font-weight:700;font-size:18px;margin-bottom:8px">Assistance par partage d'écran</div>'
+      + '<div style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:20px">'
+        + 'Partagez votre écran avec le support BatiPilot.<br>'
+        + 'Aucun logiciel à installer — fonctionne directement dans votre navigateur.'
+      + '</div>'
+    + '</div>'
+    + '<div style="background:var(--bg-input);border-radius:10px;padding:14px 16px;margin-bottom:16px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Comment ça marche</div>'
+      + '<div style="font-size:13px;color:var(--text);line-height:1.9">'
+        + '1️⃣ &nbsp;Cliquez "Ouvrir la salle de support" ci-dessous<br>'
+        + '2️⃣ &nbsp;Autorisez le partage d'écran dans votre navigateur<br>'
+        + '3️⃣ &nbsp;Notre équipe vous rejoint pour vous aider en direct'
+      + '</div>'
+    + '</div>'
+    + '<div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--text-muted)">'
+      + '⏱️ <strong>Disponibilité :</strong> Lun–Ven, 8h–18h<br>'
+      + '📅 En dehors de ces horaires, prenez RDV via le bouton "Prendre RDV".'
+    + '</div>'
+    + '<a href="https://whereby.com/batipilot-support" target="_blank" rel="noopener" '
+      + 'style="display:flex;align-items:center;justify-content:center;gap:10px;'
+      + 'background:linear-gradient(135deg,#2563EB,#3B82F6);color:white;'
+      + 'border-radius:10px;padding:14px;font-weight:700;font-size:14px;'
+      + 'text-decoration:none;margin-bottom:10px;transition:opacity 0.2s"'
+      + 'onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">'
+      + '🖥️ &nbsp;Ouvrir la salle de support'
+    + '</a>'
+    + '<div style="font-size:11px;color:var(--text-muted);text-align:center">'
+      + 'Ou contactez-nous : '
+      + '<a href="mailto:support@bati-pilot.fr" style="color:var(--accent)">support@bati-pilot.fr</a>'
+    + '</div>';
+
+  modal('🖥️ Assistance à distance', html,
+    '<button class="btn btn-secondary" onclick="closeModal()">Fermer</button>',
+    false);
+}
