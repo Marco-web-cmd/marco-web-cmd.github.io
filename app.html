@@ -3204,17 +3204,17 @@ function pgChantiers(){
       +'</td>'
       +'<td>'+etatB(c.etat)+'</td>'
       +'<td class="td-muted td-hide-mobile">'+(c.equipe||'—')+'</td>'
-      +'<td class="td-muted td-hide-mobile" style="font-size:12px">'+fdate(c.date_debut)+' → '+fdate(c.date_fin)+'</td>'
+      +'<td class="td-muted td-hide-mobile" style="font-size:12px">'+(c.date_debut||c.date_fin ? fdate(c.date_debut)+' → '+fdate(c.date_fin) : '—')+'</td>'
       +'<td class="td-mono">'+eur(c.devis)+'</td>'
       // Badge marge couleur (promesse produit centrale)
       +'<td class="td-mono td-hide-mobile">'
       +'<span class="badge '+(r>=25?'badge-green':r>=10?'badge-orange':'badge-red')+'" style="font-size:11px;padding:2px 8px">'+(r>=25?'🟢':r>=10?'🟠':'🔴')+' '+r+'%</span>'
       +'<br><span style="font-size:12px;font-weight:700;color:'+(r>=25?'var(--success)':r>=10?'var(--warning)':'var(--danger)')+'">'+eur(c.marge)+'</span>'
       +'</td>'
-      +'<td style="white-space:nowrap">'
+      +'<td style="white-space:nowrap;min-width:100px;width:100px">'
         +'<button class="btn btn-ghost btn-icon btn-sm" data-ch-fiche="'+c.id+'" title="Fiche complète">👁️</button>'
         +'<button class="btn btn-ghost btn-icon btn-sm" data-ch-edit="'+c.id+'" title="Modifier">✏️</button>'
-        +'<button class="btn btn-ghost btn-icon btn-sm td-hide-mobile" data-ch-del="'+c.id+'" title="Supprimer">🗑️</button>'
+        +'<button class="btn btn-ghost btn-icon btn-sm" data-ch-del="'+c.id+'" title="Supprimer">🗑️</button>'
       +'</td>'
     +'</tr>';
   }
