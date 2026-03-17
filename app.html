@@ -475,6 +475,7 @@ button:focus:not(:focus-visible),input:focus:not(:focus-visible){outline:none;}
   .td-hide-mobile { display: none; }
   /* Input/select dans les tableaux de devis */
   .devis-line input { font-size: 14px !important; }
+  .devis-line { grid-template-columns: 1fr 50px 50px 80px 30px; gap:4px; }
 
   /* ── Input font-size ≥ 16px : évite le zoom automatique iOS Safari ── */
   input, select, textarea {
@@ -3429,7 +3430,8 @@ function pgDevis(){
     var clientH='<strong>'+(d.client||ch?.client||'—')+'</strong>'+(d.client_adresse?'<br><span class="td-muted text-sm">'+d.client_adresse+(d.client_ville?' · '+d.client_ville:'')+'</span>':'');
     var chBtn=d.chantier_id?'':'<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" data-dv-create="'+d.id+'" title="Créer chantier">+🚧</button>';
     var printBtn='<button class="btn btn-ghost btn-icon btn-sm" data-dv-print="'+d.id+'" title="Imprimer">🖨️</button>'
-    +'<button class="btn btn-ghost btn-icon btn-sm" data-dv-email="'+d.id+'" title="Email">📧</button>';
+    +'<button class="btn btn-ghost btn-icon btn-sm" data-dv-email="'+d.id+'" title="Email">📧</button>'
+    +'<button class="btn btn-ghost btn-icon btn-sm" data-dv-edit="'+d.id+'" title="Modifier">✏️</button>';
     var acompteBtn=(d.statut==='Accepté')?'<button class="btn btn-secondary btn-sm" data-dv-acompte="'+d.id+'" title="Cr\u00e9er facture acompte" style="font-size:11px;padding:3px 8px;white-space:nowrap">🧾 Acompte</button>':'';
     var delBtn='<button class="btn btn-ghost btn-icon btn-sm" data-dv-del="'+d.id+'" title="Supprimer">🗑️</button>';
     return'<tr><td><strong>'+(d.numero||'—')+'</strong></td><td>'+refH+'</td><td>'+clientH+'</td><td class="td-muted">'+fdate(d.date)+'</td><td class="td-mono">'+eur(d.total_ht)+'</td><td class="td-mono" style="font-weight:700">'+eur(d.total_ttc)+'</td><td>'+etatDevisB(d.statut,d.id)+'</td><td style="white-space:nowrap">'+printBtn+acompteBtn+chBtn+delBtn+'</td></tr>';
@@ -3453,6 +3455,7 @@ function pgDevis(){
     var el=e.target;
     if(el.dataset.dvPrint)printDevis(el.dataset.dvPrint);
     else if(el.dataset.dvEmail)modalEnvoiDevis(el.dataset.dvEmail);
+    else if(el.dataset.dvEdit)modalDevisEdit(el.dataset.dvEdit);
     else if(el.dataset.dvAcompte)factureAcompteDepuisDevis(el.dataset.dvAcompte);
     else if(el.dataset.dvCreate)createChantierFromDevis(el.dataset.dvCreate);
     else if(el.dataset.dvDel){
@@ -3543,6 +3546,98 @@ async function createChantierFromDevis(dvId){
   if(saved){D.chantiers[0]=saved;toast('Chantier créé ! 🎉');}
   go('chantiers');
 }
+
+function modalDevisEdit(dvId) {
+  var dv = D.devis_docs.find(function(x){ return x.id === dvId; });
+  if (!dv) return;
+  // Pré-charger les lignes
+  devisLines = (dv.lignes || []).map(function(l){ return Object.assign({}, l); });
+  var chantierId = dv.chantier_id || null;
+  var chOpts = D.chantiers.map(function(c){
+    return '<option value="' + c.id + '"' + (c.id === chantierId ? ' selected' : '') + '>' + c.nom + ' — ' + (c.client||'') + '</option>';
+  }).join('');
+  var clOpts = D.clients.map(function(c){ return '<option value="' + c.nom + '">'; }).join('');
+  var body = '<div class="form-row form-row-3">'
+    + '<div class="form-group"><label>N° Devis</label><input id="dv-num" value="' + (dv.numero||'') + '"></div>'
+    + '<div class="form-group"><label>Date</label><input id="dv-date" type="date" value="' + (dv.date||today()) + '"></div>'
+    + '<div class="form-group"><label>Validité (jours)</label><input id="dv-valid" type="number" value="' + (dv.validite||30) + '"></div>'
+    + '</div>'
+    + '<div class="form-row form-row-2">'
+    + '<div class="form-group"><label>Statut</label><select id="dv-statut">'
+    + ['Brouillon','Envoyé','Accepté','Refusé'].map(function(s){ return '<option' + (s===dv.statut?' selected':'') + '>' + s + '</option>'; }).join('')
+    + '</select></div>'
+    + '<div class="form-group"><label>TVA (%)</label><input id="dv-tva" type="number" value="' + (dv.tva_pct||D.settings.tva||20) + '" min="0" max="100" step="0.1" oninput="$('dv-tva-rate').textContent=this.value;calcDevisTotal()"></div>'
+    + '</div>'
+    + '<div style="font-family:var(--font-display);font-size:14px;font-weight:700;margin:14px 0 10px;padding-bottom:8px;border-bottom:2px solid var(--accent)">👤 Client & Chantier</div>'
+    + '<div class="form-row form-row-2">'
+    + '<div class="form-group"><label>Nom client *</label><input id="dv-client" value="' + (dv.client||'') + '" list="cl-dv" oninput="dvAutoFill(this.value)"><datalist id="cl-dv">' + clOpts + '</datalist></div>'
+    + '<div class="form-group"><label>Référence chantier</label><input id="dv-ref" value="' + (dv.ref_chantier||'') + '"></div>'
+    + '</div>'
+    + '<div class="form-row form-row-2">'
+    + '<div class="form-group"><label>Adresse client</label><input id="dv-adr" value="' + (dv.client_adresse||'') + '"></div>'
+    + '<div class="form-group"><label>CP / Ville client</label><input id="dv-ville" value="' + (dv.client_ville||'') + '"></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Objet du devis</label><input id="dv-objet" value="' + (dv.objet||'') + '"></div>'
+    + '<div style="font-family:var(--font-display);font-size:13px;font-weight:700;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Lignes du devis</div>'
+    + '<div style="display:grid;grid-template-columns:3fr 70px 80px 100px 34px;gap:6px;margin-bottom:6px;padding:0 10px">'
+    + '<span style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase">Désignation</span>'
+    + '<span style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase">Qté</span>'
+    + '<span style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase">Unité</span>'
+    + '<span style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase">P.U. HT</span>'
+    + '<span></span></div>'
+    + '<div id="dv-lines"></div>'
+    + '<button class="btn btn-secondary w-full" style="margin:8px 0" onclick="addDevisLine()">+ Ajouter une ligne</button>'
+    + '<div class="form-group"><label>Acompte à la commande (%)</label><input id="dv-acompte" type="number" min="0" max="100" value="' + (dv.acompte||D.settings.devis_acompte||30) + '"></div>'
+    + '<div style="background:var(--bg-input);border-radius:var(--radius-sm);padding:14px 16px;margin-top:8px">'
+    + '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>Total HT</span><span id="dv-total-ht" style="font-weight:600">0,00 €</span></div>'
+    + '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>TVA (<span id="dv-tva-rate">' + (dv.tva_pct||D.settings.tva||20) + '</span>%)</span><span id="dv-total-tva">0,00 €</span></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700"><span>Total TTC</span><span id="dv-total-ttc" style="color:var(--accent)">0,00 €</span></div>'
+    + '</div>'
+    + '<input type="hidden" id="dv-edit-id" value="' + dvId + '">';
+
+  modal('✏️ Modifier le devis', body,
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    + '<button class="btn btn-primary" onclick="saveDevisEdit()">💾 Enregistrer</button>',
+    true);
+
+  // Charger les lignes existantes
+  devisLines.forEach(function(l, i){ if(l) addDevisLine(l); });
+  setTimeout(calcDevisTotal, 50);
+}
+
+async function saveDevisEdit() {
+  var dvId = ($('dv-edit-id')||{value:''}).value;
+  var dv = D.devis_docs.find(function(x){ return x.id === dvId; });
+  if (!dv) return;
+  var lignes = devisLines.filter(function(l){ return l && l.desc; });
+  var tva = +($('dv-tva')||{value:20}).value || 20;
+  var ht = lignes.reduce(function(a,l){ return a + (+l.total||0); }, 0);
+  var updates = {
+    numero:        ($('dv-num')||{value:''}).value.trim(),
+    date:          ($('dv-date')||{value:today()}).value,
+    validite:      +($('dv-valid')||{value:30}).value || 30,
+    statut:        ($('dv-statut')||{value:'Brouillon'}).value,
+    client:        ($('dv-client')||{value:''}).value.trim(),
+    ref_chantier:  ($('dv-ref')||{value:''}).value.trim(),
+    client_adresse:($('dv-adr')||{value:''}).value.trim(),
+    client_ville:  ($('dv-ville')||{value:''}).value.trim(),
+    objet:         ($('dv-objet')||{value:''}).value.trim(),
+    acompte:       +($('dv-acompte')||{value:30}).value || 30,
+    tva_pct:       tva,
+    lignes:        lignes,
+    total_ht:      +ht.toFixed(2),
+    total_tva:     +(ht * tva / 100).toFixed(2),
+    total_ttc:     +(ht * (1 + tva/100)).toFixed(2),
+  };
+  Object.assign(dv, updates);
+  closeModal();
+  showSync();
+  await SB.from('devis_docs').update(updates).eq('id', dvId).eq('user_id', USER.id);
+  hideSync();
+  toast('Devis modifié !');
+  pgDevis();
+}
+
 function modalDevisCreate(chantierId){
   devisLines=[];
   const chOpts=D.chantiers.map(c=>`<option value="${c.id}" ${c.id===chantierId?'selected':''}>${c.nom} — ${c.client||''}</option>`).join('');
@@ -5271,8 +5366,18 @@ async function startApp(user) {
   } catch(e) {
     console.error('[BP] startApp ERROR:', e.message, e.stack);
     clearTimeout(bootTimeout);
-    _appLoaded = false;
-    showAuthScreen();
+    // Ne pas déconnecter — réessayer une fois après 2s
+    try {
+      await new Promise(r => setTimeout(r, 2000));
+      await loadAll();
+    } catch(e2) {
+      // Toujours en erreur — afficher message sans déconnecter
+      hideLoader();
+      $('auth-screen').style.display = 'none';
+      if (typeof launchApp === 'function') launchApp();
+      toast('Erreur de chargement — certaines données peuvent être incomplètes', 'error');
+      return;
+    }
     authMsg('Erreur de connexion : ' + e.message, 'error');
   }
 }
@@ -6602,6 +6707,7 @@ async function compressAndUploadPhoto(base64DataUrl, itemId, maxPx, qualityJpeg)
 // Remplace les 7 confirm() brutaux par des modales pro
 
 function confirmDelete(opts) {
+  window._confirmDeleteCb = opts.onConfirm;
   // opts: { title, label, icon, warning, onConfirm, isDanger }
   var icon = opts.icon || '🗑️';
   var danger = opts.isDanger !== false;
@@ -6614,7 +6720,7 @@ function confirmDelete(opts) {
     + '<p style="font-size:13px;color:var(--text-muted);margin:0">Cette action est <strong>irréversible</strong>.</p>';
   modal(opts.title || '🗑️ Supprimer ?', body,
     '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-    + '<button class="btn" style="background:' + btnColor + ';color:white" onclick="closeModal();(' + opts.onConfirm.toString() + ')()">'
+    + '<button class="btn" style="background:' + btnColor + ';color:white" onclick="closeModal();window._confirmDeleteCb&&window._confirmDeleteCb()">'
     + '🗑️ Supprimer définitivement</button>'
   );
 }
@@ -8736,7 +8842,7 @@ async function confirmLeaveTeam() {
        style="flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 8px;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
       📅 Prendre RDV
     </a>
-    <a href="/cdn-cgi/l/email-protection#493a3c3939263b3d092b283d2064392025263d672f3b763a3c2b232c2a3d740d2c2428272d2c69283a3a203a3d28272a2c690b283d20192025263d" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
+    <a href="/cdn-cgi/l/email-protection#493a3c3939263b3d6f6a7f7d722b283d2064392025263d672f3b" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;text-decoration:none;font-family:var(--font-body)">
       ✉️ Email support
     </a>
     <button onclick="bpsPartageEcran()" title="Partage d'écran avec le support"
@@ -8751,7 +8857,7 @@ async function confirmLeaveTeam() {
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ══════════════════════════════════════════════════════════════════
    AGENT IA SUPPORT — Logic
    Utilise l'API Anthropic /v1/messages via fetch (clé publique safe)
@@ -9236,7 +9342,7 @@ function bpsPartageEcran() {
       + '<a href="mailto:support@bati-pilot.fr" style="color:var(--accent)">support@bati-pilot.fr</a>'
     + '</div>';
 
-  modal('🖥️ Assistance à distance', html,
+  modal('�  modal('\U0001f5a5\ufe0f Assistance \u00e0 distance', html,
     '<button class="btn btn-secondary" onclick="closeModal()">Fermer</button>',
     false);
 }
