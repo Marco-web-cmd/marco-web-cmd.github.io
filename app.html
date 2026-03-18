@@ -3696,13 +3696,13 @@ async function lancerAnalyseDocument() {
   }
 
   var catalogueTxt = catalogue.length > 0
-    ? '\n\nCATALOGUE DE PRIX DE L'ARTISAN (utilise ces prix en priorité) :\n'
+    ? '\n\nCATALOGUE DE PRIX DE L&#39;ARTISAN (utilise ces prix en priorité) :\n'
       + catalogue.slice(0, 50).map(function(c) {
           return '- ' + c.desc + ' : ' + c.pu + '€/' + (c.unite || 'u');
         }).join('\n')
     : '\n\n(Pas de catalogue de prix disponible — propose des prix moyens du marché BTP français)';
 
-  var prompt = 'Tu es un expert en chiffrage BTP. Analyse ce document et génère les lignes d'un devis professionnel.\n'
+  var prompt = 'Tu es un expert en chiffrage BTP. Analyse ce document et génère les lignes d&#39;un devis professionnel.\n'
     + 'Réponds UNIQUEMENT avec un JSON valide, sans aucun texte avant ou après, sans balises markdown.\n'
     + 'Format : {"lignes": [{"desc": "Désignation précise", "qte": 1, "u": "unité", "pu": 0.00}]}\n'
     + 'Règles :\n'
