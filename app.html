@@ -3587,6 +3587,7 @@ function modalDevisEdit(dvId) {
     + '<span></span></div>'
     + '<div id="dv-lines"></div>'
     + '<button class="btn btn-secondary w-full" style="margin:8px 0" onclick="addDevisLine()">+ Ajouter une ligne</button>'
+    + '<button class="btn btn-secondary w-full" style="margin:4px 0 8px;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(59,130,246,0.15));border-color:rgba(139,92,246,0.4)" onclick="modalAnalyseDocument()">🤖 Analyser un document (IA)</button>'
     + '<div class="form-group"><label>Acompte à la commande (%)</label><input id="dv-acompte" type="number" min="0" max="100" value="' + (dv.acompte||D.settings.devis_acompte||30) + '"></div>'
     + '<div style="background:var(--bg-input);border-radius:var(--radius-sm);padding:14px 16px;margin-top:8px">'
     + '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>Total HT</span><span id="dv-total-ht" style="font-weight:600">0,00 €</span></div>'
@@ -3638,6 +3639,156 @@ async function saveDevisEdit() {
   pgDevis();
 }
 
+
+// ══════════════════════════════════════════════════════════════════
+// ANALYSE DOCUMENT IA — DPGF, CCTP, mail, descriptif
+// Utilise Claude Haiku via BPS_API_KEY (même clé que Bob)
+// Injecte les lignes directement dans devisLines sans rien toucher
+// ══════════════════════════════════════════════════════════════════
+
+function modalAnalyseDocument() {
+  var body = ''
+    + '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(59,130,246,0.08));border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px">'
+      + '<strong>🤖 Analyse IA</strong> — Collez ou décrivez votre document (DPGF, CCTP, mail client, descriptif de travaux).<br>'
+      + '<span style="color:var(--text-muted);font-size:12px">L'IA détecte les prestations et crée les lignes du devis automatiquement.</span>'
+    + '</div>'
+    + '<div class="form-group">'
+      + '<label>Texte du document à analyser <span style="font-weight:400;color:var(--text-muted)">(collez ici)</span></label>'
+      + '<textarea id="ia-doc-text" rows="10" placeholder="Exemples :\n• Mail : &quot;Bonjour, je souhaite refaire ma salle de bain, carrelage 15m², douche italienne, meuble vasque, peinture...&quot;\n• CCTP : Lot 2 - Plâtrerie : fourniture et pose BA13 sur ossature 120m², enduit de finition...\n• DPGF : collez directement le tableau" style="font-size:13px;line-height:1.6"></textarea>'
+    + '</div>'
+    + '<div class="form-group">'
+      + '<label>TVA à appliquer (%)</label>'
+      + '<input id="ia-doc-tva" type="number" min="0" max="100" step="0.1" value="' + ((typeof D !== 'undefined' && D.settings && D.settings.tva) || 20) + '" style="max-width:100px">'
+    + '</div>'
+    + '<div id="ia-doc-status" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px"></div>';
+
+  modal('🤖 Analyser un document pour le devis', body,
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    + '<button class="btn btn-primary" id="ia-doc-btn" onclick="lancerAnalyseDocument()">🔍 Analyser et créer les lignes</button>',
+    true);
+}
+
+async function lancerAnalyseDocument() {
+  var texte = (document.getElementById('ia-doc-text') || {value: ''}).value.trim();
+  if (!texte) { toast('Collez un texte à analyser', 'error'); return; }
+
+  var btn = document.getElementById('ia-doc-btn');
+  var status = document.getElementById('ia-doc-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analyse en cours...'; }
+  if (status) { status.style.display = 'block'; status.style.background = 'var(--bg-input)'; status.textContent = '🤖 L'IA analyse votre document...'; }
+
+  // Construire le catalogue de prix de l'artisan
+  var catalogue = [];
+  if (typeof D !== 'undefined') {
+    (D.stocks || []).forEach(function(s) {
+      if (s.libelle && s.prix_achat > 0) {
+        catalogue.push({ desc: s.libelle, pu: s.prix_achat, unite: s.unite || '' });
+      }
+    });
+    // Dédupliquer depuis les matériaux des chantiers précédents
+    var seen = new Set(catalogue.map(function(c) { return c.desc.toLowerCase(); }));
+    (D.materiaux || []).forEach(function(m) {
+      if (m.designation && m.prix_u > 0 && !seen.has(m.designation.toLowerCase())) {
+        seen.add(m.designation.toLowerCase());
+        catalogue.push({ desc: m.designation, pu: m.prix_u, unite: m.unite || '' });
+      }
+    });
+  }
+
+  var catalogueTxt = catalogue.length > 0
+    ? '\n\nCATALOGUE DE PRIX DE L'ARTISAN (utilise ces prix en priorité) :\n'
+      + catalogue.slice(0, 50).map(function(c) {
+          return '- ' + c.desc + ' : ' + c.pu + '€/' + (c.unite || 'u');
+        }).join('\n')
+    : '\n\n(Pas de catalogue de prix disponible — propose des prix moyens du marché BTP français)';
+
+  var prompt = 'Tu es un expert en chiffrage BTP. Analyse ce document et génère les lignes d'un devis professionnel.\n'
+    + 'Réponds UNIQUEMENT avec un JSON valide, sans aucun texte avant ou après, sans balises markdown.\n'
+    + 'Format : {"lignes": [{"desc": "Désignation précise", "qte": 1, "u": "unité", "pu": 0.00}]}\n'
+    + 'Règles :\n'
+    + '- desc : désignation claire et professionnelle (fourniture + pose si applicable)\n'
+    + '- qte : quantité numérique (estime si non précisée)\n'
+    + '- u : unité (m², ml, u, h, fft, m³, kg...)\n'
+    + '- pu : prix unitaire HT en euros' + (catalogue.length > 0 ? ' (utilise le catalogue en priorité, sinon prix marché BTP)' : ' (prix marché BTP français)') + '\n'
+    + '- Génère entre 3 et 20 lignes maximum\n'
+    + '- Regroupe les petites fournitures connexes en une seule ligne\n'
+    + catalogueTxt
+    + '\n\nDOCUMENT À ANALYSER :\n' + texte.substring(0, 8000);
+
+  try {
+    var apiKey = (typeof BPS_API_KEY !== 'undefined') ? BPS_API_KEY : '';
+    if (!apiKey || apiKey.includes('REMPLACER')) {
+      toast('Clé API non configurée — contactez support', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '🔍 Analyser et créer les lignes'; }
+      if (status) status.style.display = 'none';
+      return;
+    }
+
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type':      'application/json',
+        'x-api-key':         apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-request-source': 'user-originated',
+      },
+      body: JSON.stringify({
+        model:      'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        messages:   [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) { throw new Error('HTTP ' + resp.status); }
+    var data = await resp.json();
+    var raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : '';
+
+    // Parser le JSON
+    raw = raw.replace(/```json|```/g, '').trim();
+    var parsed = JSON.parse(raw);
+    var lignes = parsed.lignes || [];
+
+    if (!lignes.length) { throw new Error('Aucune ligne détectée'); }
+
+    // Injecter dans devisLines sans rien casser
+    lignes.forEach(function(l) {
+      var qte = +l.qte || 1;
+      var pu  = +l.pu  || 0;
+      devisLines.push({ desc: l.desc || '', qte: qte, u: l.u || '', pu: pu, total: qte * pu });
+    });
+
+    // Mettre à jour la TVA si renseignée
+    var tvael = document.getElementById('ia-doc-tva');
+    var tvaval = tvael ? +tvael.value : null;
+    var dvtva = document.getElementById('dv-tva');
+    if (dvtva && tvaval) dvtva.value = tvaval;
+    var dvtvart = document.getElementById('dv-tva-rate');
+    if (dvtvart && tvaval) dvtvart.textContent = tvaval;
+
+    // Rafraîchir l'affichage
+    var dvlines = document.getElementById('dv-lines');
+    if (dvlines) {
+      dvlines.innerHTML = '';
+      // Recréer toutes les lignes via addDevisLine
+      var tmpLines = devisLines.slice();
+      devisLines = [];
+      tmpLines.forEach(function(l) { if (l) addDevisLine(l); });
+    }
+    setTimeout(calcDevisTotal, 50);
+
+    closeModal();
+    toast('✅ ' + lignes.length + ' lignes créées depuis votre document !');
+
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '🔍 Analyser et créer les lignes'; }
+    if (status) {
+      status.style.background = 'var(--danger-soft)';
+      status.textContent = '❌ Erreur : ' + (e.message || 'Analyse impossible');
+    }
+    console.error('[IA Devis]', e);
+  }
+}
+
 function modalDevisCreate(chantierId){
   devisLines=[];
   const chOpts=D.chantiers.map(c=>`<option value="${c.id}" ${c.id===chantierId?'selected':''}>${c.nom} — ${c.client||''}</option>`).join('');
@@ -3676,6 +3827,7 @@ function modalDevisCreate(chantierId){
   </div>
   <div id="dv-lines"></div>
   <button class="btn btn-secondary btn-sm" onclick="addDevisLine()" style="margin-bottom:16px">+ Ajouter une ligne</button>
+  <button class="btn btn-secondary btn-sm" onclick="modalAnalyseDocument()" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(59,130,246,0.15));border-color:rgba(139,92,246,0.4);color:var(--text)">🤖 Analyser un document (IA)</button>
   <div style="font-family:var(--font-display);font-size:13px;font-weight:700;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">💳 Conditions financières</div>
   <div class="form-row form-row-2">
     <div class="form-group">
