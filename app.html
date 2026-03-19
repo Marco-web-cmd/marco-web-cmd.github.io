@@ -3587,7 +3587,8 @@ function modalDevisEdit(dvId) {
     + '<span></span></div>'
     + '<div id="dv-lines"></div>'
     + '<button class="btn btn-secondary w-full" style="margin:8px 0" onclick="addDevisLine()">+ Ajouter une ligne</button>'
-    + '<button class="btn btn-secondary w-full" style="margin:4px 0 8px;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(59,130,246,0.15));border-color:rgba(139,92,246,0.4)" onclick="modalAnalyseDocument()">🤖 Analyser un document (IA)</button>'
+    + '<button class="btn btn-secondary w-full" style="margin:4px 0 2px;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(59,130,246,0.15));border-color:rgba(139,92,246,0.4)" onclick="modalAnalyseDocument()">🤖 Analyser un document (IA)</button>'
+    + '<button class="btn btn-secondary w-full" style="margin:2px 0 8px;background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(59,130,246,0.12));border-color:rgba(16,185,129,0.4)" onclick="modalAnalysePlan()">📐 Analyser un plan — Quantitatifs (IA)</button>'
     + '<div class="form-group"><label>Acompte à la commande (%)</label><input id="dv-acompte" type="number" min="0" max="100" value="' + (dv.acompte||D.settings.devis_acompte||30) + '"></div>'
     + '<div style="background:var(--bg-input);border-radius:var(--radius-sm);padding:14px 16px;margin-top:8px">'
     + '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>Total HT</span><span id="dv-total-ht" style="font-weight:600">0,00 €</span></div>'
@@ -3640,6 +3641,254 @@ async function saveDevisEdit() {
 }
 
 
+
+// ══════════════════════════════════════════════════════════════════
+// ANALYSE PLAN IA — JPG/PNG/PDF → quantitatifs → lignes devis
+// Claude Vision lit les cotes et calcule les surfaces/linéaires
+// ══════════════════════════════════════════════════════════════════
+
+function modalAnalysePlan() {
+  if (!checkPlanPro('Analyse de plan par IA — Quantitatifs')) return;
+  var tva = (typeof D !== 'undefined' && D.settings && D.settings.tva) || 20;
+  var travaux = [
+    'Carrelage / Faïence','Peinture / Enduit','Plâtrerie / Cloison BA13',
+    'Isolation thermique','Parquet / Revêtement sol','Menuiserie intérieure',
+    'Menuiserie extérieure / Fenêtres','Plomberie / Sanitaires',
+    'Électricité','Couverture / Charpente','Maçonnerie / Gros oeuvre',
+    'Ravalement de façade','Aménagement extérieur','Autre / Général'
+  ];
+  var body = ''
+    + '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(59,130,246,0.08));border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px">'
+      + '<strong>📐 Analyse de plan par IA</strong><br>'
+      + '<span style="color:var(--text-muted);font-size:12px">Uploadez un plan coté (photo, scan, PDF). L&#39;IA lit les cotes et calcule les quantitatifs automatiquement.</span>'
+    + '</div>'
+    + '<div class="form-group">'
+      + '<label>Plan à analyser <span style="font-weight:400;color:var(--text-muted)">(JPG, PNG ou PDF)</span></label>'
+      + '<input type="file" id="plan-file" accept="image/*,.pdf" style="font-size:13px;padding:8px;border:1px dashed var(--border);border-radius:8px;width:100%;cursor:pointer" onchange="previewPlan(this)">'
+      + '<div id="plan-preview" style="margin-top:8px;display:none">'
+        + '<img id="plan-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);object-fit:contain" alt="Apercu plan">'
+        + '<div id="plan-pdf-info" style="display:none;padding:8px 12px;background:var(--bg-input);border-radius:8px;font-size:12px;color:var(--text-muted)">📄 PDF chargé — première page analysée</div>'
+      + '</div>'
+    + '</div>'
+    + '<div style="background:var(--bg-input);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text-muted)">'
+      + '💡 <strong>Conseil :</strong> assurez-vous que les cotes sont lisibles sur le plan. Plus elles sont visibles, meilleur sera le résultat.<br>'
+      + '📁 <strong>Fichier DWG ?</strong> Exportez-le en PDF depuis AutoCAD (Fichier → Exporter → PDF) ou utilisez '
+      + '<a href="https://cloudconvert.com/dwg-to-pdf" target="_blank" style="color:var(--accent)">CloudConvert</a> (gratuit).'
+    + '</div>'
+    + '<div class="form-row form-row-2">'
+      + '<div class="form-group">'
+        + '<label>Type de travaux</label>'
+        + '<select id="plan-travaux">'
+        + travaux.map(function(t){ return '<option>' + t + '</option>'; }).join('')
+        + '</select>'
+      + '</div>'
+      + '<div class="form-group">'
+        + '<label>TVA (%)</label>'
+        + '<input id="plan-tva" type="number" min="0" max="100" step="0.1" value="' + tva + '">'
+      + '</div>'
+    + '</div>'
+    + '<div class="form-group">'
+      + '<label>Précisions supplémentaires <span style="font-weight:400;color:var(--text-muted)">(optionnel)</span></label>'
+      + '<input id="plan-notes" placeholder="Ex: finition haut de gamme, fournitures incluses, dépose de l&#39;ancien carrelage..." style="font-size:13px">'
+    + '</div>'
+    + '<div id="plan-status" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-top:4px"></div>';
+
+  modal('📐 Analyser un plan — Quantitatifs IA', body,
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    + '<button class="btn btn-primary" id="plan-btn" onclick="lancerAnalysePlan()">📐 Calculer les quantitatifs</button>',
+    true);
+}
+
+function previewPlan(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var preview = document.getElementById('plan-preview');
+  var img = document.getElementById('plan-img');
+  var pdfInfo = document.getElementById('plan-pdf-info');
+  if (!preview || !img) return;
+
+  if (file.type === 'application/pdf') {
+    // PDF : afficher info + convertir première page via canvas
+    preview.style.display = 'block';
+    img.style.display = 'none';
+    pdfInfo.style.display = 'block';
+    pdfInfo.textContent = '📄 PDF : "' + file.name + '" (' + (file.size/1024).toFixed(0) + ' Ko)';
+  } else {
+    // Image : aperçu direct
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      img.src = e.target.result;
+      img.style.display = 'block';
+      pdfInfo.style.display = 'none';
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+async function lancerAnalysePlan() {
+  var fileInput = document.getElementById('plan-file');
+  var file = fileInput && fileInput.files[0];
+  if (!file) { toast('Uploadez un plan avant de lancer l&#39;analyse', 'error'); return; }
+
+  var typeTravaux = (document.getElementById('plan-travaux') || {value: 'Général'}).value;
+  var notes = (document.getElementById('plan-notes') || {value: ''}).value.trim();
+  var tvaPlan = +(document.getElementById('plan-tva') || {value: 20}).value || 20;
+
+  var btn = document.getElementById('plan-btn');
+  var status = document.getElementById('plan-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analyse en cours...'; }
+  if (status) { status.style.display = 'block'; status.style.background = 'var(--bg-input)'; status.textContent = '📐 Lecture du plan par l&#39;IA...'; }
+
+  var apiKey = (typeof BPS_API_KEY !== 'undefined') ? BPS_API_KEY : '';
+  if (!apiKey || apiKey.includes('REMPLACER')) {
+    toast('Clé API non configurée', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '📐 Calculer les quantitatifs'; }
+    if (status) status.style.display = 'none';
+    return;
+  }
+
+  // Catalogue de prix artisan
+  var catalogue = [];
+  if (typeof D !== 'undefined') {
+    (D.stocks || []).forEach(function(s) {
+      if (s.libelle && s.prix_achat > 0)
+        catalogue.push({ desc: s.libelle, pu: s.prix_achat, unite: s.unite || '' });
+    });
+    var seen = new Set(catalogue.map(function(c) { return c.desc.toLowerCase(); }));
+    (D.materiaux || []).forEach(function(m) {
+      if (m.designation && m.prix_u > 0 && !seen.has(m.designation.toLowerCase())) {
+        seen.add(m.designation.toLowerCase());
+        catalogue.push({ desc: m.designation, pu: m.prix_u, unite: m.unite || '' });
+      }
+    });
+  }
+  var catalogueTxt = catalogue.length > 0
+    ? ' Catalogue artisan : ' + catalogue.slice(0, 30).map(function(c){ return c.desc + '=' + c.pu + 'EUR/' + (c.unite||'u'); }).join(', ') + '.'
+    : '';
+
+  try {
+    // Convertir le fichier en base64
+    var b64 = await new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var result = e.target.result;
+        // result = "data:image/jpeg;base64,XXXXX"
+        resolve(result.split(',')[1]);
+      };
+      reader.onerror = reject;
+      if (file.type === 'application/pdf') {
+        // Pour PDF : convertir en image via canvas avec pdf.js si dispo, sinon envoyer en base64 direct
+        // Claude accepte les PDF en base64 via le type document
+        reader.readAsDataURL(file);
+      } else {
+        reader.readAsDataURL(file);
+      }
+    });
+
+    var mediaType = file.type === 'application/pdf' ? 'application/pdf' : file.type || 'image/jpeg';
+    var isPDF = file.type === 'application/pdf';
+
+    var promptText = 'Tu es un expert métreur BTP. Analyse ce plan de construction et calcule les quantitatifs.'
+      + ' Type de travaux : ' + typeTravaux + '.'
+      + (notes ? ' Précisions : ' + notes + '.' : '')
+      + ' Instructions :'
+      + ' 1) Lis toutes les cotes indiquées sur le plan (dimensions en mètres ou cm).'
+      + ' 2) Identifie chaque pièce ou zone et ses dimensions.'
+      + ' 3) Calcule les surfaces (m²), linéaires (ml) et volumes (m³) selon le type de travaux.'
+      + ' 4) Génère les lignes de devis avec quantités précises.'
+      + catalogueTxt
+      + ' Réponds UNIQUEMENT en JSON sans texte avant/après :'
+      + ' {"pieces": [{"nom": "Salon", "surface": 18.5, "perimetre": 17.4}], "lignes": [{"desc": "Désignation", "qte": 18.5, "u": "m²", "pu": 0}]}'
+      + ' Pour le pu : utilise le catalogue si disponible, sinon prix marché BTP français.'
+      + ' Si le plan manque de cotes lisibles, indique-le dans une ligne desc="AVERTISSEMENT cotes manquantes" qte=0.';
+
+    var contentBlocks = [];
+    if (isPDF) {
+      contentBlocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } });
+    } else {
+      contentBlocks.push({ type: 'image', source: { type: 'base64', media_type: mediaType, data: b64 } });
+    }
+    contentBlocks.push({ type: 'text', text: promptText });
+
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type':      'application/json',
+        'x-api-key':         apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-request-source': 'user-originated',
+        'anthropic-beta':    'pdfs-2024-09-25'
+      },
+      body: JSON.stringify({
+        model:      'claude-opus-4-6',
+        max_tokens: 2000,
+        messages:   [{ role: 'user', content: contentBlocks }]
+      })
+    });
+
+    if (!resp.ok) { throw new Error('HTTP ' + resp.status); }
+    var data = await resp.json();
+    var rawTxt = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : '';
+    rawTxt = rawTxt.replace(/```json|```/g, '').trim();
+
+    var parsed = JSON.parse(rawTxt);
+    var lignes = parsed.lignes || [];
+    if (!lignes.length) throw new Error('Aucune ligne générée');
+
+    // Vérifier avertissement cotes manquantes
+    var avertissement = lignes.find(function(l){ return l.desc && l.desc.indexOf('AVERTISSEMENT') >= 0; });
+
+    // Injecter dans devisLines
+    lignes.filter(function(l){ return l.desc && l.desc.indexOf('AVERTISSEMENT') < 0; }).forEach(function(l) {
+      var qte = +l.qte || 1;
+      var pu  = +l.pu  || 0;
+      devisLines.push({ desc: l.desc || '', qte: qte, u: l.u || '', pu: pu, total: qte * pu });
+    });
+
+    // TVA
+    var dvtva = document.getElementById('dv-tva');
+    if (dvtva) dvtva.value = tvaPlan;
+    var dvtvart = document.getElementById('dv-tva-rate');
+    if (dvtvart) dvtvart.textContent = tvaPlan;
+
+    // Rafraîchir lignes
+    var dvlines = document.getElementById('dv-lines');
+    if (dvlines) {
+      dvlines.innerHTML = '';
+      var tmpLines = devisLines.slice();
+      devisLines = [];
+      tmpLines.forEach(function(l) { if (l) addDevisLine(l); });
+    }
+    setTimeout(calcDevisTotal, 50);
+
+    closeModal();
+
+    var nbLignes = lignes.filter(function(l){ return l.desc && l.desc.indexOf('AVERTISSEMENT') < 0; }).length;
+    var msg = '✅ ' + nbLignes + ' ligne' + (nbLignes > 1 ? 's' : '') + ' créée' + (nbLignes > 1 ? 's' : '') + ' depuis le plan !';
+    if (avertissement) msg += ' ⚠️ Certaines cotes étaient illisibles — vérifiez les quantités.';
+    toast(msg);
+
+    // Afficher résumé des pièces si disponible
+    if (parsed.pieces && parsed.pieces.length) {
+      setTimeout(function() {
+        var resume = parsed.pieces.map(function(p) {
+          return p.nom + ' : ' + (p.surface ? p.surface + 'm²' : '') + (p.perimetre ? ' · ' + p.perimetre + 'ml' : '');
+        }).join(' | ');
+        toast('📐 Pièces détectées : ' + resume, 'info', 6000);
+      }, 1500);
+    }
+
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '📐 Calculer les quantitatifs'; }
+    if (status) {
+      status.style.background = 'var(--danger-soft)';
+      status.textContent = '❌ ' + (e.message || 'Analyse impossible — vérifiez la qualité du plan');
+    }
+    console.error('[IA Plan]', e);
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════
 // ANALYSE DOCUMENT IA — DPGF, CCTP, mail, descriptif
 // Utilise Claude Haiku via BPS_API_KEY (même clé que Bob)
@@ -3647,6 +3896,7 @@ async function saveDevisEdit() {
 // ══════════════════════════════════════════════════════════════════
 
 function modalAnalyseDocument() {
+  if (!checkPlanPro('Analyse de document par IA')) return;
   var body = ''
     + '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(59,130,246,0.08));border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px">'
       + '<strong>🤖 Analyse IA</strong> — Collez ou décrivez votre document (DPGF, CCTP, mail client, descriptif de travaux).<br>'
@@ -3827,7 +4077,8 @@ function modalDevisCreate(chantierId){
   </div>
   <div id="dv-lines"></div>
   <button class="btn btn-secondary btn-sm" onclick="addDevisLine()" style="margin-bottom:16px">+ Ajouter une ligne</button>
-  <button class="btn btn-secondary btn-sm" onclick="modalAnalyseDocument()" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(59,130,246,0.15));border-color:rgba(139,92,246,0.4);color:var(--text)">🤖 Analyser un document (IA)</button>
+  <button class="btn btn-secondary btn-sm" onclick="modalAnalyseDocument()" style="margin-bottom:4px;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(59,130,246,0.15));border-color:rgba(139,92,246,0.4);color:var(--text)">🤖 Analyser un document (IA)</button>
+  <button class="btn btn-secondary btn-sm" onclick="modalAnalysePlan()" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(59,130,246,0.12));border-color:rgba(16,185,129,0.4);color:var(--text)">📐 Analyser un plan — Quantitatifs (IA)</button>
   <div style="font-family:var(--font-display);font-size:13px;font-weight:700;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">💳 Conditions financières</div>
   <div class="form-row form-row-2">
     <div class="form-group">
@@ -5695,6 +5946,25 @@ function checkLimit(resource, currentCount) {
   return false;
 }
 function upgradeToSolo() { openStripe('solo'); }
+
+// Vérifie que le plan est Pro ou Team — sinon affiche une modale d'upgrade
+function checkPlanPro(featureName) {
+  var plan = getPlan();
+  if (plan === 'pro' || plan === 'team') return true;
+  var html = '<div style="text-align:center;padding:8px 0">'
+    + '<div style="font-size:48px;margin-bottom:12px">🤖</div>'
+    + '<p style="font-size:15px;font-weight:600;margin-bottom:8px">' + featureName + '</p>'
+    + '<p style="font-size:13.5px;color:var(--text-muted);margin-bottom:20px;line-height:1.7">'
+    + 'Cette fonctionnalité est disponible à partir du plan <strong>Pro (69€/mois)</strong>.<br>'
+    + 'Analyse de documents, lecture de plans, quantitatifs automatiques.'
+    + '</p>'
+    + '<div style="display:grid;gap:10px">'
+    + '<button class="btn" style="background:var(--accent);color:white;padding:14px" onclick="closeModal();openStripe('pro')">⚡ Passer au plan Pro — 69€/mois</button>'
+    + '<button class="btn btn-ghost" onclick="closeModal()">Continuer sans cette fonction</button>'
+    + '</div></div>';
+  modal('🔒 Fonctionnalité Pro', html, '');
+  return false;
+}
 
 // Affiche un badge plan dans le sidebar
 function renderPlanBadge() {
