@@ -8901,7 +8901,7 @@ async function envoyerRelance(fcId) {
       + '<input id="relance-email" type="email" placeholder="client@exemple.fr"></div>'
       + '<div style="font-size:12px;color:var(--text-muted);margin-top:8px">Cet email sera enregistré sur la fiche client.</div>',
       '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-      + '<button class="btn btn-primary" onclick="envoyerRelanceAvecEmail('' + fcId + '')">📧 Envoyer la relance</button>');
+      + '<button class="btn btn-primary" onclick="envoyerRelanceAvecEmail('" + fcId + "')">📧 Envoyer la relance</button>');
     return;
   }
   await _doEnvoyerRelance(f, emailClient);
