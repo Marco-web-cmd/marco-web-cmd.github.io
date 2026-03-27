@@ -2197,7 +2197,7 @@ let D={
     teams:[],categories:['Matériaux','Consommable','Outillage'],
     accent_color:'#C0622A',
     metrics:JSON.parse(JSON.stringify(DM)),
-    devis_couleur:'#2D3E8C',devis_acompte:30,
+    devis_couleur:'#2D3E8C',devis_acompte:30,seuil_repas:25,relance_delai:30,
     devis_conditions:'Paiement à 30 jours fin de mois.',
     devis_mentions:"Devis valable 30 jours à compter de sa date d'émission.\nTout travail supplémentaire fera l'objet d'un avenant.",
     plan:'gratuit',
@@ -2742,6 +2742,8 @@ function launchApp(){
       if (topbar && topbar.parentNode) topbar.parentNode.insertBefore(banner, topbar);
     }
   }
+  // Vérifier relances automatiques
+  setTimeout(verifierRelancesAuto, 5000);
   // Bulle de présentation Bob — apparaît après 2s, disparaît après 8s
   setTimeout(function(){
     var bubble = document.getElementById('bob-bubble');
@@ -4696,6 +4698,10 @@ function pgSettings(){
       </div>
       <div class="form-group"><label>Mentions légales devis (bas de page)</label><textarea id="s-mentions" style="min-height:70px">${s.devis_mentions||'Devis valable 30 jours à compter de sa date d&#39;émission.'}</textarea></div>
       <div class="form-group"><label>📧 Email de votre comptable <span style="font-weight:400;color:var(--text-muted);font-size:11px">(pour l'envoi des justificatifs)</span></label><input id="email-comptable-input" type="email" value="${s.email_comptable||''}" placeholder="comptable@cabinet.fr"></div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label>🍽️ Seuil repas d'affaires (€) <span style="font-weight:400;color:var(--text-muted);font-size:11px">Au-dessus = repas d'affaires</span></label><input id="s-seuil-repas" type="number" min="0" step="0.01" value="${s.seuil_repas||25}" placeholder="25"></div>
+        <div class="form-group"><label>⏰ Délai relance factures (jours) <span style="font-weight:400;color:var(--text-muted);font-size:11px">Après échéance</span></label><input id="s-relance-delai" type="number" min="1" max="90" value="${s.relance_delai||30}" placeholder="30"></div>
+      </div>
       <button class="btn btn-primary w-full" onclick="saveDevisSettings()">💾 Enregistrer</button>
     </div>
     <div class="card mb-4">
@@ -4762,6 +4768,8 @@ async function saveDevisSettings(){
   D.settings.devis_conditions=($('s-conditions')?$('s-conditions').value.trim():'');
   D.settings.devis_mentions=($('s-mentions')?$('s-mentions').value.trim():'');
   D.settings.email_comptable=($('email-comptable-input')?$('email-comptable-input').value.trim():'');
+  D.settings.seuil_repas=+($('s-seuil-repas')?$('s-seuil-repas').value:25)||25;
+  D.settings.relance_delai=+($('s-relance-delai')?$('s-relance-delai').value:30)||30;
   await saveSetting();
   toast('Paramètres devis sauvegardés !');
 }
@@ -6403,6 +6411,9 @@ function pgRGPD() {
       + '<button class="btn btn-ghost w-full" onclick="exportCSVChantiers()" style="margin-bottom:6px">📊 Chantiers CSV</button>'
       + '<button class="btn btn-ghost w-full" onclick="exportCSVDevis()" style="margin-bottom:6px">📋 Devis CSV</button>'
       + '<button class="btn btn-ghost w-full" onclick="exportCSVFacturesClient()">🧾 Factures CSV</button>'
+      + '<hr style="border:none;border-top:1px solid var(--border);margin:10px 0">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px">📊 EXPORT COMPTABLE PROFESSIONNEL</div>'
+      + '<button class="btn btn-primary w-full" onclick="modalExportComptable()">📊 Export comptable — FEC / Sage / QuickBooks</button>'
     + '</div>'
 
     // ── Politique de confidentialité dynamique (CNIL) ──
@@ -6523,6 +6534,7 @@ function pgFacturation() {
         + '<button class="btn btn-ghost btn-sm" onclick="previewFactureClient(\'' + f.id + '\')" title="Aperçu">👁</button>'
         + '<button class="btn btn-ghost btn-sm" onclick="printFactureClient(\'' + f.id + '\')" title="Imprimer">🖨</button>'
         + (f.statut !== 'Payée' && f.statut !== 'Annulée' ? '<button class="btn btn-ghost btn-sm" onclick="modalReglement(\'' + f.id + '\')" title="Enregistrer règlement">💶</button>' : '')
+        + (retard ? '<button class="btn btn-ghost btn-sm" style="color:var(--warning)" onclick="envoyerRelance(\'' + f.id + '\')" title="Envoyer relance">📨</button>' : '')
         + '<button class="btn btn-ghost btn-sm" onclick="modalFactureClientEdit(\'' + f.id + '\')" title="Modifier">✏️</button>'
         + '<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteFactureClient(\'' + f.id + '\')" title="Supprimer">🗑</button>'
       + '</td>'
@@ -6534,6 +6546,7 @@ function pgFacturation() {
     + '<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">'
       + '<div style="font-family:var(--font-display);font-weight:700">Factures (' + fcs.length + ')</div>'
       + '<button class="btn btn-ghost btn-sm" onclick="exportCSVFacturesClient()">⬇️ CSV</button>'
+      + '<button class="btn btn-ghost btn-sm" onclick="modalExportComptable()">📊 Comptable</button>'
     + '</div>'
     + '<div style="overflow-x:auto"><table><thead><tr>'
       + '<th>N° Facture</th><th>Date</th><th>Client / Chantier</th>'
@@ -8819,10 +8832,314 @@ function _dashQuickLink(page, ico, label, sub) {
 
 
 
+
+// ══════════════════════════════════════════════════════════════════
+// TOGGLE CONVIVES — Affiche le champ "Avec qui" si Repas >= seuil
+// ══════════════════════════════════════════════════════════════════
+function toggleConvives() {
+  var cat     = document.getElementById('jf-cat');
+  var montant = document.getElementById('jf-montant');
+  var wrap    = document.getElementById('jf-convives-wrap');
+  if (!cat || !wrap) return;
+  var seuil   = +(D.settings && D.settings.seuil_repas) || 25;
+  var isRepas = ["Repas", 'Repas d\'affaires'].indexOf(cat.value) >= 0;
+  var montantVal = montant ? +montant.value : 0;
+  wrap.style.display = (isRepas && montantVal >= seuil) ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RELANCES AUTOMATIQUES — vérifie à chaque ouverture de l'app
+// Envoie un email de relance pour les factures en retard
+// selon le délai paramétré dans settings.relance_delai
+// ══════════════════════════════════════════════════════════════════
+async function verifierRelancesAuto() {
+  var fcs = D.factures_client || [];
+  var delai = +(D.settings && D.settings.relance_delai) || 30;
+  var now = new Date();
+  var aRelancer = fcs.filter(function(f) {
+    if (f.statut === 'Payée' || f.statut === 'Annulée') return false;
+    if (!f.echeance) return false;
+    var ech = new Date(f.echeance + 'T12:00:00');
+    var joursRetard = Math.floor((now - ech) / 86400000);
+    // Relancer si retard >= delai ET pas encore relancée aujourd'hui
+    if (joursRetard < delai) return false;
+    var dernRelance = f.derniere_relance ? new Date(f.derniere_relance) : null;
+    if (dernRelance) {
+      var joursDepuisRelance = Math.floor((now - dernRelance) / 86400000);
+      if (joursDepuisRelance < delai) return false; // déjà relancée récemment
+    }
+    return true;
+  });
+
+  if (!aRelancer.length) return;
+
+  // Notifier l'utilisateur
+  setTimeout(function() {
+    var msg = aRelancer.length === 1
+      ? '⏰ 1 facture en attente de relance — voir Facturation'
+      : '⏰ ' + aRelancer.length + ' factures en attente de relance — voir Facturation';
+    toast(msg, 'warning', 6000);
+  }, 3000);
+
+  // Stocker pour affichage dans pgFacturation
+  D._relancesEnAttente = aRelancer;
+}
+
+async function envoyerRelance(fcId) {
+  var f = (D.factures_client || []).find(function(x){ return x.id === fcId; });
+  if (!f) return;
+  var s = D.settings || {};
+  if (!f.client) { toast('Email client manquant sur cette facture', 'error'); return; }
+
+  // Chercher email client
+  var cl = D.clients.find(function(c){ return c.nom === f.client; });
+  var emailClient = cl && cl.email;
+  if (!emailClient) {
+    // Demander l'email
+    modal('📧 Email de relance', ''
+      + '<div class="form-group"><label>Email du client ' + f.client + '</label>'
+      + '<input id="relance-email" type="email" placeholder="client@exemple.fr"></div>'
+      + '<div style="font-size:12px;color:var(--text-muted);margin-top:8px">Cet email sera enregistré sur la fiche client.</div>',
+      '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+      + '<button class="btn btn-primary" onclick="envoyerRelanceAvecEmail('' + fcId + '')">📧 Envoyer la relance</button>');
+    return;
+  }
+  await _doEnvoyerRelance(f, emailClient);
+}
+
+async function envoyerRelanceAvecEmail(fcId) {
+  var email = (document.getElementById('relance-email') || {value:''}).value.trim();
+  if (!email) { toast('Email requis', 'error'); return; }
+  var f = (D.factures_client || []).find(function(x){ return x.id === fcId; });
+  if (!f) return;
+  // Sauvegarder email sur le client
+  var cl = D.clients.find(function(c){ return c.nom === f.client; });
+  if (cl) { cl.email = email; await upsert('clients', cl); }
+  closeModal();
+  await _doEnvoyerRelance(f, email);
+}
+
+async function _doEnvoyerRelance(f, emailDest) {
+  var s = D.settings || {};
+  var ech = f.echeance ? new Date(f.echeance + 'T12:00:00').toLocaleDateString('fr-FR') : '';
+  var joursRetard = f.echeance
+    ? Math.floor((new Date() - new Date(f.echeance + 'T12:00:00')) / 86400000)
+    : 0;
+  var col = s.devis_couleur || '#2D3E8C';
+
+  var html = '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">'
+    + '<div style="background:' + col + ';padding:20px 28px;border-radius:8px 8px 0 0">'
+      + '<div style="color:white;font-size:20px;font-weight:800">' + (s.company || 'BatiPilot') + '</div>'
+    + '</div>'
+    + '<div style="border:1px solid #E5E7EB;border-top:none;padding:28px;border-radius:0 0 8px 8px">'
+      + '<p style="font-size:15px;font-weight:600;margin-bottom:16px">Rappel de paiement — Facture ' + (f.numero||'') + '</p>'
+      + '<p style="color:#374151;line-height:1.7">Bonjour ' + (f.client||'') + ',</p>'
+      + '<p style="color:#374151;line-height:1.7">Sauf erreur de notre part, la facture <strong>' + (f.numero||'') + '</strong> '
+        + 'd&#39;un montant de <strong>' + eur(f.total_ttc) + '</strong>, dont l&#39;échéance était fixée au <strong>' + ech + '</strong>, '
+        + 'demeure impayée à ce jour' + (joursRetard > 0 ? ' (' + joursRetard + ' jour' + (joursRetard>1?'s':'') + ' de retard)' : '') + '.</p>'
+      + '<p style="color:#374151;line-height:1.7">Nous vous remercions de bien vouloir procéder au règlement dans les meilleurs délais.</p>'
+      + '<p style="color:#374151;line-height:1.7">Si vous avez déjà effectué ce paiement, veuillez ignorer ce message et nous en informer.</p>'
+      + '<hr style="border:none;border-top:1px solid #E5E7EB;margin:20px 0">'
+      + '<p style="font-size:12px;color:#888">Bien cordialement,<br><strong>' + (s.company||'') + '</strong>'
+        + (s.phone ? ' — ☎ ' + s.phone : '') + (s.email ? ' — ✉ ' + s.email : '') + '</p>'
+    + '</div></div>';
+
+  showSync();
+  try {
+    var sess = await SB.auth.getSession();
+    var token = sess.data?.session?.access_token || '';
+    var resp = await fetch('https://zewyecoxpmycqdziuqzc.supabase.co/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        to: emailDest,
+        subject: 'Relance — Facture ' + (f.numero||'') + ' — ' + eur(f.total_ttc),
+        html: html
+      })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    // Enregistrer date de relance
+    f.derniere_relance = new Date().toISOString().slice(0,10);
+    f.nb_relances = (f.nb_relances || 0) + 1;
+    await SB.from('factures_client').update({
+      derniere_relance: f.derniere_relance,
+      nb_relances: f.nb_relances
+    }).eq('id', f.id).eq('user_id', USER.id);
+    hideSync();
+    toast('✅ Relance envoyée à ' + emailDest);
+    pgFacturation();
+  } catch(e) {
+    hideSync();
+    toast('Erreur envoi relance : ' + e.message, 'error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// IMPORT CSV BANQUE — Rapprochement avec justificatifs existants
+// ══════════════════════════════════════════════════════════════════
+function modalImportCSVBanque() {
+  var body = ''
+    + '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(59,130,246,0.08));border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px">'
+      + '<strong>🏦 Import relevé bancaire</strong><br>'
+      + '<span style="color:var(--text-muted);font-size:12px">Exportez votre relevé depuis votre banque (CSV) et importez-le ici. BatiPilot rapproche automatiquement les transactions avec vos tickets photo.</span>'
+    + '</div>'
+    + '<div class="form-group">'
+      + '<label>Fichier CSV de votre banque</label>'
+      + '<input type="file" id="csv-bank-file" accept=".csv,.txt,.ofx" style="font-size:13px;padding:8px;border:1px dashed var(--border);border-radius:8px;width:100%;cursor:pointer">'
+    + '</div>'
+    + '<div style="background:var(--bg-input);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text-muted)">'
+      + '<strong>Comment exporter depuis votre banque :</strong><br>'
+      + '• <strong>Boursorama / BNP / LCL / CIC :</strong> Espace client → Mes comptes → Télécharger relevé → Format CSV<br>'
+      + '• <strong>Crédit Agricole :</strong> Mes comptes → Opérations → Exporter → CSV<br>'
+      + '• <strong>Banque Populaire / Caisse d&#39;Épargne :</strong> Compte → Téléchargement → CSV<br>'
+      + '• Format attendu : Date, Libellé, Montant (colonnes séparées par ; ou ,)'
+    + '</div>'
+    + '<div class="form-group">'
+      + '<label>Séparateur CSV</label>'
+      + '<select id="csv-sep" style="width:auto">'
+        + '<option value=";">Point-virgule ; (France)</option>'
+        + '<option value=",">Virgule , (international)</option>'
+        + '<option value="	">Tabulation</option>'
+      + '</select>'
+    + '</div>'
+    + '<div id="csv-preview" style="display:none;margin-top:8px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px">Aperçu (5 premières lignes) :</div>'
+      + '<div id="csv-preview-content" style="font-size:11px;font-family:monospace;background:var(--bg-input);padding:8px;border-radius:6px;overflow-x:auto;white-space:pre"></div>'
+    + '</div>'
+    + '<div id="csv-status" style="display:none;margin-top:8px;padding:10px;border-radius:8px;font-size:13px"></div>';
+
+  modal('🏦 Import relevé bancaire', body,
+    '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
+    + '<button class="btn btn-secondary" onclick="previewCSVBanque()">👁 Aperçu</button>'
+    + '<button class="btn btn-primary" id="csv-import-btn" onclick="importerCSVBanque()">📥 Importer et rapprocher</button>',
+    true);
+}
+
+function previewCSVBanque() {
+  var file = (document.getElementById('csv-bank-file') || {}).files;
+  if (!file || !file[0]) { toast('Sélectionnez un fichier CSV', 'error'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var lines = e.target.result.split('
+').slice(0, 6);
+    var preview = document.getElementById('csv-preview');
+    var content = document.getElementById('csv-preview-content');
+    if (preview) preview.style.display = 'block';
+    if (content) content.textContent = lines.join('
+');
+  };
+  reader.readAsText(file[0], 'UTF-8');
+}
+
+async function importerCSVBanque() {
+  var file = (document.getElementById('csv-bank-file') || {}).files;
+  if (!file || !file[0]) { toast('Sélectionnez un fichier CSV', 'error'); return; }
+  var sep = (document.getElementById('csv-sep') || {value: ';'}).value;
+  var status = document.getElementById('csv-status');
+  var btn = document.getElementById('csv-import-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Import en cours...'; }
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var lines = e.target.result.split('
+').filter(function(l){ return l.trim(); });
+      var transactions = [];
+      // Détecter en-tête et parser
+      lines.forEach(function(line, idx) {
+        var cols = line.split(sep).map(function(c){ return c.replace(/^"|"$/g,'').trim(); });
+        // Chercher date, libellé, montant dans les colonnes
+        var date = null, libelle = '', montant = 0;
+        cols.forEach(function(col) {
+          // Date : format JJ/MM/AAAA ou AAAA-MM-JJ
+          if (!date && /^\d{2}[\/\-]\d{2}[\/\-]\d{4}/.test(col)) {
+            var parts = col.split(/[\/\-]/);
+            if (col.includes('/')) date = parts[2] + '-' + parts[1] + '-' + parts[0];
+            else date = col.slice(0,10);
+          }
+          // Montant : nombre négatif = débit
+          var num = parseFloat(col.replace(',','.').replace(/\s/g,''));
+          if (!isNaN(num) && num !== 0 && Math.abs(num) > 0.5) montant = num;
+          // Libellé : colonne texte la plus longue
+          if (col.length > libelle.length && isNaN(parseFloat(col.replace(',','.')))) libelle = col;
+        });
+        if (date && libelle && montant < 0) { // débits uniquement
+          transactions.push({ date: date, libelle: libelle, montant: Math.abs(montant) });
+        }
+      });
+
+      if (!transactions.length) {
+        if (status) { status.style.display='block'; status.style.background='var(--danger-soft)'; status.textContent='❌ Aucune transaction détectée — vérifiez le séparateur'; }
+        if (btn) { btn.disabled=false; btn.textContent='📥 Importer et rapprocher'; }
+        return;
+      }
+
+      // Rapprochement avec justificatifs existants
+      var justs = D.justificatifs || [];
+      var rapproches = 0, nonRapproches = [];
+
+      transactions.forEach(function(tx) {
+        // Chercher justificatif avec même montant (±0.10€) et date proche (±3j)
+        var txDate = new Date(tx.date);
+        var match = justs.find(function(j) {
+          if (j.tx_rapproche) return false; // déjà rapproché
+          var diff = Math.abs((+j.montant||0) - tx.montant);
+          if (diff > 0.10) return false;
+          var jDate = new Date(j.date);
+          var diffJ = Math.abs((txDate - jDate) / 86400000);
+          return diffJ <= 3;
+        });
+        if (match) {
+          match.tx_rapproche = true;
+          match.tx_libelle = tx.libelle;
+          match.tx_date = tx.date;
+          rapproches++;
+        } else {
+          nonRapproches.push(tx);
+        }
+      });
+
+      // Ajouter les non rapprochés comme justificatifs "À classifier"
+      nonRapproches.forEach(function(tx) {
+        D.justificatifs = D.justificatifs || [];
+        D.justificatifs.push({
+          id: Date.now() + Math.random(),
+          fournisseur: tx.libelle.substring(0, 40),
+          montant: tx.montant,
+          date: tx.date,
+          categorie: 'À classifier',
+          note: 'Importé depuis relevé bancaire',
+          envoye: false,
+          tx_rapproche: false,
+          created_at: new Date().toISOString()
+        });
+      });
+
+      // Sauvegarder
+      saveJustificatifs();
+
+      if (status) {
+        status.style.display = 'block';
+        status.style.background = 'var(--success-soft)';
+        status.textContent = '✅ ' + transactions.length + ' transactions importées — '
+          + rapproches + ' rapprochées avec vos tickets, '
+          + nonRapproches.length + ' à classifier.';
+      }
+      if (btn) { btn.disabled=false; btn.textContent='📥 Importer et rapprocher'; }
+      setTimeout(function() { closeModal(); pgJustificatifs(); }, 2000);
+
+    } catch(err) {
+      if (status) { status.style.display='block'; status.style.background='var(--danger-soft)'; status.textContent='❌ Erreur : ' + err.message; }
+      if (btn) { btn.disabled=false; btn.textContent='📥 Importer et rapprocher'; }
+    }
+  };
+  reader.readAsText(file[0], 'UTF-8');
+}
+
 function pgJustificatifs() {
   var justs = D.justificatifs || [];
   var s = D.settings || {};
-  var cats = ['Matériaux','Carburant','Repas','Outillage','Sous-traitance','Déplacement','Autre'];
+  var cats = ['Matériaux','Carburant','Repas',Repas d'affaires"','Outillage','Sous-traitance','Déplacement','Autre'];
   var now = new Date();
   var moisCourant = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
   var justs_mois = justs.filter(function(j){ return j.date && j.date.startsWith(moisCourant); });
@@ -8833,7 +9150,10 @@ function pgJustificatifs() {
     : justs.slice().reverse().map(function(j, i) {
         var idx = justs.length - 1 - i;
         var statusColor = j.envoye ? 'var(--success)' : 'var(--warning)';
-        var statusLabel = j.envoye ? '&#x2705; Envoyé' : '&#x23F3; À envoyer';
+        var statusLabel = j.tx_rapproche
+          ? '🏦 Rapproché banque'
+          : (j.envoye ? '&#x2705; Envoyé' : '&#x23F3; À envoyer');
+        var statusColor = j.tx_rapproche ? 'var(--accent)' : statusColor;
         return '<div class="card mb-2" style="display:flex;align-items:center;gap:12px;padding:14px">'
           + '<div style="font-size:28px;flex-shrink:0">🧾</div>'
           + '<div style="flex:1;min-width:0">'
@@ -8864,13 +9184,14 @@ function pgJustificatifs() {
     + '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;font-weight:600">Ce mois-ci: <strong>' + eur(total_mois) + '</strong> sur ' + justs_mois.length + ' justificatif(s)</div>'
     + '<div class="form-row form-row-2" id="justif-form">'
     + '<div class="form-group"><label>Fournisseur *</label><input id="jf-fourn" placeholder="Leroy Merlin, Point P..."></div>'
-    + '<div class="form-group"><label>Montant TTC (€) *</label><input id="jf-montant" type="number" min="0.01" step="0.01" placeholder="0.00"></div>'
+    + '<div class="form-group"><label>Montant TTC (€) *</label><input id="jf-montant" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="toggleConvives()"></div>'
     + '</div>'
     + '<div class="form-row form-row-2">'
     + '<div class="form-group"><label>Date</label><input id="jf-date" type="date" value="' + today() + '"></div>'
-    + '<div class="form-group"><label>Catégorie</label><select id="jf-cat">' + cats.map(function(c){ return '<option>' + c + '</option>'; }).join('') + '</select></div>'
+    + '<div class="form-group"><label>Catégorie</label><select id="jf-cat" onchange="toggleConvives()" >' + cats.map(function(c){ return '<option>' + c + '</option>'; }).join('') + '</select></div>'
     + '</div>'
     + '<div class="form-group"><label>Note</label><input id="jf-note" placeholder="Description..."></div>'
+    + '<div class="form-group" id="jf-convives-wrap" style="display:none"><label>🍽️ Repas d&#39;affaires — Avec qui ?</label><input id="jf-convives" placeholder="Ex: Jean Martin (client), Marie Dupont (partenaire)..."></div>'
     + '<div class="form-group"><label>Photo du ticket (OCR auto)</label>'
     + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
     + '<input type="file" id="jf-photo" accept="image/*" capture="environment" style="font-size:13px">'
@@ -8882,6 +9203,8 @@ function pgJustificatifs() {
     + '<button class="btn btn-primary" id="btn-add-justif" onclick="addJustif()">+ Ajouter</button>'
     + (s.email_comptable ? '<button class="btn btn-secondary" onclick="envoyerComptable()">📧 Envoyer au comptable</button>' : '')
     + '<button class="btn btn-ghost" onclick="exportJustifCSV()">📊 Export CSV</button>'
+    + '<button class="btn btn-ghost" onclick="modalExportComptable()">📊 Export comptable</button>'
+    + '<button class="btn btn-ghost" onclick="modalImportCSVBanque()">🏦 Import relevé banque</button>'
     + '</div>'
     + '</div>'
     + '<div id="justif-list">' + listHTML + '</div>';
@@ -8898,6 +9221,14 @@ function addJustif() {
   if (!fourn)              { toast('Renseignez le fournisseur'); return; }
   if (!montant || montant <= 0) { toast('Montant invalide');    return; }
   if (!D.justificatifs) D.justificatifs = [];
+  // Détection automatique repas d'affaires selon seuil paramétré
+  var seuilRepas = +(D.settings && D.settings.seuil_repas) || 25;
+  if (cat === 'Repas' && montant >= seuilRepas) {
+    cat = 'Repas d&#39;affaires';
+    // Demander les convives si pas déjà dans la note
+    var convives = document.getElementById('jf-convives') ? document.getElementById('jf-convives').value.trim() : '';
+    if (convives) note = note ? note + ' — Avec : ' + convives : 'Avec : ' + convives;
+  }
   D.justificatifs.push({ id:Date.now(), fournisseur:fourn, montant:montant, date:date, categorie:cat, note:note, envoye:false, created_at:new Date().toISOString() });
   saveJustificatifs();
   toast('Justificatif ajouté !');
@@ -9024,6 +9355,270 @@ function exportJustifCSV() {
   a.download = 'justificatifs_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+// EXPORTS COMPTABLES — FEC, Sage/EBP, QuickBooks
+// FEC = Fichier des Écritures Comptables (norme DGFiP obligatoire)
+// ══════════════════════════════════════════════════════════════════
+
+function modalExportComptable() {
+  var s = D.settings || {};
+  var body = ''
+    + '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(59,130,246,0.08));border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px">'
+      + '<strong>📊 Export comptable professionnel</strong><br>'
+      + '<span style="color:var(--text-muted);font-size:12px">Formats compatibles avec tous les logiciels de comptabilité. À envoyer directement à votre comptable.</span>'
+    + '</div>'
+    + '<div style="display:grid;gap:10px">'
+
+      // FEC
+      + '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px">'
+        + '<div style="font-weight:700;font-size:14px;margin-bottom:4px">📋 FEC — Fichier des Écritures Comptables</div>'
+        + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Format officiel DGFiP — Importable dans <strong>tous</strong> les logiciels comptables. Requis en cas de contrôle fiscal.</div>'
+        + '<button class="btn btn-primary w-full" onclick="exportFEC()">⬇️ Exporter FEC (.txt)</button>'
+      + '</div>'
+
+      // Sage / EBP
+      + '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px">'
+        + '<div style="font-weight:700;font-size:14px;margin-bottom:4px">🔵 Sage / EBP / Cegid</div>'
+        + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Format CSV compatible Sage 50, EBP Comptabilité, Cegid. Le plus utilisé par les experts-comptables français.</div>'
+        + '<button class="btn btn-secondary w-full" onclick="exportSage()">⬇️ Exporter Sage/EBP (.csv)</button>'
+      + '</div>'
+
+      // QuickBooks / format international
+      + '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px">'
+        + '<div style="font-weight:700;font-size:14px;margin-bottom:4px">🟢 QuickBooks / Format universel</div>'
+        + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Compatible QuickBooks, Pennylane, Indy, Axonaut et tous les outils SaaS comptables.</div>'
+        + '<button class="btn btn-secondary w-full" onclick="exportQuickBooks()">⬇️ Exporter QuickBooks (.csv)</button>'
+      + '</div>'
+
+    + '</div>'
+    + '<div style="margin-top:14px;font-size:12px;color:var(--text-muted);padding:10px;background:var(--bg-input);border-radius:8px">'
+      + '💡 <strong>Conseil :</strong> envoyez le fichier FEC à votre comptable — il contient toutes vos factures clients et fournisseurs avec les numéros de compte appropriés.'
+    + '</div>';
+
+  modal('📊 Export comptable', body,
+    '<button class="btn btn-secondary" onclick="closeModal()">Fermer</button>',
+    true);
+}
+
+// ── FEC : Fichier des Écritures Comptables (norme DGFiP) ──────────
+function exportFEC() {
+  var s = D.settings || {};
+  var siren = (s.siret || '').replace(/\s/g, '').substring(0, 9) || '000000000';
+  var exercice = new Date().getFullYear();
+  var sep = '\t'; // FEC utilise la tabulation
+  var NL = '\r\n';
+
+  // En-tête FEC obligatoire
+  var cols = ['JournalCode','JournalLib','EcritureNum','EcritureDate','CompteNum',
+    'CompteLib','CompAuxNum','CompAuxLib','PieceRef','PieceDate','EcritureLib',
+    'Debit','Credit','EcritureLet','DateLet','ValidDate','Montantdevise','Idevise'];
+  var rows = [cols.join(sep)];
+
+  var numEcriture = 1;
+  function fecDate(d) {
+    if (!d) return '';
+    return d.replace(/-/g, '');
+  }
+  function fecMontant(v) {
+    return parseFloat(v || 0).toFixed(2).replace('.', ',');
+  }
+
+  // Journal VT — Ventes (factures clients)
+  (D.factures_client || []).forEach(function(f) {
+    if (f.statut === 'Annulée') return;
+    var num = String(numEcriture++).padStart(8, '0');
+    var dateEcr = fecDate(f.date);
+    var ht  = parseFloat(f.total_ht  || 0);
+    var tva = parseFloat(f.total_tva || 0);
+    var ttc = parseFloat(f.total_ttc || 0);
+    var client = (f.client || 'CLIENT').substring(0, 17).toUpperCase();
+
+    // Ligne client (débit 411)
+    rows.push([
+      'VT','Ventes',num,dateEcr,
+      '411',client,
+      f.id.substring(0,17),'CLIENT ' + (f.client||'').substring(0,10).toUpperCase(),
+      f.numero||num, dateEcr,
+      'Facture ' + (f.numero||''),
+      fecMontant(ttc), '0,00',
+      '','','',fecMontant(ttc),'EUR'
+    ].join(sep));
+
+    // Ligne vente HT (crédit 706)
+    rows.push([
+      'VT','Ventes',num,dateEcr,
+      '706','Prestations de services',
+      '','',
+      f.numero||num, dateEcr,
+      'Facture ' + (f.numero||''),
+      '0,00', fecMontant(ht),
+      '','','','0,00','EUR'
+    ].join(sep));
+
+    // Ligne TVA collectée (crédit 44571)
+    if (tva > 0) {
+      rows.push([
+        'VT','Ventes',num,dateEcr,
+        '44571','TVA collectée',
+        '','',
+        f.numero||num, dateEcr,
+        'TVA Facture ' + (f.numero||''),
+        '0,00', fecMontant(tva),
+        '','','','0,00','EUR'
+      ].join(sep));
+    }
+  });
+
+  // Journal AC — Achats (justificatifs / dépenses)
+  (D.justificatifs || []).forEach(function(j) {
+    var num = String(numEcriture++).padStart(8, '0');
+    var dateEcr = fecDate(j.date);
+    var montant = parseFloat(j.montant || 0);
+    // Compte selon catégorie
+    var cpteAchat = {
+      'Materiaux': '601', 'Matériaux': '601',
+      'Carburant': '60622', 'Outillage': '6063',
+      'Sous-traitance': '604', 'Déplacement': '6251',
+      'Repas': '6257', 'Repas d\'affaires': '6257',
+      'Autre': '628'
+    }[j.categorie] || '628';
+    var libelleAchat = {
+      '601':'Achats matériaux','60622':'Carburant','6063':'Petit outillage',
+      '604':'Sous-traitance','6251':'Déplacements','6257':'Repas professionnels',
+      '628':'Autres charges'
+    }[cpteAchat] || 'Charges diverses';
+
+    // Débit charge
+    rows.push([
+      'AC','Achats',num,dateEcr,
+      cpteAchat, libelleAchat,
+      '','',
+      'TKT-'+j.id, dateEcr,
+      (j.fournisseur||'Achat').substring(0,32),
+      fecMontant(montant), '0,00',
+      '','','','0,00','EUR'
+    ].join(sep));
+
+    // Crédit fournisseur 401
+    rows.push([
+      'AC','Achats',num,dateEcr,
+      '401','Fournisseurs',
+      '','',
+      'TKT-'+j.id, dateEcr,
+      (j.fournisseur||'Achat').substring(0,32),
+      '0,00', fecMontant(montant),
+      '','','','0,00','EUR'
+    ].join(sep));
+  });
+
+  var content = rows.join(NL) + NL;
+  var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = siren + 'FEC' + exercice + '.txt';
+  a.click();
+  toast('✅ FEC exporté — ' + (rows.length - 1) + ' écritures');
+  closeModal();
+}
+
+// ── SAGE / EBP / CEGID ─────────────────────────────────────────────
+function exportSage() {
+  var s = D.settings || {};
+  var sep = ';';
+  var NL = '\r\n';
+
+  var cols = ['Type','Journal','Date','Numero','Compte','Libelle','Debit','Credit','Reference','Analytique'];
+  var rows = [cols.join(sep)];
+
+  function sageDate(d) {
+    if (!d) return '';
+    var p = d.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function sageMt(v) { return parseFloat(v||0).toFixed(2).replace('.',','); }
+
+  // Ventes
+  (D.factures_client || []).forEach(function(f) {
+    if (f.statut === 'Annulée') return;
+    var date = sageDate(f.date);
+    var ref = f.numero || '';
+    rows.push(['G','VT',date,ref,'411000','Client ' + (f.client||'').substring(0,20),sageMt(f.total_ttc),'0,00',ref,''].join(sep));
+    rows.push(['G','VT',date,ref,'706000','Prestations services','0,00',sageMt(f.total_ht),ref,''].join(sep));
+    if (+f.total_tva > 0)
+      rows.push(['G','VT',date,ref,'445710','TVA collectée','0,00',sageMt(f.total_tva),ref,''].join(sep));
+  });
+
+  // Achats / justificatifs
+  (D.justificatifs || []).forEach(function(j) {
+    var date = sageDate(j.date);
+    var ref = 'TKT-' + j.id;
+    var cpte = {'Matériaux':'601000','Materiaux':'601000','Carburant':'606220',
+      'Outillage':'606300','Sous-traitance':'604000','Déplacement':'625100',
+      'Repas':'625700','Repas d\'affaires':'625700','Autre':'628000'}[j.categorie] || '628000';
+    rows.push(['G','AC',date,ref,cpte,(j.fournisseur||'').substring(0,30),sageMt(j.montant),'0,00',ref,''].join(sep));
+    rows.push(['G','AC',date,ref,'401000','Fournisseurs','0,00',sageMt(j.montant),ref,''].join(sep));
+  });
+
+  var content = '\uFEFF' + rows.join(NL) + NL;
+  var blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'export_sage_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('✅ Export Sage/EBP — ' + (rows.length - 1) + ' lignes');
+  closeModal();
+}
+
+// ── QUICKBOOKS / FORMAT UNIVERSEL ─────────────────────────────────
+function exportQuickBooks() {
+  var sep = ',';
+  var NL = '\r\n';
+
+  var cols = ['Date','Type','Numero','Client_Fournisseur','Description','HT','TVA','TTC','Compte','Statut'];
+  var rows = [cols.join(sep)];
+
+  function qbDate(d) { return d || ''; }
+  function qbVal(v) { return parseFloat(v||0).toFixed(2); }
+  function qbStr(s) { return '"' + String(s||'').replace(/"/g,'""') + '"'; }
+
+  // Ventes
+  (D.factures_client || []).forEach(function(f) {
+    if (f.statut === 'Annulée') return;
+    rows.push([
+      qbDate(f.date), qbStr('Facture client'), qbStr(f.numero||''),
+      qbStr(f.client||''), qbStr(f.objet||'Prestations'),
+      qbVal(f.total_ht), qbVal(f.total_tva), qbVal(f.total_ttc),
+      '706000', qbStr(f.statut||'')
+    ].join(sep));
+  });
+
+  // Achats
+  (D.justificatifs || []).forEach(function(j) {
+    var cpte = {'Matériaux':'601000','Materiaux':'601000','Carburant':'606220',
+      'Outillage':'606300','Sous-traitance':'604000','Déplacement':'625100',
+      'Repas':'625700','Repas d\'affaires':'625700','Autre':'628000'}[j.categorie]||'628000';
+    var tva = parseFloat(j.montant||0) / 1.2 * 0.2;
+    var ht  = parseFloat(j.montant||0) - tva;
+    rows.push([
+      qbDate(j.date), qbStr('Achat / Dépense'), qbStr('TKT-'+j.id),
+      qbStr(j.fournisseur||''), qbStr(j.categorie||''),
+      qbVal(ht), qbVal(tva), qbVal(j.montant||0),
+      cpte, qbStr('Comptabilisé')
+    ].join(sep));
+  });
+
+  var content = '\uFEFF' + rows.join(NL) + NL;
+  var blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'export_quickbooks_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('✅ Export QuickBooks — ' + (rows.length - 1) + ' lignes');
+  closeModal();
+}
+
 
 async function ocrTicket() {
   var fileInput = document.getElementById('jf-photo');
