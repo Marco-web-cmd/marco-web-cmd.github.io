@@ -9137,7 +9137,7 @@ async function importerCSVBanque() {
 function pgJustificatifs() {
   var justs = D.justificatifs || [];
   var s = D.settings || {};
-  var cats = ['Matériaux','Carburant','Repas',Repas d'affaires"','Outillage','Sous-traitance','Déplacement','Autre'];
+  var cats = ['Matériaux','Carburant','Repas','Repas d\'affaires','Outillage','Sous-traitance','Déplacement','Autre'];
   var now = new Date();
   var moisCourant = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
   var justs_mois = justs.filter(function(j){ return j.date && j.date.startsWith(moisCourant); });
