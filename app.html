@@ -8896,12 +8896,13 @@ async function envoyerRelance(fcId) {
   var emailClient = cl && cl.email;
   if (!emailClient) {
     // Demander l'email
+    window._relanceFcId = fcId;
     modal('📧 Email de relance', ''
       + '<div class="form-group"><label>Email du client ' + f.client + '</label>'
       + '<input id="relance-email" type="email" placeholder="client@exemple.fr"></div>'
       + '<div style="font-size:12px;color:var(--text-muted);margin-top:8px">Cet email sera enregistré sur la fiche client.</div>',
       '<button class="btn btn-secondary" onclick="closeModal()">Annuler</button>'
-      + '<button class="btn btn-primary" onclick="envoyerRelanceAvecEmail('" + fcId + "')">📧 Envoyer la relance</button>');
+      + '<button class="btn btn-primary" onclick="envoyerRelanceAvecEmail(window._relanceFcId)">📧 Envoyer la relance</button>');
     return;
   }
   await _doEnvoyerRelance(f, emailClient);
