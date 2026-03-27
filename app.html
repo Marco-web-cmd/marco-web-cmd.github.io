@@ -9021,13 +9021,11 @@ function previewCSVBanque() {
   if (!file || !file[0]) { toast('Sélectionnez un fichier CSV', 'error'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
-    var lines = e.target.result.split('
-').slice(0, 6);
+    var lines = e.target.result.split('\n').slice(0, 6);
     var preview = document.getElementById('csv-preview');
     var content = document.getElementById('csv-preview-content');
     if (preview) preview.style.display = 'block';
-    if (content) content.textContent = lines.join('
-');
+    if (content) content.textContent = lines.join('\n');
   };
   reader.readAsText(file[0], 'UTF-8');
 }
@@ -9043,8 +9041,7 @@ async function importerCSVBanque() {
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
-      var lines = e.target.result.split('
-').filter(function(l){ return l.trim(); });
+      var lines = e.target.result.split('\n').filter(function(l){ return l.trim(); });
       var transactions = [];
       // Détecter en-tête et parser
       lines.forEach(function(line, idx) {
